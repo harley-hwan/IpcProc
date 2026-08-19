@@ -5,12 +5,20 @@
 *.aps
 *.opendb
 *.db
+*.VC.db
+*.VC.opendb
 
 # 빌드 산출물
 build/
 x64/
-x86/
 [Dd]ebug/
 [Rr]elease/
 [Bb]in/
 [Oo]bj/
+ipch/
+*.tlog/
+
+# MIDL 생성물 (IpcUI.idl -> 빌드 때마다 $(IntDir) 에 재생성)
+IpcUI_h.h
+IpcUI_i.c
+*.tlb

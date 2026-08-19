@@ -18,6 +18,7 @@
 IMPLEMENT_DYNCREATE(CIpcUIDlgAutoProxy, CCmdTarget)
 
 CIpcUIDlgAutoProxy::CIpcUIDlgAutoProxy()
+	: m_pDialog(nullptr)		// 아래 조건이 모두 실패하면 소멸자가 미초기화 포인터를 만지게 되므로 반드시 초기화
 {
 	EnableAutomation();
 

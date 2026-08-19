@@ -1,0 +1,24 @@
+# 기본 : 텍스트 자동 판별
+* text=auto
+
+# Visual Studio 가 CRLF 로 저장하는 파일들 - diff 가 통째로 뜨지 않도록 고정
+*.sln           text eol=crlf
+*.vcxproj       text eol=crlf
+*.filters       text eol=crlf
+*.props         text eol=crlf
+*.targets       text eol=crlf
+
+# 리소스 스크립트는 UTF-16LE 라 git 이 바이너리로 다뤄야 안전하다
+*.rc            -text
+*.rc2           -text
+
+# 소스는 LF 로 통일 (VS2022 는 LF 파일도 그대로 유지한다)
+*.c             text eol=lf
+*.h             text eol=lf
+*.cpp           text eol=lf
+*.idl           text eol=lf
+*.md            text eol=lf
+
+# 바이너리
+*.ico           binary
+*.png           binary

@@ -18,9 +18,30 @@
     <ClInclude Include="IpcCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IpcCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IpcThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IpcMsgQ.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IpcSocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IpcCore.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IpcThread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IpcMsgQ.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IpcSocket.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

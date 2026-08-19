@@ -1,21 +1,10 @@
-#pragma once
+ï»¿/* IpcCore.h : IpcCore DLL ê³µê°œ í—¤ë” */
+#ifndef IPCCORE_H_
+#define IPCCORE_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "IpcCommon.h"
+#include "IpcThread.h"
+#include "IpcMsgQ.h"
+#include "IpcSocket.h"
 
-	/* IPCCORE_EXPORTS is defined only when building the DLL itself.
-	   Inside the DLL  -> dllexport (³»º¸³»±â)
-	   Outside the DLL -> dllimport (°¡Á®¿À±â) */
-#ifdef IPCCORE_EXPORTS
-#define IPCCORE_API __declspec(dllexport)
-#else
-#define IPCCORE_API __declspec(dllimport)
-#endif
-
-	   /* smoke test only - will be removed */
-	IPCCORE_API int __cdecl f_IpcPing(void);
-
-#ifdef __cplusplus
-}
-#endif
+#endif /* IPCCORE_H_ */

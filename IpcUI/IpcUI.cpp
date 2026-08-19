@@ -1,4 +1,4 @@
-
+﻿
 // IpcUI.cpp : Defines the class behaviors for the application.
 //
 
@@ -22,11 +22,12 @@ END_MESSAGE_MAP()
 // CIpcUIApp construction
 
 CIpcUIApp::CIpcUIApp()
+	: m_nAutoPort(0)
+	, m_bAutoNbo(FALSE)
 {
 	// support Restart Manager
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 
-	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 }
 
@@ -39,6 +40,31 @@ const GUID CDECL BASED_CODE _tlid =
 		{0x81f8dbda,0x31e0,0x402d,{0xbe,0x98,0x11,0xee,0x58,0xa4,0xdd,0xa9}};
 const WORD _wVerMajor = 1;
 const WORD _wVerMinor = 0;
+
+
+// 명령행에서 /peer: /name: /ip: /port: /nbo 를 읽는다.
+// MFC 의 CCommandLineInfo 는 모르는 플래그를 무시하므로 자동화 스위치와 충돌하지 않는다.
+void CIpcUIApp::ParseIpcArguments()
+{
+	CString	strCmdLine(m_lpCmdLine);
+	int		nPos = 0;
+
+	for (CString strToken = strCmdLine.Tokenize(_T(" \t"), nPos);
+		 !strToken.IsEmpty();
+		 strToken = strCmdLine.Tokenize(_T(" \t"), nPos))
+	{
+		if (strToken.Left(6).CompareNoCase(_T("/peer:")) == 0)
+			m_strAutoRole = strToken.Mid(6);
+		else if (strToken.Left(6).CompareNoCase(_T("/name:")) == 0)
+			m_strAutoQueue = strToken.Mid(6);
+		else if (strToken.Left(4).CompareNoCase(_T("/ip:")) == 0)
+			m_strAutoIp = strToken.Mid(4);
+		else if (strToken.Left(6).CompareNoCase(_T("/port:")) == 0)
+			m_nAutoPort = static_cast<UINT>(_ttoi(strToken.Mid(6)));
+		else if (strToken.CompareNoCase(_T("/nbo")) == 0)
+			m_bAutoNbo = TRUE;
+	}
+}
 
 
 // CIpcUIApp initialization
@@ -71,21 +97,15 @@ BOOL CIpcUIApp::InitInstance()
 		return FALSE;
 	}
 
-	// Create the shell manager, in case the dialog contains
-	// any shell tree view or shell list view controls.
-	CShellManager *pShellManager = new CShellManager;
-
 	// Activate "Windows Native" visual manager for enabling themes in MFC controls
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
-	// Standard initialization
-	// If you are not using these features and wish to reduce the size
-	// of your final executable, you should remove from the following
-	// the specific initialization routines you do not need
 	// Change the registry key under which our settings are stored
-	// TODO: You should modify this string to be something appropriate
-	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("IpcProc"));
+
+	// 우리 확장 명령행 인자(/peer: 등)를 먼저 읽는다
+	ParseIpcArguments();
+
 	// Parse command line for automation or reg/unreg switches.
 	CCommandLineInfo cmdInfo;
 	ParseCommandLine(cmdInfo);
@@ -105,34 +125,44 @@ BOOL CIpcUIApp::InitInstance()
 		AfxOleUnregisterTypeLib(_tlid, _wVerMajor, _wVerMinor);
 		return FALSE;
 	}
-	// App was launched standalone or with other switches (e.g. /Register
-	// or /Regserver).  Update registry entries, including typelibrary.
-	else
+	// /Register, /Regserver 로 "명시적으로" 실행했을 때만 레지스트리에 기록한다.
+	//
+	// 마법사가 만든 원래 코드는 그냥 실행할 때마다 여기를 타면서
+	// HKEY_CLASSES_ROOT 에 쓰려고 하는데, HKCR 쓰기는 관리자 권한이 필요하므로
+	// 일반 사용자로 실행하면 매번 조용히 실패한다.
+	// 이 프로그램의 IPC 데모는 COM 자동화를 쓰지 않으므로 등록 자체가 필요 없다.
+	// (자동화 서버로 쓰려면 관리자 권한 명령 프롬프트에서 IpcUI.exe /Regserver 를 한 번 실행)
+	else if (cmdInfo.m_nShellCommand == CCommandLineInfo::AppRegister)
 	{
 		COleObjectFactory::UpdateRegistryAll();
 		AfxOleRegisterTypeLib(AfxGetInstanceHandle(), _tlid);
-		if (cmdInfo.m_nShellCommand == CCommandLineInfo::AppRegister)
-			return FALSE;
+		return FALSE;
 	}
+
+	// Create the shell manager, in case the dialog contains
+	// any shell tree view or shell list view controls.
+	// (등록 전용 실행 경로에서 새지 않도록 위의 조기 return 뒤에서 생성한다)
+	CShellManager *pShellManager = new CShellManager;
 
 	CIpcUIDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with OK
+		// 대화상자가 OK 로 닫힌 경우
 	}
 	else if (nResponse == IDCANCEL)
 	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with Cancel
+		// 대화상자가 Cancel 로 닫힌 경우
 	}
 	else if (nResponse == -1)
 	{
 		TRACE(traceAppMsg, 0, "Warning: dialog creation failed, so application is terminating unexpectedly.\n");
 		TRACE(traceAppMsg, 0, "Warning: if you are using MFC controls on the dialog, you cannot #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS.\n");
 	}
+
+	// 지역 객체를 가리키던 포인터를 남겨두지 않는다
+	m_pMainWnd = nullptr;
 
 	// Delete the shell manager created above.
 	if (pShellManager != nullptr)
