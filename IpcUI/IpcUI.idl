@@ -1,0 +1,29 @@
+// IpcUI.idl : type library source for IpcUI.exe
+
+// This file will be processed by the MIDL compiler to produce the
+// type library (IpcUI.tlb).
+
+[ uuid(81f8dbda-31e0-402d-be98-11ee58a4dda9), version(1.0) ]
+library IpcUI
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	//  Primary dispatch interface for CIpcUIDoc
+
+	[ uuid(f692bc46-a7b5-4bdb-add5-df7c685a77f1) ]
+	dispinterface IIpcUI
+	{
+		properties:
+
+		methods:
+	};
+
+	//  Class information for CIpcUIDoc
+
+	[ uuid(cddd0ec2-cb6c-47ea-bb51-44dca6eaae8c) ]
+	coclass IpcUI
+	{
+		[default] dispinterface IIpcUI;
+	};
+};
