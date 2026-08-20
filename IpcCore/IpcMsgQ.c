@@ -17,20 +17,20 @@
 
 #include "IpcCore.h"
 
-#define IPC_MSGQ_MAGIC          0x51435049U         /* 'IPCQ' */
+#define IPC_MSGQ_MAGIC          0x51435049U         // 'IPCQ'
 #define IPC_MSGQ_OBJ_PREFIX     L"Local\\IpcProc."
 #define IPC_MSGQ_WAIT_SLICE_MS  200
 
-/* 공유메모리에 올라가는 링버퍼 */
+// 공유메모리에 올라가는 링버퍼
 #pragma pack(push, 1)
 typedef struct st_IpcMsgQRing
 {
     IPC_UINT32                  uiMagic;
     IPC_INT32                   iCapacity;
     IPC_INT32                   iPayloadMax;
-    IPC_INT32                   iHead;                          /* 소비 인덱스 */
-    IPC_INT32                   iTail;                          /* 생산 인덱스 */
-    IPC_INT32                   iCount;                         /* 적재 건수   */
+    IPC_INT32                   iHead;                          // 소비 인덱스
+    IPC_INT32                   iTail;                          // 생산 인덱스
+    IPC_INT32                   iCount;                         // 적재 건수
     st_IpcMsg                   staSlot[IPC_MSGQ_CAPACITY];
 } st_IpcMsgQRing;
 #pragma pack(pop)
@@ -52,7 +52,7 @@ static IPC_VOID s_BuildObjName(wchar_t *wcpOut, size_t szOutCch, const char *cpN
         (void)wcscpy_s(wcaName, sizeof(wcaName) / sizeof(wcaName[0]), L"Default");
     }
 
-    /* %ls 를 쓴다 : MSVC 는 %s 도 와이드로 보지만 %ls 가 표준이고 이식성이 있다 */
+    // %ls 를 쓴다 : MSVC 는 %s 도 와이드로 보지만 %ls 가 표준이고 이식성이 있다
     (void)_snwprintf_s(wcpOut, szOutCch, _TRUNCATE, L"%ls%ls%ls", IPC_MSGQ_OBJ_PREFIX, wcaName, wcpSuffix);
 }
 
@@ -65,7 +65,7 @@ static IPC_VOID s_CloseHandleSafe(IPC_VOID **vppHandle)
     }
 }
 
-/* 링버퍼 헤더는 뮤텍스 안에서 처음 한 번만 초기화한다 */
+// 링버퍼 헤더는 뮤텍스 안에서 처음 한 번만 초기화한다
 static IPC_INT32 s_PrepareRing(st_IpcMsgQ *stpQ)
 {
     st_IpcMsgQRing *stpRing = (st_IpcMsgQRing *)stpQ->vpRing;
@@ -80,7 +80,7 @@ static IPC_INT32 s_PrepareRing(st_IpcMsgQ *stpQ)
 
     if (stpRing->uiMagic != IPC_MSGQ_MAGIC)
     {
-        /* 파일 매핑은 0 으로 채워져 있어 head/tail/count 는 이미 0 */
+        // 파일 매핑은 0 으로 채워져 있어 head/tail/count 는 이미 0
         stpRing->uiMagic     = IPC_MSGQ_MAGIC;
         stpRing->iCapacity   = IPC_MSGQ_CAPACITY;
         stpRing->iPayloadMax = IPC_MSGQ_PAYLOAD_MAX;
@@ -115,7 +115,7 @@ static st_IpcMsgQ s_MsgQOpenInternal(const char *cpName, IPC_INT32 iCreate)
     }
     (void)strncpy_s(stQ.caName, sizeof(stQ.caName), cpName, _TRUNCATE);
 
-    /* 공유메모리 */
+    // 공유메모리
     s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".map");
 
     if (iCreate != 0)
@@ -146,11 +146,11 @@ static st_IpcMsgQ s_MsgQOpenInternal(const char *cpName, IPC_INT32 iCreate)
         return stQ;
     }
 
-    /* 뮤텍스 */
+    // 뮤텍스
     s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".mtx");
     stQ.vpMutex = (IPC_VOID *)CreateMutexW(NULL, FALSE, wcaObj);
 
-    /* 세마포어 2개. 초기 카운트는 최초 생성 시에만 반영된다 */
+    // 세마포어 2개. 초기 카운트는 최초 생성 시에만 반영된다
     s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".sem.e");
     stQ.vpSemEmpty = (IPC_VOID *)CreateSemaphoreW(NULL, (LONG)IPC_MSGQ_CAPACITY, (LONG)IPC_MSGQ_CAPACITY, wcaObj);
 
@@ -217,13 +217,13 @@ IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_U
 
     stpRing = (st_IpcMsgQRing *)stpQ->vpRing;
 
-    /* 빈 슬롯 대기 */
+    // 빈 슬롯 대기
     if (WaitForSingleObject((HANDLE)stpQ->vpSemEmpty, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;
     }
 
-    /* 프로세스 경계를 넘는 상호배제 */
+    // 프로세스 경계를 넘는 상호배제
     dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
     if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
     {
@@ -263,7 +263,7 @@ IPC_INT32 __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg, IPC_UINT32 
 
     stpRing = (st_IpcMsgQRing *)stpQ->vpRing;
 
-    /* 찬 슬롯 대기 */
+    // 찬 슬롯 대기
     if (WaitForSingleObject((HANDLE)stpQ->vpSemFull, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;

@@ -14,7 +14,7 @@
 
 #include "IpcCore.h"
 
-/* 송신/수신 쓰레드가 함께 쓰는 전역 자원 */
+// 송신/수신 쓰레드가 함께 쓰는 전역 자원
 static st_IpcThreadMsg      g_staRing[IPC_THREAD_RING_SLOTS];
 static IPC_INT32            g_iRingHead = 0;
 static IPC_INT32            g_iRingTail = 0;
@@ -96,7 +96,7 @@ IPC_INT32 __cdecl f_IpcThreadQueueSend(const st_IpcThreadMsg *stpMsg, IPC_UINT32
         return IPC_FAIL;
     }
 
-    /* 빈 슬롯 대기 -> 큐가 가득 차면 여기서 블록된다 */
+    // 빈 슬롯 대기 -> 큐가 가득 차면 여기서 블록된다
     if (WaitForSingleObject(g_hSemEmpty, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;
@@ -127,7 +127,7 @@ IPC_INT32 __cdecl f_IpcThreadQueueRecv(st_IpcThreadMsg *stpMsg, IPC_UINT32 uiTim
         return IPC_FAIL;
     }
 
-    /* 찬 슬롯 대기 -> 큐가 비면 여기서 블록된다 */
+    // 찬 슬롯 대기 -> 큐가 비면 여기서 블록된다
     if (WaitForSingleObject(g_hSemFull, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;

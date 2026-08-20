@@ -35,4 +35,4 @@ IPCCORE_API IPC_INT32 __cdecl f_IpcThreadDemoIsRunning(IPC_VOID);
 }
 #endif
 
-#endif /* IPCTHREAD_H_ */
+#endif // IPCTHREAD_H_

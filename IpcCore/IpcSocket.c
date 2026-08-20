@@ -111,14 +111,14 @@ static SOCKET_INT32 s_FillSockAddr(struct sockaddr_in *stpAddr, const SOCKET_CHA
     return SOCKET_PASS;
 }
 
-/* Windows 는 밀리초 DWORD 를 받는다 */
+// Windows 는 밀리초 DWORD 를 받는다
 static SOCKET_VOID s_ApplyTimeout(SOCKET hSock, const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us)
 {
     DWORD dwTimeOut_ms;
 
     if ((lTimeOut_s <= 0) && (lTimeOut_us <= 0))
     {
-        return;                                     /* 0 이하면 무한 대기 */
+        return;                                     // 0 이하면 무한 대기
     }
 
     dwTimeOut_ms = (DWORD)((lTimeOut_s * 1000) + (lTimeOut_us / 1000));
@@ -149,7 +149,7 @@ static SOCKET_VOID s_SleepMicroseconds(SOCKET_UINT32 uiMicroSec)
         return;
     }
 
-    /* usleep 이 없으므로 짧은 대기는 QPC 스핀 */
+    // usleep 이 없으므로 짧은 대기는 QPC 스핀
     (void)QueryPerformanceFrequency(&stFreq);
     (void)QueryPerformanceCounter(&stStart);
     llTarget = stStart.QuadPart + ((stFreq.QuadPart * (LONGLONG)uiMicroSec) / 1000000LL);
@@ -236,7 +236,7 @@ SOCKET_VOID __cdecl f_SocketGetUDP_PartitionSendGap(SOCKET_UINT32 *uipUDP_Partit
     }
 }
 
-/* ---- UDP ---- */
+// ---- UDP ----
 st_Socket __cdecl f_SocketInitUDP_IPv4Tx(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum)
 {
     st_Socket stSocket = s_MakeInvalidSocket(enum_Socket_Type_UDP_IPv4Tx);
@@ -247,7 +247,7 @@ st_Socket __cdecl f_SocketInitUDP_IPv4Tx(const SOCKET_CHAR8 *cpIpAddr, const SOC
         return stSocket;
     }
 
-    /* Tx 의 주소는 목적지 */
+    // Tx 의 주소는 목적지
     if (s_FillSockAddr(&stSocket.stSockAddr, cpIpAddr, usPortNum) != SOCKET_PASS)
     {
         return stSocket;
@@ -279,7 +279,7 @@ st_Socket __cdecl f_SocketInitUDP_IPv4Rx(const SOCKET_CHAR8 *cpIpAddr, const SOC
         return stSocket;
     }
 
-    /* Rx 의 주소는 자기 bind 주소 */
+    // Rx 의 주소는 자기 bind 주소
     if (s_FillSockAddr(&stSocket.stSockAddr, cpIpAddr, usPortNum) != SOCKET_PASS)
     {
         return stSocket;
@@ -391,7 +391,7 @@ SOCKET_INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const st_Socket *stpSocket, con
     {
         if (WSAGetLastError() == WSAETIMEDOUT)
         {
-            return 0;                               /* 타임아웃 */
+            return 0;                               // 타임아웃
         }
         s_LogSocketError("UDP recvfrom()");
         return -1;
@@ -438,7 +438,7 @@ SOCKET_INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const st_Socket *stpSocket, 
     return lTotalRecv;
 }
 
-/* ---- TCP ---- */
+// ---- TCP ----
 
 //
 // @brief	TCP 클라이언트(Tx) 초기화. 연결될 때까지 재시도한다.
@@ -483,7 +483,7 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const SOCKET_CHAR8 *cpIpAddr, co
             return stSocket;
         }
 
-        /* 블로킹 connect 는 실패 확정까지 20초 이상 걸리므로 논블로킹 + select */
+        // 블로킹 connect 는 실패 확정까지 20초 이상 걸리므로 논블로킹 + select
         (void)ioctlsocket(hSock, FIONBIO, &ulNonBlocking);
 
         if (connect(hSock, (const struct sockaddr *)&stAddr, (int)sizeof(stAddr)) == SOCKET_ERROR)
@@ -588,8 +588,8 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const SOCKET_CHAR8 *cpIpAddr, co
         return stSocket;
     }
 
-    /* 재기동 시 TIME_WAIT 로 bind 가 막히는 것을 피한다.
-       Windows 의 SO_REUSEADDR 은 Linux 와 의미가 달라 운영 코드라면 SO_EXCLUSIVEADDRUSE 를 검토할 것 */
+    // 재기동 시 TIME_WAIT 로 bind 가 막히는 것을 피한다.
+    // Windows 의 SO_REUSEADDR 은 Linux 와 의미가 달라 운영 코드라면 SO_EXCLUSIVEADDRUSE 를 검토할 것
     (void)setsockopt(hListen, SOL_SOCKET, SO_REUSEADDR, (const char *)&iReuse, (int)sizeof(iReuse));
 
     if (bind(hListen, (const struct sockaddr *)&stAddr, (int)sizeof(stAddr)) == SOCKET_ERROR)
@@ -608,7 +608,7 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const SOCKET_CHAR8 *cpIpAddr, co
 
     f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] listen %s:%u", (const char *)cpIpAddr, usPortNum);
 
-    /* accept 를 select 로 잘게 나눠 대기해야 정지 요청에 반응할 수 있다 */
+    // accept 를 select 로 잘게 나눠 대기해야 정지 요청에 반응할 수 있다
     while (hAccept == INVALID_SOCKET)
     {
         fd_set         stReadSet;
@@ -665,8 +665,8 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const SOCKET_CHAR8 *cpIpAddr, co
     return stSocket;
 }
 
-/* Sync 계열 핸드셰이크는 SOCKET_SYNC_PASS_* 상수만 보고 맞춘 것이다.
-   Rx 가 LISTEN 을 보내고 Tx 가 CONNECT 로 답한다. 상대 절차가 다르면 이 두 함수만 고치면 된다. */
+// Sync 계열 핸드셰이크는 SOCKET_SYNC_PASS_* 상수만 보고 맞춘 것이다.
+// Rx 가 LISTEN 을 보내고 Tx 가 CONNECT 로 답한다. 상대 절차가 다르면 이 두 함수만 고치면 된다.
 st_Socket __cdecl f_SocketInitTCP_IPv4Tx_Sync(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum,
                                               const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us)
 {
@@ -714,7 +714,7 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Rx_Sync(const SOCKET_CHAR8 *cpIpAddr, cons
         return stSocket;
     }
 
-    /* 동기화 구간에만 iMaxSyncTime_s 적용 */
+    // 동기화 구간에만 iMaxSyncTime_s 적용
     s_ApplyTimeout((SOCKET)stSocket.hSockId, (SOCKET_INT64)iMaxSyncTime_s, 0);
 
     usSync = (SOCKET_UINT16)SOCKET_SYNC_PASS_LISTEN;
@@ -787,7 +787,7 @@ SOCKET_INT64 __cdecl f_SocketSendTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOI
                 {
                     return 0;
                 }
-                continue;                           /* 프레임 중간이면 계속 보낸다 */
+                continue;                           // 프레임 중간이면 계속 보낸다
             }
 
             s_LogSocketError("TCP send()");
@@ -854,7 +854,7 @@ SOCKET_INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOI
                 {
                     return 0;
                 }
-                continue;                           /* 프레임 중간이면 계속 기다린다 */
+                continue;                           // 프레임 중간이면 계속 기다린다
             }
 
             s_LogSocketError("TCP recv()");
@@ -894,8 +894,8 @@ SOCKET_INT32 __cdecl f_SocketClose(st_Socket stSocket)
     return SOCKET_PASS;
 }
 
-/* 데모 : int(4바이트) 하나를 프레임 헤더 없이 그대로 주고받는다.
-   x64 Windows 와 x86-64 Linux 는 둘 다 little-endian 이라 기본값으로 값이 맞는다. */
+// 데모 : int(4바이트) 하나를 프레임 헤더 없이 그대로 주고받는다.
+// x64 Windows 와 x86-64 Linux 는 둘 다 little-endian 이라 기본값으로 값이 맞는다.
 static SOCKET_INT32 s_IsDemoStopRequested(SOCKET_UINT32 uiWait_ms)
 {
     if (g_hDemoStop == NULL)
@@ -1044,7 +1044,7 @@ SOCKET_INT32 __cdecl f_IpcTcpDemoStart(SOCKET_INT32 iIsSender, const SOCKET_CHAR
         return SOCKET_FAIL;
     }
 
-    /* 워커가 스스로 끝난 뒤 다시 시작하는 경우가 있어 이전 핸들을 먼저 반납한다 */
+    // 워커가 스스로 끝난 뒤 다시 시작하는 경우가 있어 이전 핸들을 먼저 반납한다
     if (g_hDemoThread != NULL)
     {
         (void)WaitForSingleObject(g_hDemoThread, 1000U);

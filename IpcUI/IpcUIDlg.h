@@ -4,8 +4,6 @@
 
 #pragma once
 
-class CIpcUIDlgAutoProxy;
-
 // 워커 쓰레드 -> UI 쓰레드 로그 전달. lParam 은 malloc 한 wchar_t*, 받는 쪽에서 free.
 #define WM_IPC_LOG		(WM_APP + 100)
 
@@ -17,7 +15,6 @@ class CIpcUIDlgAutoProxy;
 class CIpcUIDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CIpcUIDlg);
-	friend class CIpcUIDlgAutoProxy;
 
 // Construction
 public:
@@ -35,7 +32,6 @@ public:
 
 // Implementation
 protected:
-	CIpcUIDlgAutoProxy* m_pAutoProxy;
 	HICON m_hIcon;
 
 	CListBox	m_listLog;
@@ -44,8 +40,6 @@ protected:
 	UINT		m_nPortNum;
 	BOOL		m_bNetworkByteOrder;
 	int			m_nLogExtent;
-
-	BOOL CanExit();
 
 	void AddLog(LPCWSTR lpszText);
 	void UpdateButtons();

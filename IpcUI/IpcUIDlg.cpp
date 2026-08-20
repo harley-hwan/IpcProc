@@ -6,7 +6,6 @@
 #include "framework.h"
 #include "IpcUI.h"
 #include "IpcUIDlg.h"
-#include "DlgProxy.h"
 #include "afxdialogex.h"
 #include "IpcCore.h"
 
@@ -47,16 +46,10 @@ CIpcUIDlg::CIpcUIDlg(CWnd* pParent /*=nullptr*/)
 {
 	EnableActiveAccessibility();
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_pAutoProxy = nullptr;
 }
 
 CIpcUIDlg::~CIpcUIDlg()
 {
-	// If there is an automation proxy for this dialog, set
-	//  its back pointer to this dialog to null, so it knows
-	//  the dialog has been deleted.
-	if (m_pAutoProxy != nullptr)
-		m_pAutoProxy->m_pDialog = nullptr;
 }
 
 void CIpcUIDlg::DoDataExchange(CDataExchange* pDX)
@@ -415,16 +408,9 @@ HCURSOR CIpcUIDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-// Automation servers should not exit when a user closes the UI
-//  if a controller still holds on to one of its objects.  These
-//  message handlers make sure that if the proxy is still in use,
-//  then the UI is hidden but the dialog remains around if it
-//  is dismissed.
-
 void CIpcUIDlg::OnClose()
 {
-	if (CanExit())
-		CDialogEx::OnClose();
+	CDialogEx::OnClose();
 }
 
 void CIpcUIDlg::OnOK()
@@ -434,20 +420,5 @@ void CIpcUIDlg::OnOK()
 
 void CIpcUIDlg::OnCancel()
 {
-	if (CanExit())
-		CDialogEx::OnCancel();
-}
-
-BOOL CIpcUIDlg::CanExit()
-{
-	// If the proxy object is still around, then the automation
-	//  controller is still holding on to this application.  Leave
-	//  the dialog around, but hide its UI.
-	if (m_pAutoProxy != nullptr)
-	{
-		ShowWindow(SW_HIDE);
-		return FALSE;
-	}
-
-	return TRUE;
+	CDialogEx::OnCancel();
 }

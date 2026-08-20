@@ -32,7 +32,7 @@ enum {
 
 #pragma pack(push, 1)
 
-/* 공유메모리에 그대로 올라가므로 패킹 고정 */
+// 공유메모리에 그대로 올라가므로 패킹 고정
 typedef struct st_IpcMsg
 {
     IPC_INT32                   iMsgType;
@@ -42,7 +42,7 @@ typedef struct st_IpcMsg
 
 #pragma pack(pop)
 
-/* 프로세스 로컬 핸들. 공개 헤더가 windows.h 에 의존하지 않게 HANDLE 을 void* 로 담는다. */
+// 프로세스 로컬 핸들. 공개 헤더가 windows.h 에 의존하지 않게 HANDLE 을 void* 로 담는다.
 typedef struct st_IpcMsgQ
 {
     IPC_VOID *                  vpMapHandle;
@@ -55,7 +55,7 @@ typedef struct st_IpcMsgQ
     char                        caName[IPC_MSGQ_NAME_MAX];
 } st_IpcMsgQ;
 
-/* Create 는 없으면 만들고 있으면 참여한다(기동 순서 무관), Open 은 있을 때만 참여 */
+// Create 는 없으면 만들고 있으면 참여한다(기동 순서 무관), Open 은 있을 때만 참여
 IPCCORE_API st_IpcMsgQ __cdecl f_IpcMsgQCreate(const char *cpName);
 IPCCORE_API st_IpcMsgQ __cdecl f_IpcMsgQOpen(const char *cpName);
 IPCCORE_API IPC_INT32  __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_UINT32 uiTimeOut_ms);
@@ -63,7 +63,7 @@ IPCCORE_API IPC_INT32  __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg
 IPCCORE_API IPC_INT32  __cdecl f_IpcMsgQGetCount(const st_IpcMsgQ *stpQ);
 IPCCORE_API IPC_INT32  __cdecl f_IpcMsgQClose(st_IpcMsgQ *stpQ);
 
-/* iIsSender : 1 = 송신, 0 = 수신 */
+// iIsSender : 1 = 송신, 0 = 수신
 IPCCORE_API IPC_INT32 __cdecl f_IpcMsgQDemoStart(const char *cpName, IPC_INT32 iIsSender);
 IPCCORE_API IPC_INT32 __cdecl f_IpcMsgQDemoStop(IPC_VOID);
 IPCCORE_API IPC_INT32 __cdecl f_IpcMsgQDemoIsRunning(IPC_VOID);
@@ -72,4 +72,4 @@ IPCCORE_API IPC_INT32 __cdecl f_IpcMsgQDemoIsRunning(IPC_VOID);
 }
 #endif
 
-#endif /* IPCMSGQ_H_ */
+#endif // IPCMSGQ_H_

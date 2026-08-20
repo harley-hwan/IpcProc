@@ -17,7 +17,7 @@
 
 #include "IpcCommon.h"
 
-/* winsock2.h 는 windows.h 보다 먼저 포함되어야 한다 */
+// winsock2.h 는 windows.h 보다 먼저 포함되어야 한다
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -29,11 +29,11 @@ extern "C" {
 #define SOCKETUTILITY_VER_MINOR     0
 #define SOCKETUTILITY_BUILD_DATE    20240823
 
-#define DISP_SOCKET_ERROR_WARNING   1           /* 0:OFF, 1:ON */
-#define DISP_SOCKET_RESULT          0           /* 0:OFF, 1:ON */
+#define DISP_SOCKET_ERROR_WARNING   1           // 0:OFF, 1:ON
+#define DISP_SOCKET_RESULT          0           // 0:OFF, 1:ON
 
-#define CTRL_SOCKET_REPEAT_CONNECT  1           /* 연결 실패 시 재시도 */
-#define CTRL_SOCKET_LINK_RECOVERY   1           /* 끊김 감지 시 상태 갱신 */
+#define CTRL_SOCKET_REPEAT_CONNECT  1           // 연결 실패 시 재시도
+#define CTRL_SOCKET_LINK_RECOVERY   1           // 끊김 감지 시 상태 갱신
 
 typedef void                        SOCKET_VOID;
 typedef int8_t                      SOCKET_CHAR8;
@@ -44,9 +44,9 @@ typedef uint32_t                    SOCKET_UINT32;
 typedef int64_t                     SOCKET_INT64;
 typedef uint64_t                    SOCKET_UINT64;
 
-/* Linux 는 int, Windows 는 SOCKET(UINT_PTR) */
+// Linux 는 int, Windows 는 SOCKET(UINT_PTR)
 typedef uintptr_t                   SOCKET_HANDLE;
-#define SOCKET_INVALID_HANDLE       ((SOCKET_HANDLE)~(uintptr_t)0)      /* == INVALID_SOCKET */
+#define SOCKET_INVALID_HANDLE       ((SOCKET_HANDLE)~(uintptr_t)0)      // == INVALID_SOCKET
 
 #define SOCKET_ALWAYS                       1
 
@@ -55,10 +55,10 @@ typedef uintptr_t                   SOCKET_HANDLE;
 
 #define SOCKET_MBYTE2BYTE                   (SOCKET_INT64)(1024*1024)
 
-/* TCP */
+// TCP
 #define SOCKET_TCP_QUEUE_SIZE               5
 
-/* TCP Sync Message */
+// TCP Sync Message
 #define SOCKET_SYNC_PASS_TX_LINE_CHECK      0xAAAA
 #define SOCKET_SYNC_PASS_RX_LINE_CHECK      0xBBBB
 #define SOCKET_SYNC_PASS_LISTEN             0xCCCC
@@ -67,14 +67,14 @@ typedef uintptr_t                   SOCKET_HANDLE;
 #define SOCKET_SYNC_PASS_SEND_TO_RX         0xFFFF
 
 enum{
-    /* Socket Status */
+    // Socket Status
     enum_Socket_Status_Disconnected = -1,
-    enum_Socket_Status_NotDefined   = 0,        /* Always when UDP */
+    enum_Socket_Status_NotDefined   = 0,        // Always when UDP
     enum_Socket_Status_Connected    = 1
 };
 
 enum{
-    /* Socket Type */
+    // Socket Type
     enum_Socket_Type_NotDefined  = 0,
 
     enum_Socket_Type_UDP_IPv4Tx  = 1,
@@ -88,13 +88,13 @@ typedef struct st_VerInfo_SOCKET
 {
     SOCKET_INT32                iMajorVersion;
     SOCKET_INT32                iMinorVersion;
-    SOCKET_INT32                iBuildDate;             /* YYYYMMDD */
+    SOCKET_INT32                iBuildDate;             // YYYYMMDD
 } st_VerInfo_SOCKET;
 
 typedef struct st_Socket
 {
     SOCKET_HANDLE               hSockId;
-    SOCKET_HANDLE               hListenId;              /* TCP Rx 의 listen 소켓 */
+    SOCKET_HANDLE               hListenId;              // TCP Rx 의 listen 소켓
     SOCKET_INT32                iSockStatus;
     SOCKET_INT32                iSockType;
     SOCKET_UINT32               uiSockAddrSize;
@@ -130,7 +130,7 @@ IPCCORE_API SOCKET_INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, cons
 
 IPCCORE_API SOCKET_INT32 __cdecl f_SocketClose(st_Socket stSocket);
 
-/* iIsSender : 1 = 송신(클라이언트), 0 = 수신(서버) */
+// iIsSender : 1 = 송신(클라이언트), 0 = 수신(서버)
 IPCCORE_API SOCKET_INT32 __cdecl f_IpcTcpDemoStart(SOCKET_INT32 iIsSender, const SOCKET_CHAR8 *cpIpAddr,
                                                    SOCKET_UINT16 usPortNum, SOCKET_INT32 iUseNetworkByteOrder);
 IPCCORE_API SOCKET_INT32 __cdecl f_IpcTcpDemoStop(SOCKET_VOID);
@@ -140,4 +140,4 @@ IPCCORE_API SOCKET_INT32 __cdecl f_IpcTcpDemoIsRunning(SOCKET_VOID);
 }
 #endif
 
-#endif /* IPCSOCKET_H_ */
+#endif // IPCSOCKET_H_
