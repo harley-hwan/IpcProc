@@ -1,7 +1,4 @@
-﻿/* IpcSocket.c : TCP/IP 송/수신 (SocketUtility.h 의 Windows 포팅)
- * 원본 .c 가 없어 헤더의 선언과 상수만 보고 구현했다.
- */
-#include <winsock2.h>
+﻿#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <process.h>
