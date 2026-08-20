@@ -1,15 +1,17 @@
-﻿/* IpcSocket.h : TCP/IP 송/수신. Linux SocketUtility.h v5.0 을 Winsock2 로 포팅한 것.
- *
- * 포팅하면서 달라진 점
- *   - 소켓 핸들이 int 가 아니라 SOCKET(UINT_PTR) 이라 iSockId -> hSockId 로 바꿨다.
- *   - SO_RCVTIMEO/SO_SNDTIMEO 가 timeval 이 아니라 DWORD 밀리초다. 내부에서 변환한다.
- *   - close -> closesocket, errno -> WSAGetLastError, WSAStartup/WSACleanup 필요.
- *   - accept/connect 대기를 밖에서 끊을 수 있게 f_SocketCancelBlockingCalls 를 추가했다.
- *
- * 역할 : Tx = 클라이언트(connect), Rx = 서버(bind/listen/accept).
- *        원본 .c 가 없어 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에서 맞춘 것이므로
- *        상대가 반대로 동작하면 Tx/Rx Init 함수를 바꿔 부르면 된다.
- */
+﻿//
+// @file	IpcSocket.h
+// @brief	TCP/IP 송/수신. Linux SocketUtility.h v5.0 을 Winsock2 로 포팅한 것.
+//			포팅하면서 달라진 점
+//			  - 소켓 핸들이 int 가 아니라 SOCKET(UINT_PTR) 이라 iSockId -> hSockId 로 바꿨다.
+//			  - SO_RCVTIMEO/SO_SNDTIMEO 가 timeval 이 아니라 DWORD 밀리초다. 내부에서 변환한다.
+//			  - close -> closesocket, errno -> WSAGetLastError, WSAStartup/WSACleanup 필요.
+//			  - accept/connect 대기를 밖에서 끊을 수 있게 f_SocketCancelBlockingCalls 를 추가했다.
+//			역할 : Tx = 클라이언트(connect), Rx = 서버(bind/listen/accept).
+//			원본 .c 가 없어 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에서 맞춘 것이므로
+//			상대가 반대로 동작하면 Tx/Rx Init 함수를 바꿔 부르면 된다.
+// @author	hwan
+// @date	2026.08.19.
+//
 #ifndef IPCSOCKET_H_
 #define IPCSOCKET_H_
 

@@ -1,4 +1,11 @@
-﻿#include <winsock2.h>
+﻿//
+// @file	IpcSocket.c
+// @brief	TCP/IP 송/수신 (SocketUtility.h 의 Windows 포팅).
+//			원본 .c 가 없어 헤더의 선언과 상수만 보고 구현했다.
+// @author	hwan
+// @date	2026.08.19.
+//
+#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <process.h>
@@ -432,7 +439,17 @@ SOCKET_INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const st_Socket *stpSocket, 
 }
 
 /* ---- TCP ---- */
-/* Tx = 클라이언트 */
+
+//
+// @brief	TCP 클라이언트(Tx) 초기화. 연결될 때까지 재시도한다.
+//			블로킹 connect 는 실패 확정까지 오래 걸리므로 논블로킹 + select 로 처리한다.
+// @param	cpIpAddr	서버 IPv4 주소
+// @param	usPortNum	서버 포트 번호
+// @param	lTimeOut_s	송/수신 타임아웃 (초)
+// @param	lTimeOut_us	송/수신 타임아웃 (마이크로초)
+// @return	소켓 구조체 (iSockStatus 로 성공 여부 확인)
+// @author	hwan
+//
 st_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum,
                                                 const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us)
 {
@@ -532,7 +549,16 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const SOCKET_CHAR8 *cpIpAddr, co
     return stSocket;
 }
 
-/* Rx = 서버 */
+//
+// @brief	TCP 서버(Rx) 초기화. bind/listen 후 접속을 기다린다.
+//			accept 를 select 로 잘게 나눠 대기해 정지 요청에 반응한다.
+// @param	cpIpAddr	bind 할 IPv4 주소 (NULL/빈 문자열이면 INADDR_ANY)
+// @param	usPortNum	bind 할 포트 번호
+// @param	lTimeOut_s	송/수신 타임아웃 (초)
+// @param	lTimeOut_us	송/수신 타임아웃 (마이크로초)
+// @return	소켓 구조체 (iSockStatus 로 성공 여부 확인)
+// @author	hwan
+//
 st_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum,
                                                 const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us)
 {
@@ -721,8 +747,14 @@ st_Socket __cdecl f_SocketInitTCP_IPv4Rx_Sync(const SOCKET_CHAR8 *cpIpAddr, cons
     return stSocket;
 }
 
-/* 요청한 크기를 다 처리할 때까지 반복한다.
-   반환값 : >0 처리 바이트 수 / 0 타임아웃(한 바이트도 못 함) / -1 에러 또는 상대 종료 */
+//
+// @brief	요청한 크기를 다 보낼 때까지 TCP 송신을 반복한다.
+// @param	stpSocket		송신 소켓 (끊김 감지 시 상태 갱신)
+// @param	vpDataAddr		송신 데이터 주소
+// @param	lFixedDataSize	전체 송신 크기 (byte)
+// @return	>0 처리 바이트 수 / 0 타임아웃(한 바이트도 못 함) / -1 에러 또는 상대 종료
+// @author	hwan
+//
 SOCKET_INT64 __cdecl f_SocketSendTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr,
                                           const SOCKET_INT64 lFixedDataSize)
 {
@@ -773,6 +805,14 @@ SOCKET_INT64 __cdecl f_SocketSendTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOI
     return lTotalSent;
 }
 
+//
+// @brief	요청한 크기를 다 받을 때까지 TCP 수신을 반복한다.
+// @param	stpSocket		수신 소켓 (끊김 감지 시 상태 갱신)
+// @param	vpDataAddr		수신 버퍼 주소
+// @param	lFixedDataSize	전체 수신 크기 (byte)
+// @return	>0 처리 바이트 수 / 0 타임아웃(한 바이트도 못 함) / -1 에러 또는 상대 종료
+// @author	hwan
+//
 SOCKET_INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr,
                                           const SOCKET_INT64 lFixedDataSize)
 {
@@ -832,6 +872,12 @@ SOCKET_INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOI
     return lTotalRecv;
 }
 
+//
+// @brief	소켓 닫기. 데이터 소켓과 listen 소켓을 모두 반납한다.
+// @param	stSocket	닫을 소켓
+// @return	SOCKET_PASS 고정
+// @author	hwan
+//
 SOCKET_INT32 __cdecl f_SocketClose(st_Socket stSocket)
 {
     if (stSocket.hSockId != SOCKET_INVALID_HANDLE)
@@ -860,6 +906,12 @@ static SOCKET_INT32 s_IsDemoStopRequested(SOCKET_UINT32 uiWait_ms)
     return (WaitForSingleObject(g_hDemoStop, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
 }
 
+//
+// @brief	데모 송신(클라이언트) 쓰레드. 서버에 접속해 1 부터 100 까지 0.1 초 간격으로 송신한다.
+// @param	vpArg	사용하지 않음
+// @return	0 고정
+// @author	hwan
+//
 static unsigned __stdcall s_TcpSenderProc(void *vpArg)
 {
     SOCKET_INT32 iData;
@@ -919,6 +971,12 @@ static unsigned __stdcall s_TcpSenderProc(void *vpArg)
     return 0U;
 }
 
+//
+// @brief	데모 수신(서버) 쓰레드. 접속을 받아 정지 요청까지 int 값을 수신해 로그로 출력한다.
+// @param	vpArg	사용하지 않음
+// @return	0 고정
+// @author	hwan
+//
 static unsigned __stdcall s_TcpReceiverProc(void *vpArg)
 {
     SOCKET_INT32 iRecvCount = 0;
@@ -968,6 +1026,15 @@ static unsigned __stdcall s_TcpReceiverProc(void *vpArg)
     return 0U;
 }
 
+//
+// @brief	TCP 데모 시작. 역할에 맞는 워커 쓰레드를 기동한다.
+// @param	iIsSender				1:송신(클라이언트), 0:수신(서버)
+// @param	cpIpAddr				상대(또는 bind) IPv4 주소 (비어 있으면 127.0.0.1)
+// @param	usPortNum				포트 번호 (0 이면 51000)
+// @param	iUseNetworkByteOrder	1:htonl/ntohl 적용
+// @return	SOCKET_PASS / SOCKET_FAIL(이미 동작 중 포함)
+// @author	hwan
+//
 SOCKET_INT32 __cdecl f_IpcTcpDemoStart(SOCKET_INT32 iIsSender, const SOCKET_CHAR8 *cpIpAddr,
                                        SOCKET_UINT16 usPortNum, SOCKET_INT32 iUseNetworkByteOrder)
 {
@@ -1035,6 +1102,11 @@ SOCKET_INT32 __cdecl f_IpcTcpDemoStart(SOCKET_INT32 iIsSender, const SOCKET_CHAR
     return SOCKET_PASS;
 }
 
+//
+// @brief	TCP 데모 정지. 정지 이벤트와 중단 요청을 올리고 워커 쓰레드 종료를 기다린다.
+// @return	SOCKET_PASS 고정
+// @author	hwan
+//
 SOCKET_INT32 __cdecl f_IpcTcpDemoStop(SOCKET_VOID)
 {
     if (g_hDemoStop != NULL)

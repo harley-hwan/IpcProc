@@ -1,12 +1,15 @@
-﻿/* IpcMsgQ.h : 프로세스 간 메시지 송/수신 (메시지 큐)
- *
- * Windows 에는 System V 메시지 큐가 없어서 아래 조합으로 같은 동작을 만든다.
- *   msgget  -> CreateFileMapping (네임드 공유메모리) + 링버퍼
- *   msgsnd  -> 세마포어(빈슬롯) 대기 -> 뮤텍스 -> write -> 세마포어(찬슬롯) 증가
- *   msgrcv  -> 세마포어(찬슬롯) 대기 -> 뮤텍스 -> read  -> 세마포어(빈슬롯) 증가
- *   mtype   -> st_IpcMsg.iMsgType
- * 오브젝트 이름에 Local\ 을 쓰므로 관리자 권한은 필요 없다.
- */
+﻿//
+// @file	IpcMsgQ.h
+// @brief	프로세스 간 메시지 송/수신 (메시지 큐)
+//			Windows 에는 System V 메시지 큐가 없어서 아래 조합으로 같은 동작을 만든다.
+//			  msgget  -> CreateFileMapping (네임드 공유메모리) + 링버퍼
+//			  msgsnd  -> 세마포어(빈슬롯) 대기 -> 뮤텍스 -> write -> 세마포어(찬슬롯) 증가
+//			  msgrcv  -> 세마포어(찬슬롯) 대기 -> 뮤텍스 -> read  -> 세마포어(빈슬롯) 증가
+//			  mtype   -> st_IpcMsg.iMsgType
+//			오브젝트 이름에 Local\ 을 쓰므로 관리자 권한은 필요 없다.
+// @author	hwan
+// @date	2026.08.19.
+//
 #ifndef IPCMSGQ_H_
 #define IPCMSGQ_H_
 

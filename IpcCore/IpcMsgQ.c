@@ -1,11 +1,14 @@
-﻿/* IpcMsgQ.c : 프로세스 간 메시지 송/수신 (메시지 큐)
- *
- * 커널 오브젝트 이름
- *   Local\\IpcProc.<이름>.map     공유메모리(링버퍼)
- *   Local\\IpcProc.<이름>.mtx     뮤텍스
- *   Local\\IpcProc.<이름>.sem.e   빈 슬롯 세마포어
- *   Local\\IpcProc.<이름>.sem.f   찬 슬롯 세마포어
- */
+﻿//
+// @file	IpcMsgQ.c
+// @brief	프로세스 간 메시지 송/수신 (메시지 큐).
+//			커널 오브젝트 이름
+//			  Local\\IpcProc.<이름>.map     공유메모리(링버퍼)
+//			  Local\\IpcProc.<이름>.mtx     뮤텍스
+//			  Local\\IpcProc.<이름>.sem.e   빈 슬롯 세마포어
+//			  Local\\IpcProc.<이름>.sem.f   찬 슬롯 세마포어
+// @author	hwan
+// @date	2026.08.19.
+//
 #include <winsock2.h>
 #include <windows.h>
 #include <process.h>
@@ -174,6 +177,12 @@ static st_IpcMsgQ s_MsgQOpenInternal(const char *cpName, IPC_INT32 iCreate)
     return stQ;
 }
 
+//
+// @brief	큐 생성. 없으면 만들고 있으면 참여한다 (기동 순서 무관).
+// @param	cpName	큐 이름 (NULL/빈 문자열이면 기본 이름)
+// @return	큐 핸들 (iStatus 로 성공 여부 확인)
+// @author	hwan
+//
 st_IpcMsgQ __cdecl f_IpcMsgQCreate(const char *cpName)
 {
     return s_MsgQOpenInternal(cpName, 1);
@@ -184,6 +193,14 @@ st_IpcMsgQ __cdecl f_IpcMsgQOpen(const char *cpName)
     return s_MsgQOpenInternal(cpName, 0);
 }
 
+//
+// @brief	큐에 메시지 한 건 송신 (msgsnd 대응). 세마포어(빈슬롯) 대기 -> 뮤텍스 -> write.
+// @param	stpQ			대상 큐 핸들
+// @param	stpMsg			송신할 메시지
+// @param	uiTimeOut_ms	빈 슬롯 대기 한도 (ms)
+// @return	IPC_PASS / IPC_FAIL(타임아웃 포함)
+// @author	hwan
+//
 IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_UINT32 uiTimeOut_ms)
 {
     st_IpcMsgQRing *stpRing;
@@ -226,6 +243,14 @@ IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_U
     return IPC_PASS;
 }
 
+//
+// @brief	큐에서 메시지 한 건 수신 (msgrcv 대응). 세마포어(찬슬롯) 대기 -> 뮤텍스 -> read.
+// @param	stpQ			대상 큐 핸들
+// @param	stpMsg			수신 메시지를 담을 버퍼
+// @param	uiTimeOut_ms	찬 슬롯 대기 한도 (ms)
+// @return	IPC_PASS / IPC_FAIL(타임아웃 포함)
+// @author	hwan
+//
 IPC_INT32 __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg, IPC_UINT32 uiTimeOut_ms)
 {
     st_IpcMsgQRing *stpRing;
@@ -278,6 +303,12 @@ IPC_INT32 __cdecl f_IpcMsgQGetCount(const st_IpcMsgQ *stpQ)
     return stpRing->iCount;
 }
 
+//
+// @brief	큐 닫기. 매핑을 해제하고 모든 핸들을 반납한다.
+// @param	stpQ	대상 큐 핸들
+// @return	IPC_PASS / IPC_FAIL(NULL 인자)
+// @author	hwan
+//
 IPC_INT32 __cdecl f_IpcMsgQClose(st_IpcMsgQ *stpQ)
 {
     if (stpQ == NULL)
@@ -311,6 +342,12 @@ static IPC_INT32 s_IsStopRequested(IPC_UINT32 uiWait_ms)
     return (WaitForSingleObject(g_hDemoStop, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
 }
 
+//
+// @brief	데모 송신 쓰레드. 1 부터 100 까지 0.1 초 간격으로 큐에 송신한다.
+// @param	vpArg	사용하지 않음
+// @return	0 고정
+// @author	hwan
+//
 static unsigned __stdcall s_SenderProc(void *vpArg)
 {
     st_IpcMsg   stMsg;
@@ -351,6 +388,12 @@ static unsigned __stdcall s_SenderProc(void *vpArg)
     return 0U;
 }
 
+//
+// @brief	데모 수신 쓰레드. 정지 요청까지 큐에서 메시지를 꺼내 로그로 출력한다.
+// @param	vpArg	사용하지 않음
+// @return	0 고정
+// @author	hwan
+//
 static unsigned __stdcall s_ReceiverProc(void *vpArg)
 {
     st_IpcMsg   stMsg;
@@ -384,6 +427,13 @@ static unsigned __stdcall s_ReceiverProc(void *vpArg)
     return 0U;
 }
 
+//
+// @brief	메시지 큐 데모 시작. 큐를 만들고(또는 참여하고) 역할에 맞는 워커 쓰레드를 기동한다.
+// @param	cpName		큐 이름 (NULL/빈 문자열이면 기본 이름)
+// @param	iIsSender	1:송신, 0:수신
+// @return	IPC_PASS / IPC_FAIL(이미 동작 중 포함)
+// @author	hwan
+//
 IPC_INT32 __cdecl f_IpcMsgQDemoStart(const char *cpName, IPC_INT32 iIsSender)
 {
     if (InterlockedCompareExchange(&g_lDemoRunning, 1, 0) != 0)
@@ -422,6 +472,11 @@ IPC_INT32 __cdecl f_IpcMsgQDemoStart(const char *cpName, IPC_INT32 iIsSender)
     return IPC_PASS;
 }
 
+//
+// @brief	메시지 큐 데모 정지. 워커 쓰레드 종료 후 큐를 닫는다.
+// @return	IPC_PASS 고정
+// @author	hwan
+//
 IPC_INT32 __cdecl f_IpcMsgQDemoStop(IPC_VOID)
 {
     if (g_hDemoStop != NULL)

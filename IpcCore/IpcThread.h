@@ -1,4 +1,9 @@
-﻿/* IpcThread.h : 쓰레드 간 메시지 송/수신 (전역 링버퍼 + 뮤텍스 + 세마포어) */
+﻿//
+// @file	IpcThread.h
+// @brief	쓰레드 간 메시지 송/수신 (전역 링버퍼 + 뮤텍스 + 세마포어)
+// @author	hwan
+// @date	2026.08.19.
+//
 #ifndef IPCTHREAD_H_
 #define IPCTHREAD_H_
 
