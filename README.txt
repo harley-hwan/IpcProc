@@ -33,15 +33,17 @@ IpcProc - Part.1 IPC  전체 자료
 
 [ 동작 확인 ]
 
+  [New Process] 는 같은 프로그램 창을 하나 더 띄우기만 한다.
+  프로세스 간 확인(메시지 큐 / TCP)은 창 두 개에서 각각 버튼을 누르면 된다.
+
   Thread         [Start] -> 0.1초 간격으로 1~100 송/수신 로그
-  Message Queue  [Recv] -> [New Process] -> 새 창이 송신 프로세스가 된다
-  TCP/IP         [Recv] -> [New Process] -> 새 창이 클라이언트로 접속
+  Message Queue  [New Process] 로 창을 하나 더 띄운 뒤
+                 한쪽 [Recv], 다른쪽 [Send]  (큐 이름만 같으면 된다)
+  TCP/IP         [New Process] 로 창을 하나 더 띄운 뒤
+                 한쪽 [Recv](서버), 다른쪽 [Send](클라이언트)
 
   다른 PC 와 붙일 때는 수신측 IP 를 0.0.0.0 으로 두고 방화벽 포트를 연다.
   상대가 htonl 을 쓰면 htonl 체크박스를 켠다.
-
-  명령행 :
-    IpcUI.exe /peer:<msgq-tx|msgq-rx|tcp-tx|tcp-rx> [/name:큐이름] [/ip:주소] [/port:번호] [/nbo]
 
 
 [ 기존 프로젝트에 덮어쓸 때 ]

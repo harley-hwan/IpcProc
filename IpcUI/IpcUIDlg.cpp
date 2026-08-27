@@ -76,11 +76,10 @@ BEGIN_MESSAGE_MAP(CIpcUIDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_MQ_RECV,    &CIpcUIDlg::OnBnClickedMqRecv)
 	ON_BN_CLICKED(IDC_BTN_MQ_SEND,    &CIpcUIDlg::OnBnClickedMqSend)
 	ON_BN_CLICKED(IDC_BTN_MQ_STOP,    &CIpcUIDlg::OnBnClickedMqStop)
-	ON_BN_CLICKED(IDC_BTN_MQ_PEER,    &CIpcUIDlg::OnBnClickedMqPeer)
 	ON_BN_CLICKED(IDC_BTN_TCP_RECV,   &CIpcUIDlg::OnBnClickedTcpRecv)
 	ON_BN_CLICKED(IDC_BTN_TCP_SEND,   &CIpcUIDlg::OnBnClickedTcpSend)
 	ON_BN_CLICKED(IDC_BTN_TCP_STOP,   &CIpcUIDlg::OnBnClickedTcpStop)
-	ON_BN_CLICKED(IDC_BTN_TCP_PEER,   &CIpcUIDlg::OnBnClickedTcpPeer)
+	ON_BN_CLICKED(IDC_BTN_NEW_PROC,   &CIpcUIDlg::OnBnClickedNewProcess)
 	ON_BN_CLICKED(IDC_BTN_LOG_CLEAR,  &CIpcUIDlg::OnBnClickedLogClear)
 END_MESSAGE_MAP()
 
@@ -180,26 +179,6 @@ BOOL CIpcUIDlg::OnInitDialog()
 	UpdateButtons();
 	SetTimer(IPC_UI_TIMER_ID, 300, nullptr);
 
-	// /peer: 로 실행된 경우 해당 역할을 자동으로 시작
-	CIpcUIApp* pApp = static_cast<CIpcUIApp*>(AfxGetApp());
-	if (!pApp->m_strAutoRole.IsEmpty())
-	{
-		if (!pApp->m_strAutoQueue.IsEmpty())	m_strQueueName = pApp->m_strAutoQueue;
-		if (!pApp->m_strAutoIp.IsEmpty())		m_strIpAddr    = pApp->m_strAutoIp;
-		if (pApp->m_nAutoPort != 0)				m_nPortNum     = pApp->m_nAutoPort;
-		m_bNetworkByteOrder = pApp->m_bAutoNbo;
-		UpdateData(FALSE);
-
-		UINT nCmdId = 0;
-		if      (pApp->m_strAutoRole == _T("msgq-tx"))	nCmdId = IDC_BTN_MQ_SEND;
-		else if (pApp->m_strAutoRole == _T("msgq-rx"))	nCmdId = IDC_BTN_MQ_RECV;
-		else if (pApp->m_strAutoRole == _T("tcp-tx"))	nCmdId = IDC_BTN_TCP_SEND;
-		else if (pApp->m_strAutoRole == _T("tcp-rx"))	nCmdId = IDC_BTN_TCP_RECV;
-
-		if (nCmdId != 0)
-			PostMessage(WM_COMMAND, MAKEWPARAM(nCmdId, BN_CLICKED), 0);
-	}
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -290,14 +269,6 @@ void CIpcUIDlg::OnBnClickedMqStop()
 	UpdateButtons();
 }
 
-void CIpcUIDlg::OnBnClickedMqPeer()
-{
-	if (!UpdateData(TRUE))
-		return;
-
-	RunPeer((f_IpcMsgQDemoIsRunning() != 0) ? _T("msgq-tx") : _T("msgq-rx"));
-}
-
 void CIpcUIDlg::OnBnClickedTcpRecv()
 {
 	if (!UpdateData(TRUE))
@@ -326,14 +297,6 @@ void CIpcUIDlg::OnBnClickedTcpStop()
 	UpdateButtons();
 }
 
-void CIpcUIDlg::OnBnClickedTcpPeer()
-{
-	if (!UpdateData(TRUE))
-		return;
-
-	RunPeer((f_IpcTcpDemoIsRunning() != 0) ? _T("tcp-tx") : _T("tcp-rx"));
-}
-
 void CIpcUIDlg::OnBnClickedLogClear()
 {
 	m_listLog.ResetContent();
@@ -341,30 +304,26 @@ void CIpcUIDlg::OnBnClickedLogClear()
 	m_listLog.SetHorizontalExtent(0);
 }
 
-// 같은 exe 를 상대 역할로 한 번 더 띄운다
-void CIpcUIDlg::RunPeer(LPCTSTR lpszRole)
+// 같은 exe 를 인자 없이 한 번 더 띄운다. 새 창은 처음 실행한 것과 똑같은 상태로 뜬다.
+void CIpcUIDlg::OnBnClickedNewProcess()
 {
 	TCHAR szExePath[MAX_PATH] = { 0 };
 	if (::GetModuleFileName(nullptr, szExePath, MAX_PATH) == 0)
+	{
+		AddLog(_T("[UI] GetModuleFileName failed"));
 		return;
-
-	CString strCmd;
-	strCmd.Format(_T("\"%s\" /peer:%s /name:%s /ip:%s /port:%u%s"),
-		szExePath, lpszRole, m_strQueueName, m_strIpAddr, m_nPortNum,
-		m_bNetworkByteOrder ? _T(" /nbo") : _T(""));
+	}
 
 	STARTUPINFO			si = { 0 };
 	PROCESS_INFORMATION	pi = { 0 };
 	si.cb = sizeof(si);
 
-	BOOL bOk = ::CreateProcess(nullptr, strCmd.GetBuffer(), nullptr, nullptr, FALSE,
-		0, nullptr, nullptr, &si, &pi);
-	strCmd.ReleaseBuffer();
-
-	if (bOk)
+	if (::CreateProcess(szExePath, nullptr, nullptr, nullptr, FALSE,
+		0, nullptr, nullptr, &si, &pi))
 	{
 		::CloseHandle(pi.hThread);
 		::CloseHandle(pi.hProcess);
+		AddLog(_T("[UI] new process"));
 	}
 	else
 	{

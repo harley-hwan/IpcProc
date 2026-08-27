@@ -16,20 +16,19 @@
 #define IDC_BTN_MQ_RECV					1003
 #define IDC_BTN_MQ_SEND					1004
 #define IDC_BTN_MQ_STOP					1005
-#define IDC_BTN_MQ_PEER					1006
 
 // TCP/IP
-#define IDC_EDIT_IP						1007
-#define IDC_EDIT_PORT					1008
-#define IDC_CHK_NBO						1009
-#define IDC_BTN_TCP_RECV				1010
-#define IDC_BTN_TCP_SEND				1011
-#define IDC_BTN_TCP_STOP				1012
-#define IDC_BTN_TCP_PEER				1013
+#define IDC_EDIT_IP						1006
+#define IDC_EDIT_PORT					1007
+#define IDC_CHK_NBO						1008
+#define IDC_BTN_TCP_RECV				1009
+#define IDC_BTN_TCP_SEND				1010
+#define IDC_BTN_TCP_STOP				1011
 
 // Common
-#define IDC_LIST_LOG					1014
-#define IDC_BTN_LOG_CLEAR				1015
+#define IDC_LIST_LOG					1012
+#define IDC_BTN_NEW_PROC				1013
+#define IDC_BTN_LOG_CLEAR				1014
 
 // Next default values for new objects
 //
@@ -37,7 +36,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 
 #define _APS_NEXT_RESOURCE_VALUE	129
-#define _APS_NEXT_CONTROL_VALUE		1016
+#define _APS_NEXT_CONTROL_VALUE		1015
 #define _APS_NEXT_SYMED_VALUE		101
 #define _APS_NEXT_COMMAND_VALUE		32771
 #endif

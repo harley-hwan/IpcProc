@@ -93,10 +93,11 @@ UDP 쪽이 Tx 는 목적지 주소, Rx 는 자기 bind 주소를 받으므로 TC
 
 빌드하면 `build\x64\Debug\` 에 IpcUI.exe 와 IpcCore.dll 이 같이 나온다.
 
-- **Thread** : [Start] 누르면 송/수신 로그가 0.1초 간격으로 찍힌다.
-- **Message Queue** : [Recv] → [New Process] 를 누르면 두 번째 창이 송신 역할로 자동 실행된다.
-  수동으로 하려면 exe 를 두 번 띄워 한쪽은 [Recv], 다른쪽은 [Send] 를 누르면 된다. 큐 이름만 같으면 된다.
-- **TCP/IP** : [Recv] → [New Process] 로 같은 PC 에서 확인.
-  다른 PC 와 붙을 때는 수신측 IP 를 `0.0.0.0` 으로 두고 방화벽에서 포트를 연다.
+[New Process] 는 같은 exe 를 인자 없이 한 번 더 실행해 창을 하나 더 띄우기만 한다.
+프로세스 간 확인은 창 두 개에서 역할 버튼을 각각 누르는 방식이다.
 
-명령행 : `IpcUI.exe /peer:<msgq-tx|msgq-rx|tcp-tx|tcp-rx> [/name:큐이름] [/ip:주소] [/port:번호] [/nbo]`
+- **Thread** : [Start] 누르면 한 프로세스 안에서 송/수신 로그가 0.1초 간격으로 찍힌다.
+- **Message Queue** : [New Process] 로 창을 하나 더 띄우고, 한쪽은 [Recv], 다른쪽은 [Send].
+  큐 이름만 같으면 되고 누가 먼저 눌러도 된다.
+- **TCP/IP** : [New Process] 로 창을 하나 더 띄우고, 한쪽은 [Recv](서버), 다른쪽은 [Send](클라이언트).
+  다른 PC 와 붙을 때는 수신측 IP 를 `0.0.0.0` 으로 두고 방화벽에서 포트를 연다.

@@ -43,7 +43,6 @@ protected:
 
 	void AddLog(LPCWSTR lpszText);
 	void UpdateButtons();
-	void RunPeer(LPCTSTR lpszRole);
 
 	static void __cdecl LogCallback(void* pCtx, int nChannel, const char* pszUtf8);
 
@@ -61,11 +60,10 @@ protected:
 	afx_msg void OnBnClickedMqRecv();
 	afx_msg void OnBnClickedMqSend();
 	afx_msg void OnBnClickedMqStop();
-	afx_msg void OnBnClickedMqPeer();
 	afx_msg void OnBnClickedTcpRecv();
 	afx_msg void OnBnClickedTcpSend();
 	afx_msg void OnBnClickedTcpStop();
-	afx_msg void OnBnClickedTcpPeer();
+	afx_msg void OnBnClickedNewProcess();
 	afx_msg void OnBnClickedLogClear();
 
 	virtual void OnOK();

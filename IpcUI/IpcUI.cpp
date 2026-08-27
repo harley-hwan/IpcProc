@@ -22,8 +22,6 @@ END_MESSAGE_MAP()
 // CIpcUIApp construction
 
 CIpcUIApp::CIpcUIApp()
-	: m_nAutoPort(0)
-	, m_bAutoNbo(FALSE)
 {
 	// support Restart Manager
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -40,31 +38,6 @@ const GUID CDECL BASED_CODE _tlid =
 		{0x81f8dbda,0x31e0,0x402d,{0xbe,0x98,0x11,0xee,0x58,0xa4,0xdd,0xa9}};
 const WORD _wVerMajor = 1;
 const WORD _wVerMinor = 0;
-
-
-// 명령행에서 /peer: /name: /ip: /port: /nbo 를 읽는다.
-// MFC 의 CCommandLineInfo 는 모르는 플래그를 무시하므로 자동화 스위치와 충돌하지 않는다.
-void CIpcUIApp::ParseIpcArguments()
-{
-	CString	strCmdLine(m_lpCmdLine);
-	int		nPos = 0;
-
-	for (CString strToken = strCmdLine.Tokenize(_T(" \t"), nPos);
-		 !strToken.IsEmpty();
-		 strToken = strCmdLine.Tokenize(_T(" \t"), nPos))
-	{
-		if (strToken.Left(6).CompareNoCase(_T("/peer:")) == 0)
-			m_strAutoRole = strToken.Mid(6);
-		else if (strToken.Left(6).CompareNoCase(_T("/name:")) == 0)
-			m_strAutoQueue = strToken.Mid(6);
-		else if (strToken.Left(4).CompareNoCase(_T("/ip:")) == 0)
-			m_strAutoIp = strToken.Mid(4);
-		else if (strToken.Left(6).CompareNoCase(_T("/port:")) == 0)
-			m_nAutoPort = static_cast<UINT>(_ttoi(strToken.Mid(6)));
-		else if (strToken.CompareNoCase(_T("/nbo")) == 0)
-			m_bAutoNbo = TRUE;
-	}
-}
 
 
 // CIpcUIApp initialization
@@ -102,9 +75,6 @@ BOOL CIpcUIApp::InitInstance()
 
 	// Change the registry key under which our settings are stored
 	SetRegistryKey(_T("IpcProc"));
-
-	// 우리 확장 명령행 인자(/peer: 등)를 먼저 읽는다
-	ParseIpcArguments();
 
 	// Parse command line for automation or reg/unreg switches.
 	CCommandLineInfo cmdInfo;
