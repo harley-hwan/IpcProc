@@ -1,7 +1,7 @@
 ﻿//
 // @file	IpcCore.c
-// @brief	로그 파이프라인과 초기화/해제.
-//			워커 쓰레드들이 f_IpcLog 로 남긴 로그를 등록된 콜백으로 전달한다.
+// @brief	로그 파이프라인과 코어 초기화/해제.
+//			워커 쓰레드들이 f_IpcLog 로 남긴 로그를 등록된 콜백으로 전달함.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -16,9 +16,9 @@
 static CRITICAL_SECTION     s_stLogLock;
 static LONG                 s_lLogLockReady = 0;
 static IPC_LOG_FN           p_fnLogHandler  = NULL;
-static VOID *           p_vpLogUserCtx  = NULL;
+static VOID *               p_vpLogUserCtx  = NULL;
 
-// DllMain 에서는 동기화 객체를 만들지 않는 편이 안전하므로 지연 초기화
+// DllMain 에서 동기화 객체를 만들면 위험하므로 첫 사용 시점에 지연 초기화함
 static VOID f_EnsureLogLock(VOID)
 {
     if (InterlockedCompareExchange(&s_lLogLockReady, 1, 0) == 0)
@@ -35,13 +35,7 @@ static VOID f_EnsureLogLock(VOID)
     }
 }
 
-//
-// @brief	로그 콜백을 등록하거나 해제한다.
-// @param	fnLog		로그 콜백 (NULL 이면 해제)
-// @param	vpUserCtx	콜백 호출 시 그대로 전달되는 사용자 컨텍스트
-// @return	없음
-// @author	hwan
-//
+// 로그 콜백 등록/해제. fnLog 가 NULL 이면 해제임
 VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, VOID *vpUserCtx)
 {
     f_EnsureLogLock();
@@ -53,19 +47,17 @@ VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, VOID *vpUserCtx)
 }
 
 //
-// @brief	printf 형식으로 로그 한 줄을 만들어 등록된 콜백으로 전달한다.
+// @brief	printf 형식으로 로그 한 줄을 만들어 등록된 콜백으로 전달함
 // @param	iChannel	로그 채널 (enum_IpcLogCh_*)
 // @param	cpFormat	printf 형식 문자열 (UTF-8)
-// @param	...			형식 인자
 // @return	없음
-// @author	hwan
 //
-VOID __cdecl f_IpcLog(INT32 iChannel, const CHAR *cpFormat, ...)
+VOID __cdecl f_IpcLog(const INT32 iChannel, const CHAR *cpFormat, ...)
 {
     CHAR        caBuff[512];
     va_list     stArgs;
     IPC_LOG_FN  fnLog;
-    VOID *  vpCtx;
+    VOID *      vpCtx;
 
     if (cpFormat == NULL)
     {
@@ -93,9 +85,8 @@ VOID __cdecl f_IpcLog(INT32 iChannel, const CHAR *cpFormat, ...)
 }
 
 //
-// @brief	코어 초기화. Winsock 을 기동하고 쓰레드 간 큐를 준비한다.
+// @brief	코어 초기화. Winsock 기동 + 쓰레드 간 큐 준비
 // @return	IPC_PASS / IPC_FAIL
-// @author	hwan
 //
 INT32 __cdecl f_IpcCoreInit(VOID)
 {
@@ -110,9 +101,8 @@ INT32 __cdecl f_IpcCoreInit(VOID)
 }
 
 //
-// @brief	코어 해제. 진행 중인 데모를 모두 정지시키고 자원을 반납한다.
+// @brief	코어 해제. 진행 중인 데모를 모두 정지시키고 자원 반납
 // @return	없음
-// @author	hwan
 //
 VOID __cdecl f_IpcCoreDeinit(VOID)
 {

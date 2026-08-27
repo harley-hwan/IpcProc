@@ -17,8 +17,3 @@ x64/
 [Oo]bj/
 ipch/
 *.tlog/
-
-# MIDL 생성물 (IpcUI.idl -> 빌드 때마다 $(IntDir) 에 재생성)
-IpcUI_h.h
-IpcUI_i.c
-*.tlb

@@ -2,22 +2,23 @@
 // @file	IpcSocket.h
 // @brief	TCP/IP 송/수신. Linux SocketUtility.h v5.0 을 Winsock2 로 포팅한 것.
 //			포팅하면서 달라진 점
-//			  - 소켓 핸들이 int 가 아니라 SOCKET(UINT_PTR) 이라 iSockId -> hSockId 로 바꿨다.
-//			  - SO_RCVTIMEO/SO_SNDTIMEO 가 timeval 이 아니라 DWORD 밀리초다. 내부에서 변환한다.
-//			  - close -> closesocket, errno -> WSAGetLastError, WSAStartup/WSACleanup 필요.
-//			  - accept/connect 대기를 밖에서 끊을 수 있게 f_SocketCancelBlockingCalls 를 추가했다.
+//			  - 소켓 핸들이 int 가 아니라 SOCKET(UINT_PTR) 이라 iSockId -> hSockId 로 바꿈
+//			  - SO_RCVTIMEO/SO_SNDTIMEO 가 timeval 이 아니라 DWORD ms 임 (내부에서 변환)
+//			  - close -> closesocket, errno -> WSAGetLastError, WSAStartup/WSACleanup 필요
+//			  - accept/connect 대기를 밖에서 끊는 f_SocketCancelBlockingCalls 추가
 //			역할 : Tx = 클라이언트(connect), Rx = 서버(bind/listen/accept).
-//			원본 .c 가 없어 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에서 맞춘 것이므로
-//			상대가 반대로 동작하면 Tx/Rx Init 함수를 바꿔 부르면 된다.
+//			TCP Sync 메시지 값(SOCKET_SYNC_PASS_*)은 CSCI 간 통신 규약이라 IpcExternalICD.h 에 있음.
+//			원본 .c 가 없어 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에 맞춘 것이므로
+//			상대가 반대로 동작하면 Tx/Rx Init 함수를 바꿔 부르면 됨.
 // @author	hwan
 // @date	2026.08.19.
 //
 #ifndef IPCSOCKET_H_
 #define IPCSOCKET_H_
 
-#include "IpcCommon.h"
+#include "IpcExternalICD.h"
 
-// winsock2.h 는 windows.h 보다 먼저 포함되어야 한다
+// winsock2.h 는 windows.h 보다 먼저 포함되어야 함
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -49,14 +50,6 @@ typedef uintptr_t                   SOCKET_HANDLE;
 // TCP
 #define SOCKET_TCP_QUEUE_SIZE               5
 
-// TCP Sync Message
-#define SOCKET_SYNC_PASS_TX_LINE_CHECK      0xAAAA
-#define SOCKET_SYNC_PASS_RX_LINE_CHECK      0xBBBB
-#define SOCKET_SYNC_PASS_LISTEN             0xCCCC
-#define SOCKET_SYNC_PASS_CONNECT            0xDDDD
-#define SOCKET_SYNC_PASS_SEND_TO_TX         0xEEEE
-#define SOCKET_SYNC_PASS_SEND_TO_RX         0xFFFF
-
 enum{
     // Socket Status
     enum_Socket_Status_Disconnected = -1,
@@ -76,32 +69,32 @@ enum{
 };
 
 //
-// @struct	st_VerInfo_SOCKET
+// @struct	ST_VerInfo_SOCKET
 // @brief	소켓 유틸 버전 정보
 //
-typedef struct st_VerInfo_SOCKET
+typedef struct
 {
-    INT32                iMajorVersion;
-    INT32                iMinorVersion;
-    INT32                iBuildDate;             // YYYYMMDD
-} st_VerInfo_SOCKET;
+    INT32                       iMajorVersion;
+    INT32                       iMinorVersion;
+    INT32                       iBuildDate;             // YYYYMMDD
+} ST_VerInfo_SOCKET;
 
 //
-// @struct	st_Socket
+// @struct	ST_Socket
 // @brief	소켓 하나의 상태
 //
-typedef struct st_Socket
+typedef struct
 {
     SOCKET_HANDLE               hSockId;
     SOCKET_HANDLE               hListenId;              // TCP Rx 의 listen 소켓
-    INT32                iSockStatus;
-    INT32                iSockType;
-    UINT32               uiSockAddrSize;
+    INT32                       iSockStatus;
+    INT32                       iSockType;
+    UINT32                      uiSockAddrSize;
     struct sockaddr_in          stSockAddr;
     struct timeval              stTimeOutVal;
-} st_Socket;
+} ST_Socket;
 
-IPCCORE_API VOID  __cdecl f_SocketGetVerInfo(st_VerInfo_SOCKET *stpVerInfo);
+IPCCORE_API VOID  __cdecl f_SocketGetVerInfo(ST_VerInfo_SOCKET *stpVerInfo);
 
 IPCCORE_API INT32 __cdecl f_SocketStartup(VOID);
 IPCCORE_API VOID  __cdecl f_SocketCleanup(VOID);
@@ -113,25 +106,25 @@ IPCCORE_API VOID  __cdecl f_SocketGetUDP_PartitionSize(INT32 *ipUDP_PartitionSiz
 IPCCORE_API INT32 __cdecl f_SocketSetUDP_PartitionSendGap(const UINT32 uiUDP_PartitionSendGap_us);
 IPCCORE_API VOID  __cdecl f_SocketGetUDP_PartitionSendGap(UINT32 *uipUDP_PartitionSendGap_us);
 
-IPCCORE_API st_Socket    __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPortNum);
-IPCCORE_API st_Socket    __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
-IPCCORE_API INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lDataSize);
-IPCCORE_API INT64 __cdecl f_SocketSendUDP_IPv4_Partition(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
-IPCCORE_API INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lMaxSize);
-IPCCORE_API INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
+IPCCORE_API ST_Socket __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPortNum);
+IPCCORE_API ST_Socket __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API INT64     __cdecl f_SocketSendUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lDataSize);
+IPCCORE_API INT64     __cdecl f_SocketSendUDP_IPv4_Partition(const ST_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
+IPCCORE_API INT64     __cdecl f_SocketRecvUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lMaxSize);
+IPCCORE_API INT64     __cdecl f_SocketRecvUDP_IPv4_Partition(const ST_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
 
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Tx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Tx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Rx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us, const INT32 iMaxSyncTime_s);
-IPCCORE_API INT64 __cdecl f_SocketSendTCP_IPv4(st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
-IPCCORE_API INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
+IPCCORE_API ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us, const INT32 iMaxSyncTime_s);
+IPCCORE_API INT64     __cdecl f_SocketSendTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
+IPCCORE_API INT64     __cdecl f_SocketRecvTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
 
-IPCCORE_API INT32 __cdecl f_SocketClose(st_Socket stSocket);
+IPCCORE_API INT32 __cdecl f_SocketClose(const ST_Socket st_Socket);
 
 // iIsSender : 1 = 송신(클라이언트), 0 = 수신(서버)
-IPCCORE_API INT32 __cdecl f_IpcTcpDemoStart(INT32 iIsSender, const INT8 *cpIpAddr,
-                                                   UINT16 usPortNum, INT32 iUseNetworkByteOrder);
+IPCCORE_API INT32 __cdecl f_IpcTcpDemoStart(const INT32 iIsSender, const INT8 *cpIpAddr,
+                                            const UINT16 usPortNum, const INT32 iUseNetworkByteOrder);
 IPCCORE_API INT32 __cdecl f_IpcTcpDemoStop(VOID);
 IPCCORE_API INT32 __cdecl f_IpcTcpDemoIsRunning(VOID);
 

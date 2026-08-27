@@ -3,7 +3,6 @@
 // Used by IpcUI.rc
 //
 #define IDR_MAINFRAME					128
-#define IDP_OLE_INIT_FAILED				100
 #define IDD_IPCUI_DIALOG				102
 #define IDP_SOCKETS_INIT_FAILED			103
 

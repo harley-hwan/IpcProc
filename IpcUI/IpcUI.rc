@@ -52,7 +52,6 @@ BEGIN
     "#include ""afxribbon.rc""   // MFC ribbon and control bar resources\r\n"
     "#endif\r\n"
     "#endif\r\n"
-    "1 TYPELIB ""IpcUI.tlb""\r\n"
     "\0"
 END
 
@@ -178,7 +177,6 @@ END
 
 STRINGTABLE
 BEGIN
-    IDP_OLE_INIT_FAILED       "OLE initialization failed.  Make sure that the OLE libraries are the correct version."
     IDP_SOCKETS_INIT_FAILED    "Windows sockets initialization failed."
 END
 
@@ -203,8 +201,6 @@ LANGUAGE 9, 1
 #include "afxribbon.rc"   // MFC ribbon and control bar resources
 #endif
 #endif
-
-1 TYPELIB "IpcUI.tlb"
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

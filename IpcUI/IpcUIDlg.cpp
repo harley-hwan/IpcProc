@@ -1,7 +1,10 @@
-﻿
-// IpcUIDlg.cpp : implementation file
+﻿//
+// @file	IpcUIDlg.cpp
+// @brief	메인 대화상자. 버튼으로 IpcCore 의 세 가지 IPC 데모를 켜고 끄고,
+//			워커 쓰레드 로그를 리스트박스에 출력함
+// @author	hwan
+// @date	2026.08.19.
 //
-
 #include "pch.h"
 #include "framework.h"
 #include "IpcUI.h"
@@ -13,14 +16,14 @@
 #define new DEBUG_NEW
 #endif
 
-static volatile HWND	g_hLogWnd = nullptr;
+static volatile HWND	s_hLogWnd = nullptr;
 
-// 코어는 UTF-8 문자열을 쓴다
-static CStringA ToUtf8(const CString& str)
+// 코어는 UTF-8 문자열을 씀
+static CStringA f_ToUtf8(const CString& str)
 {
 	CStringA strOut;
 
-	int nLen = ::WideCharToMultiByte(CP_UTF8, 0, str, -1, nullptr, 0, nullptr, nullptr);
+	INT32 nLen = ::WideCharToMultiByte(CP_UTF8, 0, str, -1, nullptr, 0, nullptr, nullptr);
 	if (nLen > 0)
 	{
 		::WideCharToMultiByte(CP_UTF8, 0, str, -1, strOut.GetBuffer(nLen), nLen, nullptr, nullptr);
@@ -32,7 +35,6 @@ static CStringA ToUtf8(const CString& str)
 
 
 // CIpcUIDlg dialog
-
 
 IMPLEMENT_DYNAMIC(CIpcUIDlg, CDialogEx);
 
@@ -86,41 +88,43 @@ END_MESSAGE_MAP()
 
 // CIpcUIDlg message handlers
 
-void __cdecl CIpcUIDlg::LogCallback(void* pCtx, int nChannel, const char* pszUtf8)
+// 워커 쓰레드에서 불림. UI 접근 없이 PostMessage 로 넘기고 바로 리턴함
+VOID __cdecl CIpcUIDlg::LogCallback(VOID* vpUserCtx, INT32 iChannel, const CHAR* cpUtf8)
 {
-	UNREFERENCED_PARAMETER(pCtx);
+	UNREFERENCED_PARAMETER(vpUserCtx);
 
-	HWND hWnd = g_hLogWnd;
-	if ((hWnd == nullptr) || (pszUtf8 == nullptr))
+	HWND hWnd = s_hLogWnd;
+	if ((hWnd == nullptr) || (cpUtf8 == nullptr))
 		return;
 
-	int nLen = ::MultiByteToWideChar(CP_UTF8, 0, pszUtf8, -1, nullptr, 0);
+	INT32 nLen = ::MultiByteToWideChar(CP_UTF8, 0, cpUtf8, -1, nullptr, 0);
 	if (nLen <= 0)
 		return;
 
-	wchar_t* pszWide = static_cast<wchar_t*>(malloc(static_cast<size_t>(nLen) * sizeof(wchar_t)));
-	if (pszWide == nullptr)
+	wchar_t* wcpText = static_cast<wchar_t*>(malloc(static_cast<size_t>(nLen) * sizeof(wchar_t)));
+	if (wcpText == nullptr)
 		return;
 
-	if (::MultiByteToWideChar(CP_UTF8, 0, pszUtf8, -1, pszWide, nLen) <= 0)
+	if (::MultiByteToWideChar(CP_UTF8, 0, cpUtf8, -1, wcpText, nLen) <= 0)
 	{
-		free(pszWide);
+		free(wcpText);
 		return;
 	}
 
-	if (!::PostMessage(hWnd, WM_IPC_LOG, static_cast<WPARAM>(nChannel), reinterpret_cast<LPARAM>(pszWide)))
-		free(pszWide);
+	if (!::PostMessage(hWnd, WM_IPC_LOG, static_cast<WPARAM>(iChannel), reinterpret_cast<LPARAM>(wcpText)))
+		free(wcpText);
 }
 
+// UI 쓰레드. lParam 의 문자열을 출력하고 free 함
 LRESULT CIpcUIDlg::OnIpcLog(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
 
-	wchar_t* pszWide = reinterpret_cast<wchar_t*>(lParam);
-	if (pszWide != nullptr)
+	wchar_t* wcpText = reinterpret_cast<wchar_t*>(lParam);
+	if (wcpText != nullptr)
 	{
-		AddLog(pszWide);
-		free(pszWide);
+		AddLog(wcpText);
+		free(wcpText);
 	}
 
 	return 0;
@@ -138,17 +142,18 @@ void CIpcUIDlg::AddLog(LPCWSTR lpszText)
 	CString	strLine;
 	strLine.Format(_T("%02d:%02d:%02d  %s"), tmNow.GetHour(), tmNow.GetMinute(), tmNow.GetSecond(), lpszText);
 
-	int nIndex = m_listLog.AddString(strLine);
+	INT32 nIndex = m_listLog.AddString(strLine);
 	if (nIndex < 0)
 		return;
 
 	m_listLog.SetTopIndex(nIndex);
 
+	// 가로 스크롤 폭을 가장 긴 줄에 맞춰 늘림
 	CDC* pDC = m_listLog.GetDC();
 	if (pDC != nullptr)
 	{
 		CFont* pOldFont = pDC->SelectObject(m_listLog.GetFont());
-		int nWidth = pDC->GetTextExtent(strLine).cx + 8;
+		INT32 nWidth = pDC->GetTextExtent(strLine).cx + 8;
 		pDC->SelectObject(pOldFont);
 		m_listLog.ReleaseDC(pDC);
 
@@ -164,12 +169,10 @@ BOOL CIpcUIDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
+	SetIcon(m_hIcon, TRUE);
+	SetIcon(m_hIcon, FALSE);
 
-	g_hLogWnd = GetSafeHwnd();
+	s_hLogWnd = GetSafeHwnd();
 	f_IpcSetLogHandler(&CIpcUIDlg::LogCallback, nullptr);
 
 	if (f_IpcCoreInit() != IPC_PASS)
@@ -179,7 +182,7 @@ BOOL CIpcUIDlg::OnInitDialog()
 	UpdateButtons();
 	SetTimer(IPC_UI_TIMER_ID, 300, nullptr);
 
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	return TRUE;
 }
 
 void CIpcUIDlg::OnDestroy()
@@ -189,15 +192,15 @@ void CIpcUIDlg::OnDestroy()
 	CWaitCursor waitCursor;
 
 	f_IpcCoreDeinit();
-	g_hLogWnd = nullptr;
+	s_hLogWnd = nullptr;
 	f_IpcSetLogHandler(nullptr, nullptr);
 
-	// 아직 큐에 남아 있는 로그 버퍼 반납
-	MSG msg;
-	while (::PeekMessage(&msg, GetSafeHwnd(), WM_IPC_LOG, WM_IPC_LOG, PM_REMOVE))
+	// 아직 큐에 남아 있는 로그 버퍼 반납함
+	MSG st_Msg;
+	while (::PeekMessage(&st_Msg, GetSafeHwnd(), WM_IPC_LOG, WM_IPC_LOG, PM_REMOVE))
 	{
-		if (msg.lParam != 0)
-			free(reinterpret_cast<void*>(msg.lParam));
+		if (st_Msg.lParam != 0)
+			free(reinterpret_cast<void*>(st_Msg.lParam));
 	}
 
 	CDialogEx::OnDestroy();
@@ -211,6 +214,7 @@ void CIpcUIDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
+// 데모 동작 상태에 맞춰 버튼/입력칸을 켜고 끔
 void CIpcUIDlg::UpdateButtons()
 {
 	const BOOL bThread = (f_IpcThreadDemoIsRunning() != 0);
@@ -250,7 +254,7 @@ void CIpcUIDlg::OnBnClickedMqRecv()
 	if (!UpdateData(TRUE))
 		return;
 
-	f_IpcMsgQDemoStart(ToUtf8(m_strQueueName), 0);
+	f_IpcMsgQDemoStart(f_ToUtf8(m_strQueueName), 0);
 	UpdateButtons();
 }
 
@@ -259,7 +263,7 @@ void CIpcUIDlg::OnBnClickedMqSend()
 	if (!UpdateData(TRUE))
 		return;
 
-	f_IpcMsgQDemoStart(ToUtf8(m_strQueueName), 1);
+	f_IpcMsgQDemoStart(f_ToUtf8(m_strQueueName), 1);
 	UpdateButtons();
 }
 
@@ -274,7 +278,7 @@ void CIpcUIDlg::OnBnClickedTcpRecv()
 	if (!UpdateData(TRUE))
 		return;
 
-	CStringA strIpA = ToUtf8(m_strIpAddr);
+	CStringA strIpA = f_ToUtf8(m_strIpAddr);
 	f_IpcTcpDemoStart(0, reinterpret_cast<const INT8*>(static_cast<LPCSTR>(strIpA)),
 		static_cast<UINT16>(m_nPortNum), m_bNetworkByteOrder ? 1 : 0);
 	UpdateButtons();
@@ -285,7 +289,7 @@ void CIpcUIDlg::OnBnClickedTcpSend()
 	if (!UpdateData(TRUE))
 		return;
 
-	CStringA strIpA = ToUtf8(m_strIpAddr);
+	CStringA strIpA = f_ToUtf8(m_strIpAddr);
 	f_IpcTcpDemoStart(1, reinterpret_cast<const INT8*>(static_cast<LPCSTR>(strIpA)),
 		static_cast<UINT16>(m_nPortNum), m_bNetworkByteOrder ? 1 : 0);
 	UpdateButtons();
@@ -304,7 +308,7 @@ void CIpcUIDlg::OnBnClickedLogClear()
 	m_listLog.SetHorizontalExtent(0);
 }
 
-// 같은 exe 를 인자 없이 한 번 더 띄운다. 새 창은 처음 실행한 것과 똑같은 상태로 뜬다.
+// 같은 exe 를 인자 없이 하나 더 띄움. 새 창은 처음 실행한 것과 똑같은 상태로 뜸
 void CIpcUIDlg::OnBnClickedNewProcess()
 {
 	TCHAR szExePath[MAX_PATH] = { 0 };
@@ -314,15 +318,15 @@ void CIpcUIDlg::OnBnClickedNewProcess()
 		return;
 	}
 
-	STARTUPINFO			si = { 0 };
-	PROCESS_INFORMATION	pi = { 0 };
-	si.cb = sizeof(si);
+	STARTUPINFO			st_StartupInfo = { 0 };
+	PROCESS_INFORMATION	st_ProcInfo    = { 0 };
+	st_StartupInfo.cb = sizeof(st_StartupInfo);
 
 	if (::CreateProcess(szExePath, nullptr, nullptr, nullptr, FALSE,
-		0, nullptr, nullptr, &si, &pi))
+		0, nullptr, nullptr, &st_StartupInfo, &st_ProcInfo))
 	{
-		::CloseHandle(pi.hThread);
-		::CloseHandle(pi.hProcess);
+		::CloseHandle(st_ProcInfo.hThread);
+		::CloseHandle(st_ProcInfo.hProcess);
 		AddLog(_T("[UI] new process"));
 	}
 	else
@@ -331,19 +335,15 @@ void CIpcUIDlg::OnBnClickedNewProcess()
 	}
 }
 
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
-
+// 최소화 상태면 아이콘을 직접 그림 (마법사 생성 코드)
 void CIpcUIDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // device context for painting
+		CPaintDC dc(this);
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Center icon in client rectangle
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -351,7 +351,6 @@ void CIpcUIDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -360,8 +359,6 @@ void CIpcUIDlg::OnPaint()
 	}
 }
 
-// The system calls this function to obtain the cursor to display while the user drags
-//  the minimized window.
 HCURSOR CIpcUIDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
@@ -374,7 +371,7 @@ void CIpcUIDlg::OnClose()
 
 void CIpcUIDlg::OnOK()
 {
-	// Enter 키로 닫히지 않게 비워둔다
+	// Enter 키로 닫히지 않게 비워둠
 }
 
 void CIpcUIDlg::OnCancel()

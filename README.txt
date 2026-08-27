@@ -1,17 +1,20 @@
-IpcProc - Part.1 IPC  전체 자료
+﻿IpcProc - Part.1 IPC  전체 자료
 ================================
 
 [ 구성 ]
 
-  IpcProc\              솔루션 전체 소스
+  IpcProc\              솔루션 전체 소스 (프로젝트_CSCI 루트)
     IpcProc.sln
-    IpcCore\            IPC 기능 구현 (C, DLL)
-      IpcCommon.h         공통 정의 / 로그 / 초기화
-      IpcCore.c           로그 파이프라인
+    include\            CSCI 공용 include (DLL 과 함께 외부로 나가는 헤더)
+      IpcExternalICD.h    외부 ICD : CSC/CSCI 간 통신 정의 (CSCI 당 1개)
+    IpcCore\            IPC 기능 구현 (C, DLL) - CSC
+      IpcInternalICD.h    내부 ICD : CSC 내부(쓰레드/프로세스 간) 통신 정의 (CSC 당 1개)
+      IpcCore.h           전체 포함용 공개 헤더
       IpcThread.h/.c      쓰레드 간 송수신   (전역 링버퍼 + 뮤텍스 + 세마포어)
       IpcMsgQ.h/.c        프로세스 간 송수신 (공유메모리 링버퍼 = 메시지 큐)
       IpcSocket.h/.c      TCP/IP 송수신      (SocketUtility.h 의 Windows 포팅)
-    IpcUI\              동작 확인용 MFC 대화상자
+      IpcCore.c           로그 파이프라인
+    IpcUI\              동작 확인용 MFC 대화상자 - CSC
     docs\               구현 내용 정리
     .gitignore / .gitattributes
 
@@ -49,10 +52,9 @@ IpcProc - Part.1 IPC  전체 자료
 [ 기존 프로젝트에 덮어쓸 때 ]
 
   IpcProc\ 폴더의 내용을 솔루션 루트에 덮어쓰면 된다.
-  단, 아래 두 파일은 덮어쓰기로는 지워지지 않으니 직접 삭제할 것.
-  (IpcUI.idl 로부터 MIDL 이 $(IntDir) 에 재생성하는 산출물이다)
+  단, COM 자동화 잔재는 제거했으므로 예전 폴더에 아래 파일이 남아 있으면 직접 삭제할 것.
 
-    IpcUI\IpcUI_h.h
-    IpcUI\IpcUI_i.c
+    IpcUI\IpcUI.idl / IpcUI.reg
+    IpcUI\IpcUI_h.h / IpcUI_i.c   (MIDL 산출물)
 
   소스는 UTF-8(BOM) 로 저장되어 있으니 붙여넣기 말고 파일을 그대로 교체할 것.

@@ -13,12 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ICD">
+      <UniqueIdentifier>{7E2D9A41-6C58-4F0B-9D3A-2B8E51C0F624}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="IpcCore.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\include\IpcExternalICD.h">
+      <Filter>ICD</Filter>
     </ClInclude>
-    <ClInclude Include="IpcCommon.h">
+    <ClInclude Include="IpcInternalICD.h">
+      <Filter>ICD</Filter>
+    </ClInclude>
+    <ClInclude Include="IpcCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IpcThread.h">

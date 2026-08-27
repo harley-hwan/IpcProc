@@ -1,7 +1,9 @@
-﻿
-// IpcUI.h : main header file for the PROJECT_NAME application
+﻿//
+// @file	IpcUI.h
+// @brief	IpcUI 응용 클래스 선언
+// @author	hwan
+// @date	2026.08.19.
 //
-
 #pragma once
 
 #ifndef __AFXWIN_H__
@@ -11,10 +13,7 @@
 #include "resource.h"		// main symbols
 
 
-// CIpcUIApp:
-// See IpcUI.cpp for the implementation of this class
-//
-
+// CIpcUIApp
 class CIpcUIApp : public CWinApp
 {
 public:
@@ -23,7 +22,6 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
-	virtual int ExitInstance();
 
 // Implementation
 

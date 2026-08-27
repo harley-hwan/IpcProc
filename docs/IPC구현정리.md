@@ -45,7 +45,7 @@ Windows 에는 System V 메시지 큐가 없어서 직접 만들었다.
 | `msgsnd()` | 세마포어(빈슬롯) 대기 → 뮤텍스 → 링버퍼 write → 세마포어(찬슬롯) 증가 |
 | `msgrcv()` | 세마포어(찬슬롯) 대기 → 뮤텍스 → 링버퍼 read → 세마포어(빈슬롯) 증가 |
 | `msgctl(IPC_RMID)` | 모든 핸들 CloseHandle |
-| `mtype` | `st_IpcMsg.iMsgType` |
+| `mtype` | `ST_IpcMsg.iMsgType` |
 
 커널 오브젝트 이름은 `Local\IpcProc.<큐이름>.map / .mtx / .sem.e / .sem.f`.
 `Global\` 이 아니라 `Local\` 을 쓰므로 관리자 권한이 필요 없다.

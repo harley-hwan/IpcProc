@@ -1,11 +1,13 @@
-﻿
-// IpcUIDlg.h : header file
+﻿//
+// @file	IpcUIDlg.h
+// @brief	메인 대화상자 선언
+// @author	hwan
+// @date	2026.08.19.
 //
-
 #pragma once
 
-// 워커 쓰레드 -> UI 쓰레드 로그 전달. lParam 은 malloc 한 wchar_t*, 받는 쪽에서 free.
-#define WM_IPC_LOG		(WM_APP + 100)
+// 워커 쓰레드 -> UI 쓰레드 로그 전달. lParam 은 malloc 한 wchar_t*, 받는 쪽에서 free 함
+#define WM_IPC_LOG			(WM_APP + 100)
 
 #define IPC_UI_TIMER_ID		1
 #define IPC_UI_LOG_MAX		2000
@@ -18,7 +20,7 @@ class CIpcUIDlg : public CDialogEx
 
 // Construction
 public:
-	CIpcUIDlg(CWnd* pParent = nullptr);	// standard constructor
+	CIpcUIDlg(CWnd* pParent = nullptr);
 	virtual ~CIpcUIDlg();
 
 // Dialog Data
@@ -26,25 +28,25 @@ public:
 	enum { IDD = IDD_IPCUI_DIALOG };
 #endif
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
 
 
 // Implementation
 protected:
-	HICON m_hIcon;
+	HICON		m_hIcon;
 
 	CListBox	m_listLog;
 	CString		m_strQueueName;
 	CString		m_strIpAddr;
 	UINT		m_nPortNum;
 	BOOL		m_bNetworkByteOrder;
-	int			m_nLogExtent;
+	INT32		m_nLogExtent;
 
 	void AddLog(LPCWSTR lpszText);
 	void UpdateButtons();
 
-	static void __cdecl LogCallback(void* pCtx, int nChannel, const char* pszUtf8);
+	static VOID __cdecl LogCallback(VOID* vpUserCtx, INT32 iChannel, const CHAR* cpUtf8);
 
 	// Generated message map functions
 	virtual BOOL OnInitDialog();
