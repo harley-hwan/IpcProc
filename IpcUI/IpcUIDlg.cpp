@@ -1,7 +1,7 @@
 ﻿//
 // @file	IpcUIDlg.cpp
-// @brief	메인 대화상자. 버튼으로 IpcCore 의 세 가지 IPC 데모를 켜고 끄고,
-//			워커 쓰레드 로그를 리스트박스에 출력함
+// @brief	메인 대화상자. 버튼으로 IPC 데모 켜고 끄고,
+//			워커 쓰레드 로그를 리스트박스에 찍음
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -88,7 +88,7 @@ END_MESSAGE_MAP()
 
 // CIpcUIDlg message handlers
 
-// 워커 쓰레드에서 불림. UI 접근 없이 PostMessage 로 넘기고 바로 리턴함
+// 워커 쓰레드에서 불림. UI 는 안 건드리고 PostMessage 만 하고 빠짐
 VOID __cdecl CIpcUIDlg::LogCallback(VOID* vpUserCtx, INT32 iChannel, const CHAR* cpUtf8)
 {
 	UNREFERENCED_PARAMETER(vpUserCtx);
@@ -115,7 +115,7 @@ VOID __cdecl CIpcUIDlg::LogCallback(VOID* vpUserCtx, INT32 iChannel, const CHAR*
 		free(wcpText);
 }
 
-// UI 쓰레드. lParam 의 문자열을 출력하고 free 함
+// UI 쓰레드에서 받음. 찍고 나서 free
 LRESULT CIpcUIDlg::OnIpcLog(WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(wParam);
@@ -148,7 +148,7 @@ void CIpcUIDlg::AddLog(LPCWSTR lpszText)
 
 	m_listLog.SetTopIndex(nIndex);
 
-	// 가로 스크롤 폭을 가장 긴 줄에 맞춰 늘림
+	// 가로 스크롤 폭을 제일 긴 줄에 맞춰 늘림
 	CDC* pDC = m_listLog.GetDC();
 	if (pDC != nullptr)
 	{
@@ -195,7 +195,7 @@ void CIpcUIDlg::OnDestroy()
 	s_hLogWnd = nullptr;
 	f_IpcSetLogHandler(nullptr, nullptr);
 
-	// 아직 큐에 남아 있는 로그 버퍼 반납함
+	// 큐에 남아 있던 로그 버퍼 정리
 	MSG st_Msg;
 	while (::PeekMessage(&st_Msg, GetSafeHwnd(), WM_IPC_LOG, WM_IPC_LOG, PM_REMOVE))
 	{
@@ -214,7 +214,7 @@ void CIpcUIDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
-// 데모 동작 상태에 맞춰 버튼/입력칸을 켜고 끔
+// 데모 상태 보고 버튼/입력칸 켜고 끔
 void CIpcUIDlg::UpdateButtons()
 {
 	const BOOL bThread = (f_IpcThreadDemoIsRunning() != 0);
@@ -308,7 +308,7 @@ void CIpcUIDlg::OnBnClickedLogClear()
 	m_listLog.SetHorizontalExtent(0);
 }
 
-// 같은 exe 를 인자 없이 하나 더 띄움. 새 창은 처음 실행한 것과 똑같은 상태로 뜸
+// 같은 exe 하나 더 띄움. 새 창은 처음 상태 그대로
 void CIpcUIDlg::OnBnClickedNewProcess()
 {
 	TCHAR szExePath[MAX_PATH] = { 0 };
@@ -335,7 +335,7 @@ void CIpcUIDlg::OnBnClickedNewProcess()
 	}
 }
 
-// 최소화 상태면 아이콘을 직접 그림 (마법사 생성 코드)
+// 최소화 상태면 아이콘 직접 그림 (마법사 코드)
 void CIpcUIDlg::OnPaint()
 {
 	if (IsIconic())

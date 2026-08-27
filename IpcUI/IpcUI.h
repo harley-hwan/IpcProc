@@ -1,6 +1,6 @@
 ﻿//
 // @file	IpcUI.h
-// @brief	IpcUI 응용 클래스 선언
+// @brief	IpcUI 앱 클래스
 // @author	hwan
 // @date	2026.08.19.
 //

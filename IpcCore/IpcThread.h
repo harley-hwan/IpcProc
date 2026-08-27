@@ -1,7 +1,7 @@
 ﻿//
 // @file	IpcThread.h
 // @brief	쓰레드 간 메시지 송/수신 (전역 링버퍼 + 뮤텍스 + 세마포어).
-//			메시지 정의(ST_IpcThreadMsg)는 IpcInternalICD.h 에 있음
+//			메시지 구조체는 IpcInternalICD.h 에 있음
 // @author	hwan
 // @date	2026.08.19.
 //

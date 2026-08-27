@@ -1,13 +1,13 @@
 ﻿//
 // @file	IpcMsgQ.h
 // @brief	프로세스 간 메시지 송/수신 (메시지 큐).
-//			Windows 에는 System V 메시지 큐가 없어서 아래 조합으로 같은 동작을 만듦.
+//			Windows 엔 System V 메시지 큐가 없어서 아래 조합으로 흉내냄.
 //			  msgget -> CreateFileMapping (네임드 공유메모리) + 링버퍼
 //			  msgsnd -> 세마포어(빈슬롯) 대기 -> 뮤텍스 -> write -> 세마포어(찬슬롯) 증가
 //			  msgrcv -> 세마포어(찬슬롯) 대기 -> 뮤텍스 -> read  -> 세마포어(빈슬롯) 증가
 //			  mtype  -> ST_IpcMsg.iMsgType
-//			메시지/링버퍼 정의(ST_IpcMsg, ST_IpcMsgQRing)는 IpcInternalICD.h 에 있음.
-//			오브젝트 이름에 Local\ 을 쓰므로 관리자 권한 필요 없음.
+//			메시지/링버퍼 구조체는 IpcInternalICD.h 에 있음.
+//			이름에 Local\ 을 써서 관리자 권한은 필요 없음.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -42,7 +42,7 @@ typedef struct
     CHAR                    caName[IPC_MSGQ_NAME_MAX];
 } ST_IpcMsgQ;
 
-// Create 는 없으면 만들고 있으면 참여함 (기동 순서 무관), Open 은 있을 때만 참여함
+// Create 는 없으면 만들고 있으면 붙음 (띄우는 순서 상관없음), Open 은 있어야만 붙음
 IPCCORE_API ST_IpcMsgQ __cdecl f_IpcMsgQCreate(const CHAR *cpName);
 IPCCORE_API ST_IpcMsgQ __cdecl f_IpcMsgQOpen(const CHAR *cpName);
 IPCCORE_API INT32      __cdecl f_IpcMsgQSend(ST_IpcMsgQ *stpQ, const ST_IpcMsg *stpMsg, const UINT32 uiTimeOut_ms);

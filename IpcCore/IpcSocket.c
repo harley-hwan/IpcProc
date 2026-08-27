@@ -1,7 +1,7 @@
 ﻿//
 // @file	IpcSocket.c
 // @brief	TCP/IP 송/수신 (SocketUtility.h 의 Windows 포팅).
-//			원본 .c 가 없어 헤더의 선언과 상수만 보고 구현함.
+//			원본 .c 가 없어서 헤더 선언과 상수만 보고 구현함.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -111,14 +111,14 @@ static INT32 f_FillSockAddr(struct sockaddr_in *stpAddr, const INT8 *cpIpAddr, c
     return SOCKET_PASS;
 }
 
-// Windows 의 소켓 타임아웃은 timeval 이 아니라 밀리초 DWORD 임
+// Windows 소켓 타임아웃은 timeval 이 아니라 ms 단위 DWORD 임
 static VOID f_ApplyTimeout(const SOCKET hSock, const INT64 lTimeOut_s, const INT64 lTimeOut_us)
 {
     DWORD dwTimeOut_ms;
 
     if ((lTimeOut_s <= 0) && (lTimeOut_us <= 0))
     {
-        return;                                     // 0 이하면 무한 대기임
+        return;                                     // 0 이하면 무한 대기
     }
 
     dwTimeOut_ms = (DWORD)((lTimeOut_s * 1000) + (lTimeOut_us / 1000));
@@ -131,7 +131,7 @@ static VOID f_ApplyTimeout(const SOCKET hSock, const INT64 lTimeOut_s, const INT
     (VOID)setsockopt(hSock, SOL_SOCKET, SO_SNDTIMEO, (const CHAR *)&dwTimeOut_ms, (INT32)sizeof(dwTimeOut_ms));
 }
 
-// usleep 이 없으므로 긴 대기는 Sleep, 짧은 대기는 QPC 스핀임
+// usleep 이 없어서 긴 건 Sleep, 짧은 건 QPC 로 스핀
 static VOID f_SleepMicroseconds(const UINT32 uiMicroSec)
 {
     LARGE_INTEGER st_Freq;
@@ -238,7 +238,7 @@ VOID __cdecl f_SocketGetUDP_PartitionSendGap(UINT32 *uipUDP_PartitionSendGap_us)
 
 // ---- UDP ----
 
-// UDP 송신 소켓 초기화. 주소는 목적지임
+// UDP 송신 소켓. 주소는 보낼 곳
 ST_Socket __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPortNum)
 {
     ST_Socket st_Socket = f_MakeInvalidSocket(enum_Socket_Type_UDP_IPv4Tx);
@@ -269,7 +269,7 @@ ST_Socket __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPo
     return st_Socket;
 }
 
-// UDP 수신 소켓 초기화. 자기 주소에 bind 함
+// UDP 수신 소켓. 자기 주소에 bind 함
 ST_Socket __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPortNum,
                                          const INT64 lTimeOut_s, const INT64 lTimeOut_us)
 {
@@ -312,7 +312,7 @@ ST_Socket __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPo
     return st_Socket;
 }
 
-// UDP 송신. 리턴은 >0 처리 바이트 / -1 에러임
+// UDP 송신. >0 보낸 바이트, -1 에러
 INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                           const INT64 lDataSize)
 {
@@ -379,7 +379,7 @@ INT64 __cdecl f_SocketSendUDP_IPv4_Partition(const ST_Socket *stpSocket, const V
     return lTotalSent;
 }
 
-// UDP 수신. 리턴은 >0 처리 바이트 / 0 타임아웃 / -1 에러임
+// UDP 수신. >0 받은 바이트, 0 타임아웃, -1 에러
 INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                           const INT64 lMaxSize)
 {
@@ -404,7 +404,7 @@ INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID
     return (INT64)iRecv;
 }
 
-// UDP 분할 수신. 요청한 크기를 다 받을 때까지 반복함
+// UDP 분할 수신. 다 받을 때까지 반복함
 INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                              const INT64 lFixedDataSize)
 {
@@ -590,8 +590,8 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT
         return st_Socket;
     }
 
-    // 재기동 시 TIME_WAIT 로 bind 가 막히는 것을 피함.
-    // Windows 의 SO_REUSEADDR 은 Linux 와 의미가 달라 운영 코드라면 SO_EXCLUSIVEADDRUSE 검토할 것
+    // 재기동하면 TIME_WAIT 때문에 bind 가 막혀서 넣음.
+    // Windows 의 SO_REUSEADDR 은 Linux 랑 의미가 좀 달라서 실제 운영 코드면 SO_EXCLUSIVEADDRUSE 쓸 것
     (VOID)setsockopt(hListen, SOL_SOCKET, SO_REUSEADDR, (const CHAR *)&iReuse, (INT32)sizeof(iReuse));
 
     if (bind(hListen, (const struct sockaddr *)&st_Addr, (INT32)sizeof(st_Addr)) == SOCKET_ERROR)
@@ -666,8 +666,8 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT
     return st_Socket;
 }
 
-// Sync 계열 핸드셰이크는 SOCKET_SYNC_PASS_* 상수만 보고 맞춘 것임.
-// Rx 가 LISTEN 을 보내고 Tx 가 CONNECT 로 답함. 상대 절차가 다르면 이 두 함수만 고치면 됨.
+// Sync 쪽 핸드셰이크는 SOCKET_SYNC_PASS_* 값만 보고 맞춘 것.
+// Rx 가 LISTEN 을 보내면 Tx 가 CONNECT 로 답함. 상대 절차가 다르면 이 두 함수만 고치면 됨.
 
 // TCP 클라이언트 초기화 (동기). 접속 후 LISTEN 을 받고 CONNECT 로 답함
 ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum,
@@ -751,7 +751,7 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Sync(const INT8 *cpIpAddr, const UINT16
 }
 
 //
-// @brief	요청한 크기를 다 보낼 때까지 TCP 송신을 반복함
+// @brief	정해진 크기를 다 보낼 때까지 send 반복함
 // @param	stpSocket		송신 소켓 (끊김 감지 시 상태 갱신)
 // @param	vpDataAddr		송신 데이터 주소
 // @param	lFixedDataSize	전체 송신 크기 (byte)
@@ -808,7 +808,7 @@ INT64 __cdecl f_SocketSendTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr,
 }
 
 //
-// @brief	요청한 크기를 다 받을 때까지 TCP 수신을 반복함
+// @brief	정해진 크기를 다 받을 때까지 recv 반복함
 // @param	stpSocket		수신 소켓 (끊김 감지 시 상태 갱신)
 // @param	vpDataAddr		수신 버퍼 주소
 // @param	lFixedDataSize	전체 수신 크기 (byte)
@@ -873,7 +873,7 @@ INT64 __cdecl f_SocketRecvTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr,
     return lTotalRecv;
 }
 
-// 소켓 닫기. 데이터 소켓과 listen 소켓 모두 반납함
+// 소켓 닫기. listen 소켓까지 같이 닫음
 INT32 __cdecl f_SocketClose(const ST_Socket st_Socket)
 {
     if (st_Socket.hSockId != SOCKET_INVALID_HANDLE)
@@ -890,8 +890,8 @@ INT32 __cdecl f_SocketClose(const ST_Socket st_Socket)
     return SOCKET_PASS;
 }
 
-// 데모 : int(4바이트) 하나를 프레임 헤더 없이 그대로 주고받음.
-// x64 Windows 와 x86-64 Linux 는 둘 다 little-endian 이라 기본값으로 값이 맞음.
+// 데모는 int 하나를 헤더 없이 그대로 주고받음.
+// x64 는 Windows/Linux 둘 다 little-endian 이라 그냥 보내도 값이 맞음.
 static INT32 f_IsDemoStopRequested(const UINT32 uiWait_ms)
 {
     if (s_hDemoStop == NULL)
@@ -902,7 +902,7 @@ static INT32 f_IsDemoStopRequested(const UINT32 uiWait_ms)
     return (WaitForSingleObject(s_hDemoStop, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
 }
 
-// 데모 송신(클라이언트) 쓰레드. 서버에 접속해 1 부터 100 까지 0.1 초 간격으로 송신함
+// 데모 송신(클라이언트) 쓰레드. 서버에 붙어서 1~100 을 0.1 초마다 보냄
 static UINT32 __stdcall f_TcpSenderProc(VOID *vpArg)
 {
     INT32 iData;
@@ -962,7 +962,7 @@ static UINT32 __stdcall f_TcpSenderProc(VOID *vpArg)
     return 0U;
 }
 
-// 데모 수신(서버) 쓰레드. 접속을 받아 정지 요청까지 int 값을 수신해 로그로 출력함
+// 데모 수신(서버) 쓰레드. 접속 받고 멈추라고 할 때까지 받아서 로그로 찍음
 static UINT32 __stdcall f_TcpReceiverProc(VOID *vpArg)
 {
     INT32 nRecvCount = 0;
@@ -1013,7 +1013,7 @@ static UINT32 __stdcall f_TcpReceiverProc(VOID *vpArg)
 }
 
 //
-// @brief	TCP 데모 시작. 역할에 맞는 워커 쓰레드를 기동함
+// @brief	TCP 데모 시작. 역할에 맞는 쓰레드 띄움
 // @param	iIsSender				1:송신(클라이언트), 0:수신(서버)
 // @param	cpIpAddr				상대(또는 bind) IPv4 주소 (비어 있으면 127.0.0.1)
 // @param	usPortNum				포트 번호 (0 이면 51000)
@@ -1029,7 +1029,7 @@ INT32 __cdecl f_IpcTcpDemoStart(const INT32 iIsSender, const INT8 *cpIpAddr,
         return SOCKET_FAIL;
     }
 
-    // 워커가 스스로 끝난 뒤 다시 시작하는 경우가 있어 이전 핸들을 먼저 반납함
+    // 워커가 알아서 끝난 뒤 재시작하는 경우가 있어서 이전 핸들부터 정리함
     if (s_hDemoThread != NULL)
     {
         (VOID)WaitForSingleObject(s_hDemoThread, 1000U);
@@ -1087,7 +1087,7 @@ INT32 __cdecl f_IpcTcpDemoStart(const INT32 iIsSender, const INT8 *cpIpAddr,
     return SOCKET_PASS;
 }
 
-// 데모 정지. 정지 이벤트와 중단 요청을 올리고 워커 쓰레드 종료를 기다림
+// 데모 정지. 이벤트/취소 올리고 쓰레드 끝날 때까지 기다림
 INT32 __cdecl f_IpcTcpDemoStop(VOID)
 {
     if (s_hDemoStop != NULL)

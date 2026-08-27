@@ -17,7 +17,7 @@
 
 #include "IpcCore.h"
 
-// 메시지/링버퍼 레이아웃과 오브젝트 이름 규약은 IpcInternalICD.h 에 있음
+// 메시지/링버퍼 구조체와 오브젝트 이름은 IpcInternalICD.h 에 있음
 #define IPC_MSGQ_WAIT_SLICE_MS  200
 
 static ST_IpcMsgQ           s_stDemoQueue;
@@ -37,7 +37,7 @@ static VOID f_BuildObjName(wchar_t *wcpOut, const size_t szOutCch, const CHAR *c
         (VOID)wcscpy_s(wcaName, sizeof(wcaName) / sizeof(wcaName[0]), L"Default");
     }
 
-    // %s 도 되지만 %ls 가 표준이고 이식성 있음
+    // %s 도 되긴 하는데 %ls 가 표준이라 이걸 씀
     (VOID)_snwprintf_s(wcpOut, szOutCch, _TRUNCATE, L"%ls%ls%ls", IPC_MSGQ_OBJ_PREFIX, wcaName, wcpSuffix);
 }
 
@@ -50,7 +50,7 @@ static VOID f_CloseHandleSafe(VOID **vppHandle)
     }
 }
 
-// 링버퍼 헤더는 뮤텍스 안에서 처음 한 번만 초기화함
+// 링버퍼 헤더 초기화는 뮤텍스 잡고 처음 한 번만 함
 static INT32 f_PrepareRing(const ST_IpcMsgQ *stpQ)
 {
     ST_IpcMsgQRing *stpRing = (ST_IpcMsgQRing *)stpQ->vpRing;
@@ -65,7 +65,7 @@ static INT32 f_PrepareRing(const ST_IpcMsgQ *stpQ)
 
     if (stpRing->uiMagic != IPC_MSGQ_MAGIC)
     {
-        // 파일 매핑은 0 으로 채워져 있어 head/tail/count 는 이미 0 임
+        // 파일 매핑은 0 으로 채워져 나와서 head/tail/count 는 안 건드려도 됨
         stpRing->uiMagic     = IPC_MSGQ_MAGIC;
         stpRing->iCapacity   = IPC_MSGQ_CAPACITY;
         stpRing->iPayloadMax = IPC_MSGQ_PAYLOAD_MAX;
@@ -85,7 +85,7 @@ static INT32 f_PrepareRing(const ST_IpcMsgQ *stpQ)
 }
 
 //
-// @brief	큐 열기 공통 처리. 공유메모리와 동기화 객체를 준비함
+// @brief	큐 열기 공통. 공유메모리랑 동기화 객체 준비
 // @param	cpName	큐 이름
 // @param	iCreate	1 이면 없을 때 생성 / 0 이면 있을 때만 참여
 // @return	큐 핸들 (iStatus 로 성공 여부 확인)
@@ -141,7 +141,7 @@ static ST_IpcMsgQ f_MsgQOpenInternal(const CHAR *cpName, const INT32 iCreate)
     f_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".mtx");
     st_Q.vpMutex = (VOID *)CreateMutexW(NULL, FALSE, wcaObj);
 
-    // 세마포어 2개. 초기 카운트는 최초 생성 시에만 반영됨
+    // 세마포어 2개. 초기 카운트는 처음 만들 때만 먹힘
     f_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".sem.e");
     st_Q.vpSemEmpty = (VOID *)CreateSemaphoreW(NULL, (LONG)IPC_MSGQ_CAPACITY, (LONG)IPC_MSGQ_CAPACITY, wcaObj);
 
@@ -168,13 +168,13 @@ static ST_IpcMsgQ f_MsgQOpenInternal(const CHAR *cpName, const INT32 iCreate)
     return st_Q;
 }
 
-// 큐 생성. 없으면 만들고 있으면 참여함 (기동 순서 무관)
+// 없으면 만들고 있으면 붙음
 ST_IpcMsgQ __cdecl f_IpcMsgQCreate(const CHAR *cpName)
 {
     return f_MsgQOpenInternal(cpName, 1);
 }
 
-// 이미 있는 큐에 참여함
+// 이미 있는 큐에만 붙음
 ST_IpcMsgQ __cdecl f_IpcMsgQOpen(const CHAR *cpName)
 {
     return f_MsgQOpenInternal(cpName, 0);
@@ -209,7 +209,7 @@ INT32 __cdecl f_IpcMsgQSend(ST_IpcMsgQ *stpQ, const ST_IpcMsg *stpMsg, const UIN
         return IPC_FAIL;
     }
 
-    // 프로세스 경계를 넘는 상호배제
+    // 프로세스 간 상호배제용 뮤텍스
     dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
     if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
     {
@@ -285,7 +285,7 @@ INT32 __cdecl f_IpcMsgQGetCount(const ST_IpcMsgQ *stpQ)
     return stpRing->nCount;
 }
 
-// 큐 닫기. 매핑 해제 후 모든 핸들 반납함
+// 큐 닫기. 매핑 풀고 핸들 전부 반납
 INT32 __cdecl f_IpcMsgQClose(ST_IpcMsgQ *stpQ)
 {
     if (stpQ == NULL)
@@ -319,7 +319,7 @@ static INT32 f_IsStopRequested(const UINT32 uiWait_ms)
     return (WaitForSingleObject(s_hDemoStop, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
 }
 
-// 데모 송신 쓰레드. 1 부터 100 까지 0.1 초 간격으로 큐에 송신함
+// 데모 송신 쓰레드. 1~100 을 0.1 초마다 보냄
 static UINT32 __stdcall f_SenderProc(VOID *vpArg)
 {
     ST_IpcMsg   st_Msg;
@@ -360,7 +360,7 @@ static UINT32 __stdcall f_SenderProc(VOID *vpArg)
     return 0U;
 }
 
-// 데모 수신 쓰레드. 정지 요청까지 큐에서 꺼내 로그로 출력함
+// 데모 수신 쓰레드. 멈추라고 할 때까지 꺼내서 로그로 찍음
 static UINT32 __stdcall f_ReceiverProc(VOID *vpArg)
 {
     ST_IpcMsg   st_Msg;
@@ -395,7 +395,7 @@ static UINT32 __stdcall f_ReceiverProc(VOID *vpArg)
 }
 
 //
-// @brief	메시지 큐 데모 시작. 큐를 만들고(또는 참여하고) 역할에 맞는 워커 쓰레드 기동함
+// @brief	데모 시작. 큐 만들고 역할에 맞는 쓰레드 띄움
 // @param	cpName		큐 이름 (NULL/빈 문자열이면 기본 이름)
 // @param	iIsSender	1:송신, 0:수신
 // @return	IPC_PASS / IPC_FAIL (이미 동작 중 포함)
@@ -438,7 +438,7 @@ INT32 __cdecl f_IpcMsgQDemoStart(const CHAR *cpName, const INT32 iIsSender)
     return IPC_PASS;
 }
 
-// 데모 정지. 워커 쓰레드 종료 후 큐를 닫음
+// 데모 정지. 쓰레드 끝나면 큐 닫음
 INT32 __cdecl f_IpcMsgQDemoStop(VOID)
 {
     if (s_hDemoStop != NULL)

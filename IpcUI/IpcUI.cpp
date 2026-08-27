@@ -1,6 +1,6 @@
 ﻿//
 // @file	IpcUI.cpp
-// @brief	응용 초기화/종료 (MFC 마법사 생성 코드 기반)
+// @brief	앱 초기화 (MFC 마법사 코드 기반)
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -34,7 +34,7 @@ CIpcUIApp theApp;
 
 BOOL CIpcUIApp::InitInstance()
 {
-	// 공용 컨트롤 초기화 (visual style 매니페스트 사용 시 필수임)
+	// 공용 컨트롤 초기화. visual style 쓰면 필수
 	INITCOMMONCONTROLSEX st_InitCtrls;
 	st_InitCtrls.dwSize = sizeof(st_InitCtrls);
 	st_InitCtrls.dwICC  = ICC_WIN95_CLASSES;
@@ -54,7 +54,7 @@ BOOL CIpcUIApp::InitInstance()
 	// 설정 저장용 레지스트리 키
 	SetRegistryKey(_T("IpcProc"));
 
-	// COM 자동화 미사용이라 마법사가 넣은 자동화 서버 등록 코드(idl/reg/typelib)는 제거함
+	// 마법사가 넣었던 COM 자동화 등록 코드는 안 써서 지움
 	CShellManager *pShellManager = new CShellManager;
 
 	CIpcUIDlg dlg;
@@ -66,7 +66,7 @@ BOOL CIpcUIApp::InitInstance()
 		TRACE(traceAppMsg, 0, "Warning: if you are using MFC controls on the dialog, you cannot #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS.\n");
 	}
 
-	// 지역 객체를 가리키던 포인터를 남겨두지 않음
+	// 지역 객체 가리키던 거라 비워둠
 	m_pMainWnd = nullptr;
 
 	if (pShellManager != nullptr)
@@ -78,6 +78,6 @@ BOOL CIpcUIApp::InitInstance()
 	ControlBarCleanUp();
 #endif
 
-	// 대화상자 기반이므로 메시지 펌프를 돌리지 않고 종료함
+	// 대화상자 앱이라 메시지 펌프 안 돌리고 바로 종료
 	return FALSE;
 }

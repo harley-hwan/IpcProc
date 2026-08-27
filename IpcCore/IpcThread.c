@@ -1,9 +1,9 @@
 ﻿//
 // @file	IpcThread.c
 // @brief	쓰레드 간 메시지 송/수신.
-//			전역 링버퍼를 뮤텍스로 상호배제하고, 세마포어 2개로 빈 슬롯/찬 슬롯 개수를 셈.
-//			뮤텍스만 쓰면 "빌 때까지 대기" 가 바쁜 대기가 되므로 세마포어를 같이 씀.
-//			CRITICAL_SECTION = pthread_mutex_t, CreateSemaphore = sem_init 에 해당함.
+//			전역 링버퍼 + 뮤텍스, 빈/찬 슬롯 개수는 세마포어 2개로 셈.
+//			뮤텍스만 쓰면 빌 때까지 기다리는 게 바쁜 대기가 돼서 세마포어를 같이 씀.
+//			CRITICAL_SECTION = pthread_mutex_t, CreateSemaphore = sem_init 이라고 보면 됨.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -14,7 +14,7 @@
 
 #include "IpcCore.h"
 
-// 송신/수신 쓰레드가 함께 쓰는 전역 자원
+// 송신/수신 쓰레드가 같이 쓰는 것들
 static ST_IpcThreadMsg      s_staRing[IPC_THREAD_RING_SLOTS];
 static INT32                s_iRingHead  = 0;
 static INT32                s_iRingTail  = 0;
@@ -32,7 +32,7 @@ static volatile LONG        s_lDemoRunning = 0;
 
 #define IPC_THREAD_WAIT_SLICE_MS    100
 
-// 큐 생성. 링버퍼/뮤텍스/세마포어 준비함. 이미 있으면 그대로 성공임
+// 큐 생성. 이미 만들어져 있으면 그냥 성공 처리
 INT32 __cdecl f_IpcThreadQueueInit(VOID)
 {
     if (InterlockedCompareExchange(&s_lQueueReady, 1, 0) != 0)
@@ -65,7 +65,7 @@ INT32 __cdecl f_IpcThreadQueueInit(VOID)
     return IPC_PASS;
 }
 
-// 큐 해제. 뮤텍스와 세마포어 반납함
+// 큐 해제
 VOID __cdecl f_IpcThreadQueueDeinit(VOID)
 {
     if (InterlockedCompareExchange(&s_lQueueReady, 0, 1) != 1)
@@ -80,7 +80,7 @@ VOID __cdecl f_IpcThreadQueueDeinit(VOID)
 }
 
 //
-// @brief	큐에 메시지 한 건 송신. 가득 차면 빈 슬롯이 날 때까지 대기함
+// @brief	큐에 한 건 보냄. 가득 차면 빈 자리 날 때까지 기다림
 // @param	stpMsg			송신할 메시지
 // @param	uiTimeOut_ms	빈 슬롯 대기 한도 (ms)
 // @return	IPC_PASS / IPC_FAIL (타임아웃 포함)
@@ -92,7 +92,7 @@ INT32 __cdecl f_IpcThreadQueueSend(const ST_IpcThreadMsg *stpMsg, const UINT32 u
         return IPC_FAIL;
     }
 
-    // 빈 슬롯 대기. 큐가 가득 차면 여기서 블록됨
+    // 가득 차 있으면 여기서 막힘
     if (WaitForSingleObject(s_hSemEmpty, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;
@@ -110,7 +110,7 @@ INT32 __cdecl f_IpcThreadQueueSend(const ST_IpcThreadMsg *stpMsg, const UINT32 u
 }
 
 //
-// @brief	큐에서 메시지 한 건 수신. 비어 있으면 찬 슬롯이 생길 때까지 대기함
+// @brief	큐에서 한 건 꺼냄. 비어 있으면 들어올 때까지 기다림
 // @param	stpMsg			수신 메시지를 담을 버퍼
 // @param	uiTimeOut_ms	찬 슬롯 대기 한도 (ms)
 // @return	IPC_PASS / IPC_FAIL (타임아웃 포함)
@@ -122,7 +122,7 @@ INT32 __cdecl f_IpcThreadQueueRecv(ST_IpcThreadMsg *stpMsg, const UINT32 uiTimeO
         return IPC_FAIL;
     }
 
-    // 찬 슬롯 대기. 큐가 비면 여기서 블록됨
+    // 비어 있으면 여기서 막힘
     if (WaitForSingleObject(s_hSemFull, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;
@@ -165,7 +165,7 @@ static INT32 f_IsStopRequested(const UINT32 uiWait_ms)
     return (WaitForSingleObject(s_hStopEvent, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
 }
 
-// 데모 송신 쓰레드. 1 부터 100 까지 0.1 초 간격으로 큐에 송신함
+// 데모 송신 쓰레드. 1~100 을 0.1 초마다 보냄
 static UINT32 __stdcall f_TxThreadProc(VOID *vpArg)
 {
     ST_IpcThreadMsg st_Msg;
@@ -204,7 +204,7 @@ static UINT32 __stdcall f_TxThreadProc(VOID *vpArg)
     return 0U;
 }
 
-// 데모 수신 쓰레드. 정지 요청까지 큐에서 꺼내 로그로 출력함
+// 데모 수신 쓰레드. 멈추라고 할 때까지 꺼내서 로그로 찍음
 static UINT32 __stdcall f_RxThreadProc(VOID *vpArg)
 {
     ST_IpcThreadMsg st_Msg;
@@ -227,7 +227,7 @@ static UINT32 __stdcall f_RxThreadProc(VOID *vpArg)
 }
 
 //
-// @brief	쓰레드 데모 시작. 큐 준비 후 송신/수신 쓰레드 한 쌍을 기동함
+// @brief	데모 시작. 큐 준비하고 송신/수신 쓰레드 한 쌍 띄움
 // @return	IPC_PASS / IPC_FAIL (이미 동작 중 포함)
 //
 INT32 __cdecl f_IpcThreadDemoStart(VOID)
@@ -265,7 +265,7 @@ INT32 __cdecl f_IpcThreadDemoStart(VOID)
     return IPC_PASS;
 }
 
-// 데모 정지. 정지 이벤트를 올리고 두 쓰레드 종료를 기다림
+// 데모 정지. 이벤트 올리고 두 쓰레드 끝날 때까지 기다림
 INT32 __cdecl f_IpcThreadDemoStop(VOID)
 {
     HANDLE haThread[2];

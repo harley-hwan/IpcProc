@@ -1,7 +1,7 @@
 ﻿//
 // @file	IpcCore.c
-// @brief	로그 파이프라인과 코어 초기화/해제.
-//			워커 쓰레드들이 f_IpcLog 로 남긴 로그를 등록된 콜백으로 전달함.
+// @brief	로그 전달과 코어 초기화/해제.
+//			워커 쓰레드가 f_IpcLog 로 남긴 로그를 콜백으로 넘겨줌.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -18,7 +18,7 @@ static LONG                 s_lLogLockReady = 0;
 static IPC_LOG_FN           p_fnLogHandler  = NULL;
 static VOID *               p_vpLogUserCtx  = NULL;
 
-// DllMain 에서 동기화 객체를 만들면 위험하므로 첫 사용 시점에 지연 초기화함
+// DllMain 에서 만들면 위험해서 처음 쓸 때 초기화함
 static VOID f_EnsureLogLock(VOID)
 {
     if (InterlockedCompareExchange(&s_lLogLockReady, 1, 0) == 0)
@@ -35,7 +35,7 @@ static VOID f_EnsureLogLock(VOID)
     }
 }
 
-// 로그 콜백 등록/해제. fnLog 가 NULL 이면 해제임
+// 로그 콜백 등록. NULL 주면 해제
 VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, VOID *vpUserCtx)
 {
     f_EnsureLogLock();
@@ -47,7 +47,7 @@ VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, VOID *vpUserCtx)
 }
 
 //
-// @brief	printf 형식으로 로그 한 줄을 만들어 등록된 콜백으로 전달함
+// @brief	printf 처럼 로그 한 줄 만들어서 콜백으로 넘김
 // @param	iChannel	로그 채널 (enum_IpcLogCh_*)
 // @param	cpFormat	printf 형식 문자열 (UTF-8)
 // @return	없음
@@ -101,7 +101,7 @@ INT32 __cdecl f_IpcCoreInit(VOID)
 }
 
 //
-// @brief	코어 해제. 진행 중인 데모를 모두 정지시키고 자원 반납
+// @brief	코어 해제. 돌고 있는 데모 다 세우고 자원 반납
 // @return	없음
 //
 VOID __cdecl f_IpcCoreDeinit(VOID)

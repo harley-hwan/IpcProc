@@ -6,9 +6,9 @@
 //			  - SO_RCVTIMEO/SO_SNDTIMEO 가 timeval 이 아니라 DWORD ms 임 (내부에서 변환)
 //			  - close -> closesocket, errno -> WSAGetLastError, WSAStartup/WSACleanup 필요
 //			  - accept/connect 대기를 밖에서 끊는 f_SocketCancelBlockingCalls 추가
-//			역할 : Tx = 클라이언트(connect), Rx = 서버(bind/listen/accept).
+//			Tx 가 클라이언트(connect), Rx 가 서버(bind/listen/accept) 쪽임.
 //			TCP Sync 메시지 값(SOCKET_SYNC_PASS_*)은 CSCI 간 통신 규약이라 IpcExternalICD.h 에 있음.
-//			원본 .c 가 없어 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에 맞춘 것이므로
+//			원본 .c 가 없어서 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에 맞춘 거라
 //			상대가 반대로 동작하면 Tx/Rx Init 함수를 바꿔 부르면 됨.
 // @author	hwan
 // @date	2026.08.19.
@@ -18,7 +18,7 @@
 
 #include "IpcExternalICD.h"
 
-// winsock2.h 는 windows.h 보다 먼저 포함되어야 함
+// winsock2.h 가 windows.h 보다 먼저 와야 함
 #include <winsock2.h>
 #include <ws2tcpip.h>
 

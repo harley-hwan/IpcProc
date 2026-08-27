@@ -1,6 +1,6 @@
 ﻿//
 // @file	IpcUIDlg.h
-// @brief	메인 대화상자 선언
+// @brief	메인 대화상자
 // @author	hwan
 // @date	2026.08.19.
 //
