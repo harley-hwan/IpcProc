@@ -23,18 +23,15 @@ END_MESSAGE_MAP()
 
 CIpcUIApp::CIpcUIApp()
 {
-	// Restart Manager 지원
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 }
 
 
-// 유일한 CIpcUIApp 객체
 CIpcUIApp theApp;
 
 
 BOOL CIpcUIApp::InitInstance()
 {
-	// 공용 컨트롤 초기화. visual style 쓰면 필수
 	INITCOMMONCONTROLSEX st_InitCtrls;
 	st_InitCtrls.dwSize = sizeof(st_InitCtrls);
 	st_InitCtrls.dwICC  = ICC_WIN95_CLASSES;
@@ -48,13 +45,10 @@ BOOL CIpcUIApp::InitInstance()
 		return FALSE;
 	}
 
-	// MFC 컨트롤 테마 적용
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 
-	// 설정 저장용 레지스트리 키
 	SetRegistryKey(_T("IpcProc"));
 
-	// 마법사가 넣었던 COM 자동화 등록 코드는 안 써서 지움
 	CShellManager *pShellManager = new CShellManager;
 
 	CIpcUIDlg dlg;
@@ -66,7 +60,6 @@ BOOL CIpcUIApp::InitInstance()
 		TRACE(traceAppMsg, 0, "Warning: if you are using MFC controls on the dialog, you cannot #define _AFX_NO_MFC_CONTROLS_IN_DIALOGS.\n");
 	}
 
-	// 지역 객체 가리키던 거라 비워둠
 	m_pMainWnd = nullptr;
 
 	if (pShellManager != nullptr)
@@ -78,6 +71,5 @@ BOOL CIpcUIApp::InitInstance()
 	ControlBarCleanUp();
 #endif
 
-	// 대화상자 앱이라 메시지 펌프 안 돌리고 바로 종료
 	return FALSE;
 }

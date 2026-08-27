@@ -10,7 +10,7 @@ IpcProc.sln
 ├─ IpcCore (C DLL)  - IPC 기능 구현
 │   ├─ IpcThread.c   쓰레드 간 송수신
 │   ├─ IpcMsgQ.c     프로세스 간 송수신 (메시지 큐)
-│   └─ IpcSocket.c   TCP/IP (SocketUtility.h 포팅)
+│   └─ IpcSocket.c   TCP/IP (SocketUtility.h/.c 포팅)
 └─ IpcUI (MFC 대화상자) - 버튼으로 코어 함수를 호출하고 로그만 표시
 ```
 
@@ -56,7 +56,7 @@ Windows 에는 System V 메시지 큐가 없어서 직접 만들었다.
 
 ## 3. TCP/IP (IpcSocket.c)
 
-첨부받은 Linux `SocketUtility.h` v5.0 을 Winsock2 로 포팅했다.
+첨부받은 Linux `SocketUtility.h/.c` v5.0 을 Winsock2 로 포팅했다.
 함수 이름과 인자, 상수, enum 은 원본 그대로 두어 리눅스쪽 코드와 맞물리게 했다.
 (원본 .c 는 없어서 헤더 선언만 보고 구현)
 

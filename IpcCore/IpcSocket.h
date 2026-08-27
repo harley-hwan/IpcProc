@@ -1,15 +1,15 @@
 ﻿//
 // @file	IpcSocket.h
-// @brief	TCP/IP 송/수신. Linux SocketUtility.h v5.0 을 Winsock2 로 포팅한 것.
+// @brief	TCP/IP 송/수신. Linux SocketUtility.h/.c v5.0 (ref\참고) 을 Winsock2 로 포팅한 것.
 //			포팅하면서 달라진 점
 //			  - 소켓 핸들이 int 가 아니라 SOCKET(UINT_PTR) 이라 iSockId -> hSockId 로 바꿈
 //			  - SO_RCVTIMEO/SO_SNDTIMEO 가 timeval 이 아니라 DWORD ms 임 (내부에서 변환)
 //			  - close -> closesocket, errno -> WSAGetLastError, WSAStartup/WSACleanup 필요
-//			  - accept/connect 대기를 밖에서 끊는 f_SocketCancelBlockingCalls 추가
-//			Tx 가 클라이언트(connect), Rx 가 서버(bind/listen/accept) 쪽임.
+//			  - Windows 는 실패한 소켓에 connect 재시도가 안 돼서 소켓을 새로 만들어 논블로킹 + select 로 붙음
+//			  - accept/재접속 대기를 밖에서 끊는 f_SocketCancelBlockingCalls 추가
+//			  - MSG_NOSIGNAL 은 Windows 에 SIGPIPE 가 없어서 뺌, RDMA 쪽은 제외
+//			Tx 가 클라이언트(connect, 주소는 목적지), Rx 가 서버(bind/listen/accept, 주소는 자기 bind 주소).
 //			TCP Sync 메시지 값(SOCKET_SYNC_PASS_*)은 CSCI 간 통신 규약이라 IpcExternalICD.h 에 있음.
-//			원본 .c 가 없어서 UDP 쪽 규약(Tx 는 목적지 주소, Rx 는 자기 bind 주소)에 맞춘 거라
-//			상대가 반대로 동작하면 Tx/Rx Init 함수를 바꿔 부르면 됨.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -34,7 +34,7 @@ extern "C" {
 #define DISP_SOCKET_RESULT          0           // 0:OFF, 1:ON
 
 #define CTRL_SOCKET_REPEAT_CONNECT  1           // 연결 실패 시 재시도
-#define CTRL_SOCKET_LINK_RECOVERY   1           // 끊김 감지 시 상태 갱신
+#define CTRL_SOCKET_LINK_RECOVERY   1           // 끊김 감지 시 닫고 다시 붙음
 
 // Linux 는 int, Windows 는 SOCKET(UINT_PTR)
 typedef uintptr_t                   SOCKET_HANDLE;
@@ -68,6 +68,9 @@ enum{
     enum_Socket_Type_TCP_IPv4Rx  = 4
 };
 
+// 원본과 같이 패킹 고정
+#pragma pack(push, 1)
+
 //
 // @struct	ST_VerInfo_SOCKET
 // @brief	소켓 유틸 버전 정보
@@ -81,18 +84,19 @@ typedef struct
 
 //
 // @struct	ST_Socket
-// @brief	소켓 하나의 상태
+// @brief	소켓 하나의 상태. Tx 는 목적지 주소, Rx 는 자기 bind 주소를 들고 있음 (재접속에 씀)
 //
 typedef struct
 {
     SOCKET_HANDLE               hSockId;
-    SOCKET_HANDLE               hListenId;              // TCP Rx 의 listen 소켓
     INT32                       iSockStatus;
     INT32                       iSockType;
     UINT32                      uiSockAddrSize;
     struct sockaddr_in          stSockAddr;
     struct timeval              stTimeOutVal;
 } ST_Socket;
+
+#pragma pack(pop)
 
 IPCCORE_API VOID  __cdecl f_SocketGetVerInfo(ST_VerInfo_SOCKET *stpVerInfo);
 

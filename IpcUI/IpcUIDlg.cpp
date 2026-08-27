@@ -335,7 +335,6 @@ void CIpcUIDlg::OnBnClickedNewProcess()
 	}
 }
 
-// 최소화 상태면 아이콘 직접 그림 (마법사 코드)
 void CIpcUIDlg::OnPaint()
 {
 	if (IsIconic())

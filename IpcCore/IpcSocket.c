@@ -1,7 +1,7 @@
 ﻿//
 // @file	IpcSocket.c
-// @brief	TCP/IP 송/수신 (SocketUtility.h 의 Windows 포팅).
-//			원본 .c 가 없어서 헤더 선언과 상수만 보고 구현함.
+// @brief	TCP/IP 송/수신 (SocketUtility.h/.c v5.0 의 Windows 포팅).
+//			흐름과 반환 규약은 원본 .c 를 그대로 따름. RDMA 쪽은 제외.
 // @author	hwan
 // @date	2026.08.19.
 //
@@ -17,6 +17,11 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+// 헤더에 따라 안 나오는 SDK 가 있어서 직접 정의
+#ifndef SIO_UDP_CONNRESET
+#define SIO_UDP_CONNRESET               _WSAIOW(IOC_VENDOR, 12)
+#endif
+
 #define IPC_TCP_ACCEPT_SLICE_MS         200
 #define IPC_TCP_CONNECT_TIMEOUT_MS      1000
 #define IPC_TCP_CONNECT_RETRY_GAP_MS    500
@@ -25,8 +30,9 @@
 static INIT_ONCE            s_stWsaOnce = INIT_ONCE_STATIC_INIT;
 static LONG                 s_lWsaReady = 0;
 
-static INT32                s_iUDP_PartitionSize_Byte   = 8192;
-static UINT32               s_uiUDP_PartitionSendGap_us = 0;
+// 원본 기본값 그대로 (65507 = UDP 최대, 조각 간격 100us)
+static volatile LONG        s_lUDP_PartitionSize_Byte  = 65507;
+static volatile LONG        s_lUDP_PartitionSendGap_us = 100;
 
 static volatile LONG        s_lCancelRequested = 0;
 
@@ -82,7 +88,6 @@ static ST_Socket f_MakeInvalidSocket(const INT32 iSockType)
 
     (VOID)memset(&st_Socket, 0, sizeof(st_Socket));
     st_Socket.hSockId        = SOCKET_INVALID_HANDLE;
-    st_Socket.hListenId      = SOCKET_INVALID_HANDLE;
     st_Socket.iSockStatus    = enum_Socket_Status_Disconnected;
     st_Socket.iSockType      = iSockType;
     st_Socket.uiSockAddrSize = (UINT32)sizeof(struct sockaddr_in);
@@ -111,8 +116,9 @@ static INT32 f_FillSockAddr(struct sockaddr_in *stpAddr, const INT8 *cpIpAddr, c
     return SOCKET_PASS;
 }
 
-// Windows 소켓 타임아웃은 timeval 이 아니라 ms 단위 DWORD 임
-static VOID f_ApplyTimeout(const SOCKET hSock, const INT64 lTimeOut_s, const INT64 lTimeOut_us)
+// Windows 소켓 타임아웃은 timeval 이 아니라 ms 단위 DWORD 라 여기서 변환함.
+// 원본처럼 Tx 는 SO_SNDTIMEO, Rx 는 SO_RCVTIMEO 한쪽만 검
+static VOID f_SetSockTimeout(const SOCKET hSock, const INT32 iOptName, const INT64 lTimeOut_s, const INT64 lTimeOut_us)
 {
     DWORD dwTimeOut_ms;
 
@@ -127,8 +133,7 @@ static VOID f_ApplyTimeout(const SOCKET hSock, const INT64 lTimeOut_s, const INT
         dwTimeOut_ms = 1U;
     }
 
-    (VOID)setsockopt(hSock, SOL_SOCKET, SO_RCVTIMEO, (const CHAR *)&dwTimeOut_ms, (INT32)sizeof(dwTimeOut_ms));
-    (VOID)setsockopt(hSock, SOL_SOCKET, SO_SNDTIMEO, (const CHAR *)&dwTimeOut_ms, (INT32)sizeof(dwTimeOut_ms));
+    (VOID)setsockopt(hSock, SOL_SOCKET, iOptName, (const CHAR *)&dwTimeOut_ms, (INT32)sizeof(dwTimeOut_ms));
 }
 
 // usleep 이 없어서 긴 건 Sleep, 짧은 건 QPC 로 스핀
@@ -166,6 +171,52 @@ static INT32 f_IsCancelRequested(VOID)
     return (InterlockedCompareExchange(&s_lCancelRequested, 0, 0) != 0) ? 1 : 0;
 }
 
+// 상대 포트가 아직 없으면 ICMP 때문에 다음 recvfrom 이 10054 로 깨지는 Windows 동작 끔 (Linux 엔 없음)
+static VOID f_DisableUdpConnReset(const SOCKET hSock)
+{
+    BOOL  bNewBehavior = FALSE;
+    DWORD dwBytes      = 0;
+
+    (VOID)WSAIoctl(hSock, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(bNewBehavior), NULL, 0, &dwBytes, NULL, NULL);
+}
+
+// listen 소켓에서 접속 하나 받음. select 조각 대기라 취소에 반응함. 실패/취소면 INVALID_SOCKET
+static SOCKET f_AcceptWithCancel(const SOCKET hListen, struct sockaddr_in *stpPeerAddr)
+{
+    INT32 iPeerAddrSize = (INT32)sizeof(*stpPeerAddr);
+
+    for (;;)
+    {
+        fd_set         st_ReadSet;
+        struct timeval st_TimeOut;
+        INT32          iSelect;
+
+        if (f_IsCancelRequested() != 0)
+        {
+            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] accept canceled");
+            return INVALID_SOCKET;
+        }
+
+        FD_ZERO(&st_ReadSet);
+        FD_SET(hListen, &st_ReadSet);
+        st_TimeOut.tv_sec  = 0;
+        st_TimeOut.tv_usec = (LONG)(IPC_TCP_ACCEPT_SLICE_MS * 1000);
+
+        iSelect = select(0, &st_ReadSet, NULL, NULL, &st_TimeOut);
+        if (iSelect == SOCKET_ERROR)
+        {
+            f_LogSocketError("TCP Rx select()");
+            return INVALID_SOCKET;
+        }
+        if (iSelect == 0)
+        {
+            continue;
+        }
+
+        return accept(hListen, (struct sockaddr *)stpPeerAddr, &iPeerAddrSize);
+    }
+}
+
 VOID __cdecl f_SocketGetVerInfo(ST_VerInfo_SOCKET *stpVerInfo)
 {
     if (stpVerInfo == NULL)
@@ -201,14 +252,16 @@ VOID __cdecl f_SocketResetCancel(VOID)
     InterlockedExchange(&s_lCancelRequested, 0);
 }
 
+// 원본은 pthread mutex 로 막는데 여기선 Interlocked 로 대신함
 INT32 __cdecl f_SocketSetUDP_PartitionSize(const INT32 iUDP_PartitionSize_Byte)
 {
-    if ((iUDP_PartitionSize_Byte <= 0) || (iUDP_PartitionSize_Byte > 65507))
+    if ((iUDP_PartitionSize_Byte < 1) || (iUDP_PartitionSize_Byte > 65507))
     {
+        f_IpcLog(enum_IpcLogCh_Tcp, "[UDP] partition size must be 1..65507");
         return SOCKET_FAIL;
     }
 
-    s_iUDP_PartitionSize_Byte = iUDP_PartitionSize_Byte;
+    InterlockedExchange(&s_lUDP_PartitionSize_Byte, (LONG)iUDP_PartitionSize_Byte);
 
     return SOCKET_PASS;
 }
@@ -217,13 +270,19 @@ VOID __cdecl f_SocketGetUDP_PartitionSize(INT32 *ipUDP_PartitionSize_Byte)
 {
     if (ipUDP_PartitionSize_Byte != NULL)
     {
-        *ipUDP_PartitionSize_Byte = s_iUDP_PartitionSize_Byte;
+        *ipUDP_PartitionSize_Byte = (INT32)InterlockedCompareExchange(&s_lUDP_PartitionSize_Byte, 0, 0);
     }
 }
 
 INT32 __cdecl f_SocketSetUDP_PartitionSendGap(const UINT32 uiUDP_PartitionSendGap_us)
 {
-    s_uiUDP_PartitionSendGap_us = uiUDP_PartitionSendGap_us;
+    if (uiUDP_PartitionSendGap_us < 1U)
+    {
+        f_IpcLog(enum_IpcLogCh_Tcp, "[UDP] partition send gap must be >= 1");
+        return SOCKET_FAIL;
+    }
+
+    InterlockedExchange(&s_lUDP_PartitionSendGap_us, (LONG)uiUDP_PartitionSendGap_us);
 
     return SOCKET_PASS;
 }
@@ -232,11 +291,33 @@ VOID __cdecl f_SocketGetUDP_PartitionSendGap(UINT32 *uipUDP_PartitionSendGap_us)
 {
     if (uipUDP_PartitionSendGap_us != NULL)
     {
-        *uipUDP_PartitionSendGap_us = s_uiUDP_PartitionSendGap_us;
+        *uipUDP_PartitionSendGap_us = (UINT32)InterlockedCompareExchange(&s_lUDP_PartitionSendGap_us, 0, 0);
     }
 }
 
 // ---- UDP ----
+
+// 수신하면서 송신측 주소를 stSockAddr 에 받아둠. Rx Sync 라인 체크에서 상대 주소를 얻는 용도
+static INT64 f_SocketRecvUDP_IPv4_Address(ST_Socket *stpSocket, VOID *vpDataAddr, const INT64 lMaxSize)
+{
+    INT32 iAddrSize = (INT32)sizeof(stpSocket->stSockAddr);
+    INT32 iRecv;
+
+    iRecv = recvfrom((SOCKET)stpSocket->hSockId, (CHAR *)vpDataAddr, (INT32)lMaxSize, 0,
+                     (struct sockaddr *)&stpSocket->stSockAddr, &iAddrSize);
+    if (iRecv == SOCKET_ERROR)
+    {
+        if (WSAGetLastError() != WSAETIMEDOUT)
+        {
+            f_LogSocketError("UDP recvfrom(address)");
+        }
+        return -1;
+    }
+
+    stpSocket->uiSockAddrSize = (UINT32)iAddrSize;
+
+    return (INT64)iRecv;
+}
 
 // UDP 송신 소켓. 주소는 보낼 곳
 ST_Socket __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPortNum)
@@ -261,15 +342,15 @@ ST_Socket __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPo
         return st_Socket;
     }
 
+    f_DisableUdpConnReset(hSock);
+
     st_Socket.hSockId     = (SOCKET_HANDLE)hSock;
     st_Socket.iSockStatus = enum_Socket_Status_NotDefined;
-
-    f_IpcLog(enum_IpcLogCh_Tcp, "[UDP] tx %s:%u", (const CHAR *)cpIpAddr, usPortNum);
 
     return st_Socket;
 }
 
-// UDP 수신 소켓. 자기 주소에 bind 함
+// UDP 수신 소켓. 자기 주소에 bind 하고 수신 타임아웃만 검
 ST_Socket __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPortNum,
                                          const INT64 lTimeOut_s, const INT64 lTimeOut_us)
 {
@@ -293,6 +374,9 @@ ST_Socket __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPo
         return st_Socket;
     }
 
+    f_DisableUdpConnReset(hSock);
+    f_SetSockTimeout(hSock, SO_RCVTIMEO, lTimeOut_s, lTimeOut_us);
+
     if (bind(hSock, (const struct sockaddr *)&st_Socket.stSockAddr, (INT32)sizeof(st_Socket.stSockAddr)) == SOCKET_ERROR)
     {
         f_LogSocketError("UDP Rx bind()");
@@ -300,19 +384,15 @@ ST_Socket __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPo
         return st_Socket;
     }
 
-    f_ApplyTimeout(hSock, lTimeOut_s, lTimeOut_us);
-
     st_Socket.hSockId              = (SOCKET_HANDLE)hSock;
     st_Socket.iSockStatus          = enum_Socket_Status_NotDefined;
     st_Socket.stTimeOutVal.tv_sec  = (LONG)lTimeOut_s;
     st_Socket.stTimeOutVal.tv_usec = (LONG)lTimeOut_us;
 
-    f_IpcLog(enum_IpcLogCh_Tcp, "[UDP] bind %s:%u", (const CHAR *)cpIpAddr, usPortNum);
-
     return st_Socket;
 }
 
-// UDP 송신. >0 보낸 바이트, -1 에러
+// UDP 송신. sendto 결과 그대로 리턴 (-1 에러)
 INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                           const INT64 lDataSize)
 {
@@ -327,6 +407,13 @@ INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID
         return -1;
     }
 
+#if(DISP_SOCKET_ERROR_WARNING == 1)
+    if (lDataSize > 65507)
+    {
+        f_IpcLog(enum_IpcLogCh_Tcp, "[UDP] %lld byte is over UDP max", (long long)lDataSize);
+    }
+#endif
+
     iSent = sendto((SOCKET)stpSocket->hSockId, (const CHAR *)vpDataAddr, (INT32)lDataSize, 0,
                    (const struct sockaddr *)&stpSocket->stSockAddr, (INT32)sizeof(stpSocket->stSockAddr));
     if (iSent == SOCKET_ERROR)
@@ -338,48 +425,50 @@ INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID
     return (INT64)iSent;
 }
 
-// UDP 분할 송신. 설정한 크기로 잘라 보냄
+// UDP 분할 송신. 설정한 크기로 잘라 보내고 조각마다 gap 만큼 쉼.
+// 에러가 나도 원본처럼 여기까지 보낸 크기를 리턴함
 INT64 __cdecl f_SocketSendUDP_IPv4_Partition(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                              const INT64 lFixedDataSize)
 {
     const CHAR *cpCursor;
     INT64       lRemain;
     INT64       lTotalSent = 0;
+    INT32       iPartSize;
+    UINT32      uiGap_us;
 
     if ((stpSocket == NULL) || (vpDataAddr == NULL) || (lFixedDataSize <= 0))
     {
         return -1;
     }
 
+    iPartSize = (INT32)InterlockedCompareExchange(&s_lUDP_PartitionSize_Byte, 0, 0);
+    uiGap_us  = (UINT32)InterlockedCompareExchange(&s_lUDP_PartitionSendGap_us, 0, 0);
+
     cpCursor = (const CHAR *)vpDataAddr;
     lRemain  = lFixedDataSize;
 
     while (lRemain > 0)
     {
-        INT64 lChunk = (lRemain > (INT64)s_iUDP_PartitionSize_Byte)
-                            ? (INT64)s_iUDP_PartitionSize_Byte : lRemain;
-        INT32 iSent = sendto((SOCKET)stpSocket->hSockId, cpCursor, (INT32)lChunk, 0,
-                             (const struct sockaddr *)&stpSocket->stSockAddr, (INT32)sizeof(stpSocket->stSockAddr));
+        INT64 lChunk = (lRemain > (INT64)iPartSize) ? (INT64)iPartSize : lRemain;
+        INT32 iSent  = sendto((SOCKET)stpSocket->hSockId, cpCursor, (INT32)lChunk, 0,
+                              (const struct sockaddr *)&stpSocket->stSockAddr, (INT32)sizeof(stpSocket->stSockAddr));
         if (iSent == SOCKET_ERROR)
         {
             f_LogSocketError("UDP sendto(partition)");
-            return -1;
+            break;
         }
 
         cpCursor   += iSent;
-        lRemain    -= iSent;
         lTotalSent += iSent;
+        lRemain     = lFixedDataSize - lTotalSent;
 
-        if (lRemain > 0)
-        {
-            f_SleepMicroseconds(s_uiUDP_PartitionSendGap_us);
-        }
+        f_SleepMicroseconds(uiGap_us);
     }
 
     return lTotalSent;
 }
 
-// UDP 수신. >0 받은 바이트, 0 타임아웃, -1 에러
+// UDP 수신. recvfrom 결과 그대로 리턴 (-1 에러, 타임아웃 포함)
 INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                           const INT64 lMaxSize)
 {
@@ -390,54 +479,55 @@ INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const ST_Socket *stpSocket, const VOID
         return -1;
     }
 
+    // 주소가 안 바뀌게 원본은 버림용 구조체를 쓰는데 여기선 NULL 로 안 받음
     iRecv = recvfrom((SOCKET)stpSocket->hSockId, (CHAR *)vpDataAddr, (INT32)lMaxSize, 0, NULL, NULL);
     if (iRecv == SOCKET_ERROR)
     {
-        if (WSAGetLastError() == WSAETIMEDOUT)
+        if (WSAGetLastError() != WSAETIMEDOUT)
         {
-            return 0;
+            f_LogSocketError("UDP recvfrom()");
         }
-        f_LogSocketError("UDP recvfrom()");
         return -1;
     }
 
     return (INT64)iRecv;
 }
 
-// UDP 분할 수신. 다 받을 때까지 반복함
+// UDP 분할 수신. 에러/타임아웃이 나도 여기까지 받은 크기를 리턴함
 INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const ST_Socket *stpSocket, const VOID *vpDataAddr,
                                              const INT64 lFixedDataSize)
 {
     CHAR *cpCursor;
     INT64 lRemain;
     INT64 lTotalRecv = 0;
+    INT32 iPartSize;
 
     if ((stpSocket == NULL) || (vpDataAddr == NULL) || (lFixedDataSize <= 0))
     {
         return -1;
     }
 
+    iPartSize = (INT32)InterlockedCompareExchange(&s_lUDP_PartitionSize_Byte, 0, 0);
+
     cpCursor = (CHAR *)vpDataAddr;
     lRemain  = lFixedDataSize;
 
     while (lRemain > 0)
     {
-        INT64 lChunk = (lRemain > (INT64)s_iUDP_PartitionSize_Byte)
-                            ? (INT64)s_iUDP_PartitionSize_Byte : lRemain;
-        INT32 iRecv = recvfrom((SOCKET)stpSocket->hSockId, cpCursor, (INT32)lChunk, 0, NULL, NULL);
+        INT64 lChunk = (lRemain > (INT64)iPartSize) ? (INT64)iPartSize : lRemain;
+        INT32 iRecv  = recvfrom((SOCKET)stpSocket->hSockId, cpCursor, (INT32)lChunk, 0, NULL, NULL);
         if (iRecv == SOCKET_ERROR)
         {
-            if ((WSAGetLastError() == WSAETIMEDOUT) && (lTotalRecv == 0))
+            if (WSAGetLastError() != WSAETIMEDOUT)
             {
-                return 0;
+                f_LogSocketError("UDP recvfrom(partition)");
             }
-            f_LogSocketError("UDP recvfrom(partition)");
-            return -1;
+            break;
         }
 
         cpCursor   += iRecv;
-        lRemain    -= iRecv;
         lTotalRecv += iRecv;
+        lRemain     = lFixedDataSize - lTotalRecv;
     }
 
     return lTotalRecv;
@@ -447,11 +537,12 @@ INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const ST_Socket *stpSocket, const V
 
 //
 // @brief	TCP 클라이언트(Tx) 초기화. 연결될 때까지 재시도함.
-//			블로킹 connect 는 실패 확정까지 20초 이상 걸려서 논블로킹 + select 로 처리함
+//			Windows 는 실패한 소켓에 connect 를 다시 못 걸어서 소켓을 새로 만들고,
+//			블로킹 connect 는 실패 확정까지 20초 이상 걸려서 논블로킹 + select 로 함
 // @param	cpIpAddr	서버 IPv4 주소
 // @param	usPortNum	서버 포트 번호
-// @param	lTimeOut_s	송/수신 타임아웃 (초)
-// @param	lTimeOut_us	송/수신 타임아웃 (마이크로초)
+// @param	lTimeOut_s	송신 타임아웃 (초)
+// @param	lTimeOut_us	송신 타임아웃 (마이크로초)
 // @return	소켓 구조체 (iSockStatus 로 성공 여부 확인)
 //
 ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum,
@@ -539,7 +630,7 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const INT8 *cpIpAddr, const UINT
         (VOID)ioctlsocket(hSock, FIONBIO, &ulBlocking);
     }
 
-    f_ApplyTimeout(hSock, lTimeOut_s, lTimeOut_us);
+    f_SetSockTimeout(hSock, SO_SNDTIMEO, lTimeOut_s, lTimeOut_us);
 
     st_Socket.hSockId              = (SOCKET_HANDLE)hSock;
     st_Socket.stSockAddr           = st_Addr;
@@ -553,12 +644,12 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Normal(const INT8 *cpIpAddr, const UINT
 }
 
 //
-// @brief	TCP 서버(Rx) 초기화. bind/listen 후 접속을 기다림.
-//			accept 를 select 로 잘게 나눠 대기해야 정지 요청에 반응할 수 있음
+// @brief	TCP 서버(Rx) 초기화. bind/listen 후 접속 하나 받고 listen 소켓은 닫음 (원본과 동일, 1:1).
+//			구조체에는 자기 bind 주소를 남겨둠 (끊겼을 때 다시 listen 하는 데 씀)
 // @param	cpIpAddr	bind 할 IPv4 주소 (NULL/빈 문자열이면 INADDR_ANY)
 // @param	usPortNum	bind 할 포트 번호
-// @param	lTimeOut_s	송/수신 타임아웃 (초)
-// @param	lTimeOut_us	송/수신 타임아웃 (마이크로초)
+// @param	lTimeOut_s	수신 타임아웃 (초)
+// @param	lTimeOut_us	수신 타임아웃 (마이크로초)
 // @return	소켓 구조체 (iSockStatus 로 성공 여부 확인)
 //
 ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum,
@@ -567,10 +658,9 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT
     ST_Socket          st_Socket = f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Rx);
     struct sockaddr_in st_Addr;
     struct sockaddr_in st_PeerAddr;
-    INT32              iPeerAddrSize = (INT32)sizeof(st_PeerAddr);
     SOCKET             hListen;
-    SOCKET             hAccept = INVALID_SOCKET;
-    INT32              iReuse  = 1;
+    SOCKET             hAccept;
+    INT32              iReuse = 1;
     CHAR               caPeerIp[INET_ADDRSTRLEN];
 
     if (f_EnsureWinsock() != SOCKET_PASS)
@@ -590,8 +680,7 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT
         return st_Socket;
     }
 
-    // 재기동하면 TIME_WAIT 때문에 bind 가 막혀서 넣음.
-    // Windows 의 SO_REUSEADDR 은 Linux 랑 의미가 좀 달라서 실제 운영 코드면 SO_EXCLUSIVEADDRUSE 쓸 것
+    // 재기동하면 TIME_WAIT 때문에 bind 가 막혀서 넣음 (원본과 동일)
     (VOID)setsockopt(hListen, SOL_SOCKET, SO_REUSEADDR, (const CHAR *)&iReuse, (INT32)sizeof(iReuse));
 
     if (bind(hListen, (const struct sockaddr *)&st_Addr, (INT32)sizeof(st_Addr)) == SOCKET_ERROR)
@@ -610,53 +699,23 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT
 
     f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] listen %s:%u", (const CHAR *)cpIpAddr, usPortNum);
 
-    while (hAccept == INVALID_SOCKET)
+    hAccept = f_AcceptWithCancel(hListen, &st_PeerAddr);
+    if (hAccept == INVALID_SOCKET)
     {
-        fd_set         st_ReadSet;
-        struct timeval st_TimeOut;
-        INT32          iSelect;
-
-        if (f_IsCancelRequested() != 0)
-        {
-            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] accept canceled");
-            (VOID)closesocket(hListen);
-            return st_Socket;
-        }
-
-        FD_ZERO(&st_ReadSet);
-        FD_SET(hListen, &st_ReadSet);
-        st_TimeOut.tv_sec  = 0;
-        st_TimeOut.tv_usec = (LONG)(IPC_TCP_ACCEPT_SLICE_MS * 1000);
-
-        iSelect = select(0, &st_ReadSet, NULL, NULL, &st_TimeOut);
-        if (iSelect == SOCKET_ERROR)
-        {
-            f_LogSocketError("TCP Rx select()");
-            (VOID)closesocket(hListen);
-            return st_Socket;
-        }
-        if (iSelect == 0)
-        {
-            continue;
-        }
-
-        hAccept = accept(hListen, (struct sockaddr *)&st_PeerAddr, &iPeerAddrSize);
-        if (hAccept == INVALID_SOCKET)
-        {
-            f_LogSocketError("TCP Rx accept()");
-            (VOID)closesocket(hListen);
-            return st_Socket;
-        }
+        (VOID)closesocket(hListen);
+        return st_Socket;
     }
 
-    f_ApplyTimeout(hAccept, lTimeOut_s, lTimeOut_us);
+    f_SetSockTimeout(hAccept, SO_RCVTIMEO, lTimeOut_s, lTimeOut_us);
+
+    // 접속 하나 받으면 listen 소켓은 바로 닫음
+    (VOID)closesocket(hListen);
 
     (VOID)memset(caPeerIp, 0, sizeof(caPeerIp));
     (VOID)inet_ntop(AF_INET, &st_PeerAddr.sin_addr, caPeerIp, sizeof(caPeerIp));
 
     st_Socket.hSockId              = (SOCKET_HANDLE)hAccept;
-    st_Socket.hListenId            = (SOCKET_HANDLE)hListen;
-    st_Socket.stSockAddr           = st_PeerAddr;
+    st_Socket.stSockAddr           = st_Addr;
     st_Socket.iSockStatus          = enum_Socket_Status_Connected;
     st_Socket.stTimeOutVal.tv_sec  = (LONG)lTimeOut_s;
     st_Socket.stTimeOutVal.tv_usec = (LONG)lTimeOut_us;
@@ -666,96 +725,242 @@ ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT
     return st_Socket;
 }
 
-// Sync 쪽 핸드셰이크는 SOCKET_SYNC_PASS_* 값만 보고 맞춘 것.
-// Rx 가 LISTEN 을 보내면 Tx 가 CONNECT 로 답함. 상대 절차가 다르면 이 두 함수만 고치면 됨.
+// Sync 는 원본과 같은 절차임. TCP 를 붙이기 전에 같은 포트의 UDP 로 신호를 주고받음.
+//   Tx : TX_LINE_CHECK 반복 송신 -> RX_LINE_CHECK 수신 -> LISTEN 수신 -> connect -> CONNECT 송신
+//        -> TCP 로 SEND_TO_TX 수신 -> SEND_TO_RX 송신
+//   Rx : TX_LINE_CHECK 수신(여기서 상대 주소 획득, iMaxSyncTime_s 한도) -> RX_LINE_CHECK 송신
+//        -> listen -> LISTEN 송신 -> CONNECT 수신 -> accept -> TCP 로 SEND_TO_TX 송신 -> SEND_TO_RX 수신
 
-// TCP 클라이언트 초기화 (동기). 접속 후 LISTEN 을 받고 CONNECT 로 답함
+//
+// @brief	TCP 클라이언트 초기화 (동기). UDP 로 서로 확인한 뒤 접속함
+// @param	cpIpAddr	서버 IPv4 주소
+// @param	usPortNum	서버 포트
+// @param	lTimeOut_s	송신 타임아웃 (초)
+// @param	lTimeOut_us	송신 타임아웃 (마이크로초)
+// @return	소켓 구조체
+//
 ST_Socket __cdecl f_SocketInitTCP_IPv4Tx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum,
                                               const INT64 lTimeOut_s, const INT64 lTimeOut_us)
 {
-    ST_Socket st_Socket;
-    UINT16    usSync = 0U;
+    ST_Socket st_SocketTcp = f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Tx);
+    ST_Socket st_SocketUdp;
+    INT32     iSync = 0;
+    DWORD     dwStep_ms = 500U;
 
-    st_Socket = f_SocketInitTCP_IPv4Tx_Normal(cpIpAddr, usPortNum, lTimeOut_s, lTimeOut_us);
-    if (st_Socket.iSockStatus != enum_Socket_Status_Connected)
+    st_SocketUdp = f_SocketInitUDP_IPv4Tx(cpIpAddr, usPortNum);
+    if (st_SocketUdp.hSockId == SOCKET_INVALID_HANDLE)
     {
-        return st_Socket;
+        return st_SocketTcp;
+    }
+    (VOID)setsockopt((SOCKET)st_SocketUdp.hSockId, SOL_SOCKET, SO_RCVTIMEO,
+                     (const CHAR *)&dwStep_ms, (INT32)sizeof(dwStep_ms));
+
+    // 상대가 응답할 때까지 TX_LINE_CHECK 를 보냄
+    while (iSync != SOCKET_SYNC_PASS_RX_LINE_CHECK)
+    {
+        INT32 iPing = SOCKET_SYNC_PASS_TX_LINE_CHECK;
+
+        if (f_IsCancelRequested() != 0)
+        {
+            (VOID)f_SocketClose(st_SocketUdp);
+            return st_SocketTcp;
+        }
+
+        (VOID)f_SocketSendUDP_IPv4_Normal(&st_SocketUdp, &iPing, (INT64)sizeof(iPing));
+        (VOID)f_SocketRecvUDP_IPv4_Normal(&st_SocketUdp, &iSync, (INT64)sizeof(iSync));
     }
 
-    if (f_SocketRecvTCP_IPv4(&st_Socket, &usSync, (INT64)sizeof(usSync)) != (INT64)sizeof(usSync))
+    // 상대가 listen 들어갔다는 신호 대기
+    while (iSync != SOCKET_SYNC_PASS_LISTEN)
     {
-        f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync failed (listen)");
-        (VOID)f_SocketClose(st_Socket);
-        return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Tx);
+        if (f_IsCancelRequested() != 0)
+        {
+            (VOID)f_SocketClose(st_SocketUdp);
+            return st_SocketTcp;
+        }
+
+        (VOID)f_SocketRecvUDP_IPv4_Normal(&st_SocketUdp, &iSync, (INT64)sizeof(iSync));
     }
 
-    if (usSync != (UINT16)SOCKET_SYNC_PASS_LISTEN)
+    // 접속하고 CONNECT 신호를 UDP 로 알림
+    st_SocketTcp = f_SocketInitTCP_IPv4Tx_Normal(cpIpAddr, usPortNum, lTimeOut_s, lTimeOut_us);
+    if (st_SocketTcp.iSockStatus != enum_Socket_Status_Connected)
     {
-        f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync bad value 0x%04X", usSync);
-        (VOID)f_SocketClose(st_Socket);
-        return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Tx);
+        (VOID)f_SocketClose(st_SocketUdp);
+        return st_SocketTcp;
     }
 
-    usSync = (UINT16)SOCKET_SYNC_PASS_CONNECT;
-    (VOID)f_SocketSendTCP_IPv4(&st_Socket, &usSync, (INT64)sizeof(usSync));
+    iSync = SOCKET_SYNC_PASS_CONNECT;
+    (VOID)f_SocketSendUDP_IPv4_Normal(&st_SocketUdp, &iSync, (INT64)sizeof(iSync));
 
-    f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync ok");
+    // TCP 로 SEND_TO_TX 받고 SEND_TO_RX 로 답함
+    iSync = 0;
+    while (iSync != SOCKET_SYNC_PASS_SEND_TO_TX)
+    {
+        if (f_SocketRecvTCP_IPv4(&st_SocketTcp, &iSync, (INT64)sizeof(iSync)) != (INT64)sizeof(iSync))
+        {
+            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync failed (tx)");
+            (VOID)f_SocketClose(st_SocketUdp);
+            (VOID)f_SocketClose(st_SocketTcp);
+            return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Tx);
+        }
+    }
 
-    return st_Socket;
+    iSync = SOCKET_SYNC_PASS_SEND_TO_RX;
+    (VOID)f_SocketSendTCP_IPv4(&st_SocketTcp, &iSync, (INT64)sizeof(iSync));
+
+    (VOID)f_SocketClose(st_SocketUdp);
+
+    f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync ok (tx)");
+
+    return st_SocketTcp;
 }
 
-// TCP 서버 초기화 (동기). LISTEN 을 보내고 CONNECT 를 기다림. 동기화 구간에만 iMaxSyncTime_s 적용함
+//
+// @brief	TCP 서버 초기화 (동기). UDP 라인 체크는 iMaxSyncTime_s 까지만 기다림 (0 이면 무한)
+// @param	cpIpAddr	bind 할 IPv4 주소
+// @param	usPortNum	bind 할 포트
+// @param	lTimeOut_s	수신 타임아웃 (초)
+// @param	lTimeOut_us	수신 타임아웃 (마이크로초)
+// @param	iMaxSyncTime_s	라인 체크 대기 한도 (초)
+// @return	소켓 구조체
+//
 ST_Socket __cdecl f_SocketInitTCP_IPv4Rx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum,
                                               const INT64 lTimeOut_s, const INT64 lTimeOut_us,
                                               const INT32 iMaxSyncTime_s)
 {
-    ST_Socket st_Socket;
-    UINT16    usSync;
+    ST_Socket          st_SocketTcp = f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Rx);
+    ST_Socket          st_SocketUdp;
+    struct sockaddr_in st_Addr;
+    struct sockaddr_in st_PeerAddr;
+    SOCKET             hListen;
+    SOCKET             hAccept;
+    INT32              iReuse = 1;
+    INT32              iSync = 0;
+    INT32              nRunTime_s = 0;
+    INT32              iMaxRunTime_s = (iMaxSyncTime_s == 0) ? INT_MAX : iMaxSyncTime_s;
 
-    st_Socket = f_SocketInitTCP_IPv4Rx_Normal(cpIpAddr, usPortNum, lTimeOut_s, lTimeOut_us);
-    if (st_Socket.iSockStatus != enum_Socket_Status_Connected)
+    // UDP 라인 체크. 1 초 타임아웃으로 돌면서 경과 시간을 셈
+    st_SocketUdp = f_SocketInitUDP_IPv4Rx(cpIpAddr, usPortNum, 1, 0);
+    if (st_SocketUdp.hSockId == SOCKET_INVALID_HANDLE)
     {
-        return st_Socket;
+        return st_SocketTcp;
     }
 
-    f_ApplyTimeout((SOCKET)st_Socket.hSockId, (INT64)iMaxSyncTime_s, 0);
-
-    usSync = (UINT16)SOCKET_SYNC_PASS_LISTEN;
-    if (f_SocketSendTCP_IPv4(&st_Socket, &usSync, (INT64)sizeof(usSync)) != (INT64)sizeof(usSync))
+    while (iSync != SOCKET_SYNC_PASS_TX_LINE_CHECK)
     {
-        f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync failed (listen)");
-        (VOID)f_SocketClose(st_Socket);
-        return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Rx);
+        if (f_IsCancelRequested() != 0)
+        {
+            (VOID)f_SocketClose(st_SocketUdp);
+            return st_SocketTcp;
+        }
+
+        // 여기서 송신측 주소를 같이 받아둠 (응답 보낼 곳)
+        if (f_SocketRecvUDP_IPv4_Address(&st_SocketUdp, &iSync, (INT64)sizeof(iSync)) <= 0)
+        {
+            nRunTime_s++;
+            if (nRunTime_s >= iMaxRunTime_s)
+            {
+                f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync timeout (%ds)", iMaxSyncTime_s);
+                (VOID)f_SocketClose(st_SocketUdp);
+                return st_SocketTcp;
+            }
+        }
     }
 
-    usSync = 0U;
-    if (f_SocketRecvTCP_IPv4(&st_Socket, &usSync, (INT64)sizeof(usSync)) != (INT64)sizeof(usSync))
+    iSync = SOCKET_SYNC_PASS_RX_LINE_CHECK;
+    (VOID)f_SocketSendUDP_IPv4_Normal(&st_SocketUdp, &iSync, (INT64)sizeof(iSync));
+
+    // listen 준비하고 LISTEN 신호를 UDP 로 알림
+    if (f_FillSockAddr(&st_Addr, cpIpAddr, usPortNum) != SOCKET_PASS)
     {
-        f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync timeout (%ds)", iMaxSyncTime_s);
-        (VOID)f_SocketClose(st_Socket);
-        return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Rx);
+        (VOID)f_SocketClose(st_SocketUdp);
+        return st_SocketTcp;
     }
 
-    if (usSync != (UINT16)SOCKET_SYNC_PASS_CONNECT)
+    hListen = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (hListen == INVALID_SOCKET)
     {
-        f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync bad value 0x%04X", usSync);
-        (VOID)f_SocketClose(st_Socket);
-        return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Rx);
+        f_LogSocketError("TCP Rx socket()");
+        (VOID)f_SocketClose(st_SocketUdp);
+        return st_SocketTcp;
     }
 
-    f_ApplyTimeout((SOCKET)st_Socket.hSockId, lTimeOut_s, lTimeOut_us);
+    (VOID)setsockopt(hListen, SOL_SOCKET, SO_REUSEADDR, (const CHAR *)&iReuse, (INT32)sizeof(iReuse));
 
-    f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync ok");
+    if ((bind(hListen, (const struct sockaddr *)&st_Addr, (INT32)sizeof(st_Addr)) == SOCKET_ERROR) ||
+        (listen(hListen, SOCKET_TCP_QUEUE_SIZE) == SOCKET_ERROR))
+    {
+        f_LogSocketError("TCP Rx bind/listen()");
+        (VOID)closesocket(hListen);
+        (VOID)f_SocketClose(st_SocketUdp);
+        return st_SocketTcp;
+    }
 
-    return st_Socket;
+    iSync = SOCKET_SYNC_PASS_LISTEN;
+    (VOID)f_SocketSendUDP_IPv4_Normal(&st_SocketUdp, &iSync, (INT64)sizeof(iSync));
+
+    // CONNECT 신호 받고 accept
+    iSync = 0;
+    while (iSync != SOCKET_SYNC_PASS_CONNECT)
+    {
+        if (f_IsCancelRequested() != 0)
+        {
+            (VOID)closesocket(hListen);
+            (VOID)f_SocketClose(st_SocketUdp);
+            return st_SocketTcp;
+        }
+
+        (VOID)f_SocketRecvUDP_IPv4_Normal(&st_SocketUdp, &iSync, (INT64)sizeof(iSync));
+    }
+
+    hAccept = f_AcceptWithCancel(hListen, &st_PeerAddr);
+    if (hAccept == INVALID_SOCKET)
+    {
+        (VOID)closesocket(hListen);
+        (VOID)f_SocketClose(st_SocketUdp);
+        return st_SocketTcp;
+    }
+
+    f_SetSockTimeout(hAccept, SO_RCVTIMEO, lTimeOut_s, lTimeOut_us);
+    (VOID)closesocket(hListen);
+
+    st_SocketTcp.hSockId              = (SOCKET_HANDLE)hAccept;
+    st_SocketTcp.stSockAddr           = st_Addr;
+    st_SocketTcp.iSockStatus          = enum_Socket_Status_Connected;
+    st_SocketTcp.stTimeOutVal.tv_sec  = (LONG)lTimeOut_s;
+    st_SocketTcp.stTimeOutVal.tv_usec = (LONG)lTimeOut_us;
+
+    // TCP 로 SEND_TO_TX 보내고 SEND_TO_RX 대기
+    iSync = SOCKET_SYNC_PASS_SEND_TO_TX;
+    (VOID)f_SocketSendTCP_IPv4(&st_SocketTcp, &iSync, (INT64)sizeof(iSync));
+
+    iSync = 0;
+    while (iSync != SOCKET_SYNC_PASS_SEND_TO_RX)
+    {
+        if (f_SocketRecvTCP_IPv4(&st_SocketTcp, &iSync, (INT64)sizeof(iSync)) != (INT64)sizeof(iSync))
+        {
+            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync failed (rx)");
+            (VOID)f_SocketClose(st_SocketUdp);
+            (VOID)f_SocketClose(st_SocketTcp);
+            return f_MakeInvalidSocket(enum_Socket_Type_TCP_IPv4Rx);
+        }
+    }
+
+    (VOID)f_SocketClose(st_SocketUdp);
+
+    f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] sync ok (rx)");
+
+    return st_SocketTcp;
 }
 
 //
-// @brief	정해진 크기를 다 보낼 때까지 send 반복함
-// @param	stpSocket		송신 소켓 (끊김 감지 시 상태 갱신)
+// @brief	정해진 크기를 다 보낼 때까지 send 반복함. 에러가 나도 여기까지 보낸 크기를 리턴함.
+//			끊겨 있으면 접속될 때까지 닫고 다시 붙음 (원본 LINK_RECOVERY 동작, 취소 가능)
+// @param	stpSocket		송신 소켓
 // @param	vpDataAddr		송신 데이터 주소
 // @param	lFixedDataSize	전체 송신 크기 (byte)
-// @return	>0 처리 바이트 / 0 타임아웃(한 바이트도 못 보냄) / -1 에러 또는 상대 종료
+// @return	보낸 바이트 수 / -1 인자 오류
 //
 INT64 __cdecl f_SocketSendTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr,
                                    const INT64 lFixedDataSize)
@@ -768,51 +973,68 @@ INT64 __cdecl f_SocketSendTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr,
     {
         return -1;
     }
-    if ((stpSocket->hSockId == SOCKET_INVALID_HANDLE) || (stpSocket->iSockStatus != enum_Socket_Status_Connected))
+
+#if(CTRL_SOCKET_LINK_RECOVERY == 1)
+    while (stpSocket->iSockStatus != enum_Socket_Status_Connected)
     {
-        return -1;
+        CHAR caIp[INET_ADDRSTRLEN];
+
+        if (f_IsCancelRequested() != 0)
+        {
+            return lTotalSent;
+        }
+
+        Sleep(100U);
+
+        if (stpSocket->hSockId != SOCKET_INVALID_HANDLE)
+        {
+            (VOID)closesocket((SOCKET)stpSocket->hSockId);
+        }
+
+        (VOID)memset(caIp, 0, sizeof(caIp));
+        (VOID)inet_ntop(AF_INET, &stpSocket->stSockAddr.sin_addr, caIp, sizeof(caIp));
+
+        *stpSocket = f_SocketInitTCP_IPv4Tx_Normal((const INT8 *)caIp, ntohs(stpSocket->stSockAddr.sin_port),
+                                                   (INT64)stpSocket->stTimeOutVal.tv_sec,
+                                                   (INT64)stpSocket->stTimeOutVal.tv_usec);
     }
+#endif
 
     cpCursor = (const CHAR *)vpDataAddr;
     lRemain  = lFixedDataSize;
 
-    while (lRemain > 0)
+    while ((lRemain > 0) && (stpSocket->iSockStatus == enum_Socket_Status_Connected))
     {
         INT32 iChunk = (lRemain > (INT64)INT_MAX) ? INT_MAX : (INT32)lRemain;
         INT32 iSent  = send((SOCKET)stpSocket->hSockId, cpCursor, iChunk, 0);
 
-        if (iSent == SOCKET_ERROR)
+        if (iSent != SOCKET_ERROR)
         {
-            if (WSAGetLastError() == WSAETIMEDOUT)
-            {
-                if (lTotalSent == 0)
-                {
-                    return 0;
-                }
-                continue;                           // 프레임 중간이면 계속 보냄
-            }
-
-            f_LogSocketError("TCP send()");
-#if(CTRL_SOCKET_LINK_RECOVERY == 1)
-            stpSocket->iSockStatus = enum_Socket_Status_Disconnected;
-#endif
-            return -1;
+            cpCursor   += iSent;
+            lTotalSent += iSent;
+            lRemain     = lFixedDataSize - lTotalSent;
         }
-
-        cpCursor   += iSent;
-        lRemain    -= iSent;
-        lTotalSent += iSent;
+        else
+        {
+            // 타임아웃도 -1 이라 원본처럼 끊긴 걸로 침
+            if (WSAGetLastError() != WSAETIMEDOUT)
+            {
+                f_LogSocketError("TCP send()");
+            }
+            stpSocket->iSockStatus = enum_Socket_Status_Disconnected;
+        }
     }
 
     return lTotalSent;
 }
 
 //
-// @brief	정해진 크기를 다 받을 때까지 recv 반복함
-// @param	stpSocket		수신 소켓 (끊김 감지 시 상태 갱신)
+// @brief	정해진 크기를 다 받을 때까지 recv 반복함. 에러가 나도 여기까지 받은 크기를 리턴함.
+//			끊겨 있으면 닫고 다시 listen/accept 함 (원본 LINK_RECOVERY 동작, 취소 가능)
+// @param	stpSocket		수신 소켓
 // @param	vpDataAddr		수신 버퍼 주소
 // @param	lFixedDataSize	전체 수신 크기 (byte)
-// @return	>0 처리 바이트 / 0 타임아웃(한 바이트도 못 받음) / -1 에러 또는 상대 종료
+// @return	받은 바이트 수 / -1 인자 오류
 //
 INT64 __cdecl f_SocketRecvTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr,
                                    const INT64 lFixedDataSize)
@@ -825,69 +1047,73 @@ INT64 __cdecl f_SocketRecvTCP_IPv4(ST_Socket *stpSocket, const VOID *vpDataAddr,
     {
         return -1;
     }
-    if ((stpSocket->hSockId == SOCKET_INVALID_HANDLE) || (stpSocket->iSockStatus != enum_Socket_Status_Connected))
+
+#if(CTRL_SOCKET_LINK_RECOVERY == 1)
+    if (stpSocket->iSockStatus != enum_Socket_Status_Connected)
     {
-        return -1;
+        CHAR caIp[INET_ADDRSTRLEN];
+
+        if (f_IsCancelRequested() != 0)
+        {
+            return 0;
+        }
+
+        if (stpSocket->hSockId != SOCKET_INVALID_HANDLE)
+        {
+            (VOID)closesocket((SOCKET)stpSocket->hSockId);
+        }
+
+        // Rx 구조체에는 bind 주소가 들어 있어서 그걸로 다시 listen 함
+        (VOID)memset(caIp, 0, sizeof(caIp));
+        (VOID)inet_ntop(AF_INET, &stpSocket->stSockAddr.sin_addr, caIp, sizeof(caIp));
+
+        *stpSocket = f_SocketInitTCP_IPv4Rx_Normal((const INT8 *)caIp, ntohs(stpSocket->stSockAddr.sin_port),
+                                                   (INT64)stpSocket->stTimeOutVal.tv_sec,
+                                                   (INT64)stpSocket->stTimeOutVal.tv_usec);
     }
+#endif
 
     cpCursor = (CHAR *)vpDataAddr;
     lRemain  = lFixedDataSize;
 
-    while (lRemain > 0)
+    while ((lRemain > 0) && (stpSocket->iSockStatus == enum_Socket_Status_Connected))
     {
         INT32 iChunk = (lRemain > (INT64)INT_MAX) ? INT_MAX : (INT32)lRemain;
         INT32 iRecv  = recv((SOCKET)stpSocket->hSockId, cpCursor, iChunk, 0);
 
-        if (iRecv == 0)
+        if (iRecv > 0)
         {
-            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] peer closed");
-#if(CTRL_SOCKET_LINK_RECOVERY == 1)
-            stpSocket->iSockStatus = enum_Socket_Status_Disconnected;
-#endif
-            return -1;
+            cpCursor   += iRecv;
+            lTotalRecv += iRecv;
+            lRemain     = lFixedDataSize - lTotalRecv;
         }
-
-        if (iRecv == SOCKET_ERROR)
+        else
         {
-            if (WSAGetLastError() == WSAETIMEDOUT)
+            // 0 이면 상대 종료, -1 이면 에러. 타임아웃도 -1 이라 원본처럼 끊긴 걸로 침
+            if (iRecv == 0)
             {
-                if (lTotalRecv == 0)
-                {
-                    return 0;
-                }
-                continue;                           // 프레임 중간이면 계속 기다림
+                f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] peer closed");
             }
-
-            f_LogSocketError("TCP recv()");
-#if(CTRL_SOCKET_LINK_RECOVERY == 1)
+            else if (WSAGetLastError() != WSAETIMEDOUT)
+            {
+                f_LogSocketError("TCP recv()");
+            }
             stpSocket->iSockStatus = enum_Socket_Status_Disconnected;
-#endif
-            return -1;
         }
-
-        cpCursor   += iRecv;
-        lRemain    -= iRecv;
-        lTotalRecv += iRecv;
     }
 
     return lTotalRecv;
 }
 
-// 소켓 닫기. listen 소켓까지 같이 닫음
+// 소켓 닫기. 원본처럼 close 성공 여부를 리턴함
 INT32 __cdecl f_SocketClose(const ST_Socket st_Socket)
 {
-    if (st_Socket.hSockId != SOCKET_INVALID_HANDLE)
+    if (st_Socket.hSockId == SOCKET_INVALID_HANDLE)
     {
-        (VOID)shutdown((SOCKET)st_Socket.hSockId, SD_BOTH);
-        (VOID)closesocket((SOCKET)st_Socket.hSockId);
+        return SOCKET_FAIL;
     }
 
-    if (st_Socket.hListenId != SOCKET_INVALID_HANDLE)
-    {
-        (VOID)closesocket((SOCKET)st_Socket.hListenId);
-    }
-
-    return SOCKET_PASS;
+    return (closesocket((SOCKET)st_Socket.hSockId) == 0) ? SOCKET_PASS : SOCKET_FAIL;
 }
 
 // 데모는 int 하나를 헤더 없이 그대로 주고받음.
@@ -932,10 +1158,6 @@ static UINT32 __stdcall f_TcpSenderProc(VOID *vpArg)
         if (lSent == (INT64)sizeof(iWire))
         {
             f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] tx %d", iData);
-        }
-        else if (lSent == 0)
-        {
-            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] tx timeout, data=%d", iData);
         }
         else
         {
@@ -984,21 +1206,18 @@ static UINT32 __stdcall f_TcpReceiverProc(VOID *vpArg)
         INT64 lRecv;
 
         lRecv = f_SocketRecvTCP_IPv4(&s_stDemoSocket, &iWire, (INT64)sizeof(iWire));
-        if (lRecv == 0)
-        {
-            continue;
-        }
-        if (lRecv < 0)
-        {
-            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] rx stopped");
-            break;
-        }
-
+        if (lRecv == (INT64)sizeof(iWire))
         {
             INT32 iData = (s_iDemoUseNBO != 0) ? (INT32)ntohl((u_long)iWire) : iWire;
 
             nRecvCount++;
             f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] rx %d", iData);
+        }
+        else if (s_stDemoSocket.iSockStatus != enum_Socket_Status_Connected)
+        {
+            // 상대 종료 또는 타임아웃. 데모는 재접속 안 하고 끝냄
+            f_IpcLog(enum_IpcLogCh_Tcp, "[TCP] rx stopped");
+            break;
         }
     }
 
