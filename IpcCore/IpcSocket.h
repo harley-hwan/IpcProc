@@ -35,15 +35,6 @@ extern "C" {
 #define CTRL_SOCKET_REPEAT_CONNECT  1           // 연결 실패 시 재시도
 #define CTRL_SOCKET_LINK_RECOVERY   1           // 끊김 감지 시 상태 갱신
 
-typedef void                        SOCKET_VOID;
-typedef int8_t                      SOCKET_CHAR8;
-typedef uint8_t                     SOCKET_UCHAR8;
-typedef uint16_t                    SOCKET_UINT16;
-typedef int32_t                     SOCKET_INT32;
-typedef uint32_t                    SOCKET_UINT32;
-typedef int64_t                     SOCKET_INT64;
-typedef uint64_t                    SOCKET_UINT64;
-
 // Linux 는 int, Windows 는 SOCKET(UINT_PTR)
 typedef uintptr_t                   SOCKET_HANDLE;
 #define SOCKET_INVALID_HANDLE       ((SOCKET_HANDLE)~(uintptr_t)0)      // == INVALID_SOCKET
@@ -53,7 +44,7 @@ typedef uintptr_t                   SOCKET_HANDLE;
 #define SOCKET_PASS                         1
 #define SOCKET_FAIL                         0
 
-#define SOCKET_MBYTE2BYTE                   (SOCKET_INT64)(1024*1024)
+#define SOCKET_MBYTE2BYTE                   (INT64)(1024*1024)
 
 // TCP
 #define SOCKET_TCP_QUEUE_SIZE               5
@@ -84,57 +75,65 @@ enum{
     enum_Socket_Type_TCP_IPv4Rx  = 4
 };
 
+//
+// @struct	st_VerInfo_SOCKET
+// @brief	소켓 유틸 버전 정보
+//
 typedef struct st_VerInfo_SOCKET
 {
-    SOCKET_INT32                iMajorVersion;
-    SOCKET_INT32                iMinorVersion;
-    SOCKET_INT32                iBuildDate;             // YYYYMMDD
+    INT32                iMajorVersion;
+    INT32                iMinorVersion;
+    INT32                iBuildDate;             // YYYYMMDD
 } st_VerInfo_SOCKET;
 
+//
+// @struct	st_Socket
+// @brief	소켓 하나의 상태
+//
 typedef struct st_Socket
 {
     SOCKET_HANDLE               hSockId;
     SOCKET_HANDLE               hListenId;              // TCP Rx 의 listen 소켓
-    SOCKET_INT32                iSockStatus;
-    SOCKET_INT32                iSockType;
-    SOCKET_UINT32               uiSockAddrSize;
+    INT32                iSockStatus;
+    INT32                iSockType;
+    UINT32               uiSockAddrSize;
     struct sockaddr_in          stSockAddr;
     struct timeval              stTimeOutVal;
 } st_Socket;
 
-IPCCORE_API SOCKET_VOID  __cdecl f_SocketGetVerInfo(st_VerInfo_SOCKET *stpVerInfo);
+IPCCORE_API VOID  __cdecl f_SocketGetVerInfo(st_VerInfo_SOCKET *stpVerInfo);
 
-IPCCORE_API SOCKET_INT32 __cdecl f_SocketStartup(SOCKET_VOID);
-IPCCORE_API SOCKET_VOID  __cdecl f_SocketCleanup(SOCKET_VOID);
-IPCCORE_API SOCKET_VOID  __cdecl f_SocketCancelBlockingCalls(SOCKET_VOID);
-IPCCORE_API SOCKET_VOID  __cdecl f_SocketResetCancel(SOCKET_VOID);
+IPCCORE_API INT32 __cdecl f_SocketStartup(VOID);
+IPCCORE_API VOID  __cdecl f_SocketCleanup(VOID);
+IPCCORE_API VOID  __cdecl f_SocketCancelBlockingCalls(VOID);
+IPCCORE_API VOID  __cdecl f_SocketResetCancel(VOID);
 
-IPCCORE_API SOCKET_INT32 __cdecl f_SocketSetUDP_PartitionSize(const SOCKET_INT32 iUDP_PartitionSize_Byte);
-IPCCORE_API SOCKET_VOID  __cdecl f_SocketGetUDP_PartitionSize(SOCKET_INT32 *ipUDP_PartitionSize_Byte);
-IPCCORE_API SOCKET_INT32 __cdecl f_SocketSetUDP_PartitionSendGap(const SOCKET_UINT32 uiUDP_PartitionSendGap_us);
-IPCCORE_API SOCKET_VOID  __cdecl f_SocketGetUDP_PartitionSendGap(SOCKET_UINT32 *uipUDP_PartitionSendGap_us);
+IPCCORE_API INT32 __cdecl f_SocketSetUDP_PartitionSize(const INT32 iUDP_PartitionSize_Byte);
+IPCCORE_API VOID  __cdecl f_SocketGetUDP_PartitionSize(INT32 *ipUDP_PartitionSize_Byte);
+IPCCORE_API INT32 __cdecl f_SocketSetUDP_PartitionSendGap(const UINT32 uiUDP_PartitionSendGap_us);
+IPCCORE_API VOID  __cdecl f_SocketGetUDP_PartitionSendGap(UINT32 *uipUDP_PartitionSendGap_us);
 
-IPCCORE_API st_Socket    __cdecl f_SocketInitUDP_IPv4Tx(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum);
-IPCCORE_API st_Socket    __cdecl f_SocketInitUDP_IPv4Rx(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum, const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us);
-IPCCORE_API SOCKET_INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr, const SOCKET_INT64 lDataSize);
-IPCCORE_API SOCKET_INT64 __cdecl f_SocketSendUDP_IPv4_Partition(const st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr, const SOCKET_INT64 lFixedDataSize);
-IPCCORE_API SOCKET_INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr, const SOCKET_INT64 lMaxSize);
-IPCCORE_API SOCKET_INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr, const SOCKET_INT64 lFixedDataSize);
+IPCCORE_API st_Socket    __cdecl f_SocketInitUDP_IPv4Tx(const INT8 *cpIpAddr, const UINT16 usPortNum);
+IPCCORE_API st_Socket    __cdecl f_SocketInitUDP_IPv4Rx(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API INT64 __cdecl f_SocketSendUDP_IPv4_Normal(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lDataSize);
+IPCCORE_API INT64 __cdecl f_SocketSendUDP_IPv4_Partition(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
+IPCCORE_API INT64 __cdecl f_SocketRecvUDP_IPv4_Normal(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lMaxSize);
+IPCCORE_API INT64 __cdecl f_SocketRecvUDP_IPv4_Partition(const st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
 
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Tx_Normal(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum, const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us);
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Tx_Sync(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum, const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us);
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Rx_Normal(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum, const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us);
-IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Rx_Sync(const SOCKET_CHAR8 *cpIpAddr, const SOCKET_UINT16 usPortNum, const SOCKET_INT64 lTimeOut_s, const SOCKET_INT64 lTimeOut_us, const SOCKET_INT32 iMaxSyncTime_s);
-IPCCORE_API SOCKET_INT64 __cdecl f_SocketSendTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr, const SOCKET_INT64 lFixedDataSize);
-IPCCORE_API SOCKET_INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, const SOCKET_VOID *vpDataAddr, const SOCKET_INT64 lFixedDataSize);
+IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Tx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Tx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Rx_Normal(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us);
+IPCCORE_API st_Socket    __cdecl f_SocketInitTCP_IPv4Rx_Sync(const INT8 *cpIpAddr, const UINT16 usPortNum, const INT64 lTimeOut_s, const INT64 lTimeOut_us, const INT32 iMaxSyncTime_s);
+IPCCORE_API INT64 __cdecl f_SocketSendTCP_IPv4(st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
+IPCCORE_API INT64 __cdecl f_SocketRecvTCP_IPv4(st_Socket *stpSocket, const VOID *vpDataAddr, const INT64 lFixedDataSize);
 
-IPCCORE_API SOCKET_INT32 __cdecl f_SocketClose(st_Socket stSocket);
+IPCCORE_API INT32 __cdecl f_SocketClose(st_Socket stSocket);
 
 // iIsSender : 1 = 송신(클라이언트), 0 = 수신(서버)
-IPCCORE_API SOCKET_INT32 __cdecl f_IpcTcpDemoStart(SOCKET_INT32 iIsSender, const SOCKET_CHAR8 *cpIpAddr,
-                                                   SOCKET_UINT16 usPortNum, SOCKET_INT32 iUseNetworkByteOrder);
-IPCCORE_API SOCKET_INT32 __cdecl f_IpcTcpDemoStop(SOCKET_VOID);
-IPCCORE_API SOCKET_INT32 __cdecl f_IpcTcpDemoIsRunning(SOCKET_VOID);
+IPCCORE_API INT32 __cdecl f_IpcTcpDemoStart(INT32 iIsSender, const INT8 *cpIpAddr,
+                                                   UINT16 usPortNum, INT32 iUseNetworkByteOrder);
+IPCCORE_API INT32 __cdecl f_IpcTcpDemoStop(VOID);
+IPCCORE_API INT32 __cdecl f_IpcTcpDemoIsRunning(VOID);
 
 #ifdef __cplusplus
 }

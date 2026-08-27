@@ -13,22 +13,22 @@
 
 #include "IpcCore.h"
 
-static CRITICAL_SECTION     g_stLogLock;
-static LONG                 g_lLogLockReady = 0;
-static IPC_LOG_FN           g_fnLogHandler  = NULL;
-static IPC_VOID *           g_vpLogUserCtx  = NULL;
+static CRITICAL_SECTION     s_stLogLock;
+static LONG                 s_lLogLockReady = 0;
+static IPC_LOG_FN           p_fnLogHandler  = NULL;
+static VOID *           p_vpLogUserCtx  = NULL;
 
 // DllMain 에서는 동기화 객체를 만들지 않는 편이 안전하므로 지연 초기화
-static IPC_VOID s_EnsureLogLock(IPC_VOID)
+static VOID f_EnsureLogLock(VOID)
 {
-    if (InterlockedCompareExchange(&g_lLogLockReady, 1, 0) == 0)
+    if (InterlockedCompareExchange(&s_lLogLockReady, 1, 0) == 0)
     {
-        InitializeCriticalSection(&g_stLogLock);
-        InterlockedExchange(&g_lLogLockReady, 2);
+        InitializeCriticalSection(&s_stLogLock);
+        InterlockedExchange(&s_lLogLockReady, 2);
     }
     else
     {
-        while (InterlockedCompareExchange(&g_lLogLockReady, 2, 2) != 2)
+        while (InterlockedCompareExchange(&s_lLogLockReady, 2, 2) != 2)
         {
             Sleep(0);
         }
@@ -42,14 +42,14 @@ static IPC_VOID s_EnsureLogLock(IPC_VOID)
 // @return	없음
 // @author	hwan
 //
-IPC_VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, IPC_VOID *vpUserCtx)
+VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, VOID *vpUserCtx)
 {
-    s_EnsureLogLock();
+    f_EnsureLogLock();
 
-    EnterCriticalSection(&g_stLogLock);
-    g_fnLogHandler = fnLog;
-    g_vpLogUserCtx = vpUserCtx;
-    LeaveCriticalSection(&g_stLogLock);
+    EnterCriticalSection(&s_stLogLock);
+    p_fnLogHandler = fnLog;
+    p_vpLogUserCtx = vpUserCtx;
+    LeaveCriticalSection(&s_stLogLock);
 }
 
 //
@@ -60,24 +60,24 @@ IPC_VOID __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, IPC_VOID *vpUserCtx)
 // @return	없음
 // @author	hwan
 //
-IPC_VOID __cdecl f_IpcLog(IPC_INT32 iChannel, const char *cpFormat, ...)
+VOID __cdecl f_IpcLog(INT32 iChannel, const CHAR *cpFormat, ...)
 {
-    char        caBuff[512];
+    CHAR        caBuff[512];
     va_list     stArgs;
     IPC_LOG_FN  fnLog;
-    IPC_VOID *  vpCtx;
+    VOID *  vpCtx;
 
     if (cpFormat == NULL)
     {
         return;
     }
 
-    s_EnsureLogLock();
+    f_EnsureLogLock();
 
-    EnterCriticalSection(&g_stLogLock);
-    fnLog = g_fnLogHandler;
-    vpCtx = g_vpLogUserCtx;
-    LeaveCriticalSection(&g_stLogLock);
+    EnterCriticalSection(&s_stLogLock);
+    fnLog = p_fnLogHandler;
+    vpCtx = p_vpLogUserCtx;
+    LeaveCriticalSection(&s_stLogLock);
 
     if (fnLog == NULL)
     {
@@ -85,7 +85,7 @@ IPC_VOID __cdecl f_IpcLog(IPC_INT32 iChannel, const char *cpFormat, ...)
     }
 
     va_start(stArgs, cpFormat);
-    (void)vsnprintf(caBuff, sizeof(caBuff), cpFormat, stArgs);
+    (VOID)vsnprintf(caBuff, sizeof(caBuff), cpFormat, stArgs);
     va_end(stArgs);
     caBuff[sizeof(caBuff) - 1] = '\0';
 
@@ -97,9 +97,9 @@ IPC_VOID __cdecl f_IpcLog(IPC_INT32 iChannel, const char *cpFormat, ...)
 // @return	IPC_PASS / IPC_FAIL
 // @author	hwan
 //
-IPC_INT32 __cdecl f_IpcCoreInit(IPC_VOID)
+INT32 __cdecl f_IpcCoreInit(VOID)
 {
-    s_EnsureLogLock();
+    f_EnsureLogLock();
 
     if (f_SocketStartup() != SOCKET_PASS)
     {
@@ -114,11 +114,11 @@ IPC_INT32 __cdecl f_IpcCoreInit(IPC_VOID)
 // @return	없음
 // @author	hwan
 //
-IPC_VOID __cdecl f_IpcCoreDeinit(IPC_VOID)
+VOID __cdecl f_IpcCoreDeinit(VOID)
 {
-    (void)f_IpcThreadDemoStop();
-    (void)f_IpcMsgQDemoStop();
-    (void)f_IpcTcpDemoStop();
+    (VOID)f_IpcThreadDemoStop();
+    (VOID)f_IpcMsgQDemoStop();
+    (VOID)f_IpcTcpDemoStop();
 
     f_IpcThreadQueueDeinit();
     f_SocketCleanup();

@@ -275,8 +275,8 @@ void CIpcUIDlg::OnBnClickedTcpRecv()
 		return;
 
 	CStringA strIpA = ToUtf8(m_strIpAddr);
-	f_IpcTcpDemoStart(0, reinterpret_cast<const SOCKET_CHAR8*>(static_cast<LPCSTR>(strIpA)),
-		static_cast<SOCKET_UINT16>(m_nPortNum), m_bNetworkByteOrder ? 1 : 0);
+	f_IpcTcpDemoStart(0, reinterpret_cast<const INT8*>(static_cast<LPCSTR>(strIpA)),
+		static_cast<UINT16>(m_nPortNum), m_bNetworkByteOrder ? 1 : 0);
 	UpdateButtons();
 }
 
@@ -286,8 +286,8 @@ void CIpcUIDlg::OnBnClickedTcpSend()
 		return;
 
 	CStringA strIpA = ToUtf8(m_strIpAddr);
-	f_IpcTcpDemoStart(1, reinterpret_cast<const SOCKET_CHAR8*>(static_cast<LPCSTR>(strIpA)),
-		static_cast<SOCKET_UINT16>(m_nPortNum), m_bNetworkByteOrder ? 1 : 0);
+	f_IpcTcpDemoStart(1, reinterpret_cast<const INT8*>(static_cast<LPCSTR>(strIpA)),
+		static_cast<UINT16>(m_nPortNum), m_bNetworkByteOrder ? 1 : 0);
 	UpdateButtons();
 }
 

@@ -8,6 +8,8 @@
 #define IPCCOMMON_H_
 
 #include <stdint.h>
+#include <winsock2.h>
+#include <windows.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,15 +20,6 @@ extern "C" {
 #else
 #define IPCCORE_API __declspec(dllimport)
 #endif
-
-typedef void                    IPC_VOID;
-typedef int8_t                  IPC_CHAR8;
-typedef uint8_t                 IPC_UCHAR8;
-typedef uint16_t                IPC_UINT16;
-typedef int32_t                 IPC_INT32;
-typedef uint32_t                IPC_UINT32;
-typedef int64_t                 IPC_INT64;
-typedef uint64_t                IPC_UINT64;
 
 #define IPC_PASS                1
 #define IPC_FAIL                0
@@ -45,12 +38,12 @@ enum {
 };
 
 // 워커 쓰레드에서 호출된다. cpMessage 는 UTF-8 이고 콜백이 끝나면 무효.
-typedef IPC_VOID (__cdecl *IPC_LOG_FN)(IPC_VOID *vpUserCtx, IPC_INT32 iChannel, const char *cpMessage);
+typedef VOID (__cdecl *IPC_LOG_FN)(VOID *vpUserCtx, INT32 iChannel, const CHAR *cpMessage);
 
-IPCCORE_API IPC_INT32 __cdecl f_IpcCoreInit(IPC_VOID);
-IPCCORE_API IPC_VOID  __cdecl f_IpcCoreDeinit(IPC_VOID);
-IPCCORE_API IPC_VOID  __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, IPC_VOID *vpUserCtx);
-IPCCORE_API IPC_VOID  __cdecl f_IpcLog(IPC_INT32 iChannel, const char *cpFormat, ...);
+IPCCORE_API INT32 __cdecl f_IpcCoreInit(VOID);
+IPCCORE_API VOID  __cdecl f_IpcCoreDeinit(VOID);
+IPCCORE_API VOID  __cdecl f_IpcSetLogHandler(IPC_LOG_FN fnLog, VOID *vpUserCtx);
+IPCCORE_API VOID  __cdecl f_IpcLog(INT32 iChannel, const CHAR *cpFormat, ...);
 
 #ifdef __cplusplus
 }

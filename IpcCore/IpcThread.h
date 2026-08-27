@@ -15,21 +15,25 @@ extern "C" {
 
 #define IPC_THREAD_RING_SLOTS   8
 
+//
+// @struct	st_IpcThreadMsg
+// @brief	쓰레드 간 큐에 싣는 메시지
+//
 typedef struct st_IpcThreadMsg
 {
-    IPC_INT32                   iSeq;
-    IPC_INT32                   iData;
+    INT32                   iSeq;
+    INT32                   iData;
 } st_IpcThreadMsg;
 
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadQueueInit(IPC_VOID);
-IPCCORE_API IPC_VOID  __cdecl f_IpcThreadQueueDeinit(IPC_VOID);
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadQueueSend(const st_IpcThreadMsg *stpMsg, IPC_UINT32 uiTimeOut_ms);
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadQueueRecv(st_IpcThreadMsg *stpMsg, IPC_UINT32 uiTimeOut_ms);
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadQueueGetCount(IPC_VOID);
+IPCCORE_API INT32 __cdecl f_IpcThreadQueueInit(VOID);
+IPCCORE_API VOID  __cdecl f_IpcThreadQueueDeinit(VOID);
+IPCCORE_API INT32 __cdecl f_IpcThreadQueueSend(const st_IpcThreadMsg *stpMsg, UINT32 uiTimeOut_ms);
+IPCCORE_API INT32 __cdecl f_IpcThreadQueueRecv(st_IpcThreadMsg *stpMsg, UINT32 uiTimeOut_ms);
+IPCCORE_API INT32 __cdecl f_IpcThreadQueueGetCount(VOID);
 
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadDemoStart(IPC_VOID);
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadDemoStop(IPC_VOID);
-IPCCORE_API IPC_INT32 __cdecl f_IpcThreadDemoIsRunning(IPC_VOID);
+IPCCORE_API INT32 __cdecl f_IpcThreadDemoStart(VOID);
+IPCCORE_API INT32 __cdecl f_IpcThreadDemoStop(VOID);
+IPCCORE_API INT32 __cdecl f_IpcThreadDemoIsRunning(VOID);
 
 #ifdef __cplusplus
 }

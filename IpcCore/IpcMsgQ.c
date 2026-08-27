@@ -21,56 +21,59 @@
 #define IPC_MSGQ_OBJ_PREFIX     L"Local\\IpcProc."
 #define IPC_MSGQ_WAIT_SLICE_MS  200
 
-// 공유메모리에 올라가는 링버퍼
+//
+// @struct	st_IpcMsgQRing
+// @brief	공유메모리에 올라가는 링버퍼
+//
 #pragma pack(push, 1)
 typedef struct st_IpcMsgQRing
 {
-    IPC_UINT32                  uiMagic;
-    IPC_INT32                   iCapacity;
-    IPC_INT32                   iPayloadMax;
-    IPC_INT32                   iHead;                          // 소비 인덱스
-    IPC_INT32                   iTail;                          // 생산 인덱스
-    IPC_INT32                   iCount;                         // 적재 건수
+    UINT32                  uiMagic;
+    INT32                   iCapacity;
+    INT32                   iPayloadMax;
+    INT32                   iHead;                          // 소비 인덱스
+    INT32                   iTail;                          // 생산 인덱스
+    INT32                   iCount;                         // 적재 건수
     st_IpcMsg                   staSlot[IPC_MSGQ_CAPACITY];
 } st_IpcMsgQRing;
 #pragma pack(pop)
 
-static st_IpcMsgQ           g_stDemoQueue;
-static HANDLE               g_hDemoThread  = NULL;
-static HANDLE               g_hDemoStop    = NULL;
-static volatile LONG        g_lDemoRunning = 0;
-static IPC_INT32            g_iDemoIsSender = 0;
+static st_IpcMsgQ           s_stDemoQueue;
+static HANDLE               s_hDemoThread  = NULL;
+static HANDLE               s_hDemoStop    = NULL;
+static volatile LONG        s_lDemoRunning = 0;
+static INT32            s_iDemoIsSender = 0;
 
-static IPC_VOID s_BuildObjName(wchar_t *wcpOut, size_t szOutCch, const char *cpName, const wchar_t *wcpSuffix)
+static VOID f_BuildObjName(wchar_t *wcpOut, size_t szOutCch, const CHAR *cpName, const wchar_t *wcpSuffix)
 {
     wchar_t wcaName[IPC_MSGQ_NAME_MAX];
 
-    (void)memset(wcaName, 0, sizeof(wcaName));
+    (VOID)memset(wcaName, 0, sizeof(wcaName));
 
-    if (MultiByteToWideChar(CP_UTF8, 0, cpName, -1, wcaName, (int)(sizeof(wcaName) / sizeof(wcaName[0])) - 1) == 0)
+    if (MultiByteToWideChar(CP_UTF8, 0, cpName, -1, wcaName, (INT32)(sizeof(wcaName) / sizeof(wcaName[0])) - 1) == 0)
     {
-        (void)wcscpy_s(wcaName, sizeof(wcaName) / sizeof(wcaName[0]), L"Default");
+        (VOID)wcscpy_s(wcaName, sizeof(wcaName) / sizeof(wcaName[0]), L"Default");
     }
 
     // %ls 를 쓴다 : MSVC 는 %s 도 와이드로 보지만 %ls 가 표준이고 이식성이 있다
-    (void)_snwprintf_s(wcpOut, szOutCch, _TRUNCATE, L"%ls%ls%ls", IPC_MSGQ_OBJ_PREFIX, wcaName, wcpSuffix);
+    (VOID)_snwprintf_s(wcpOut, szOutCch, _TRUNCATE, L"%ls%ls%ls", IPC_MSGQ_OBJ_PREFIX, wcaName, wcpSuffix);
 }
 
-static IPC_VOID s_CloseHandleSafe(IPC_VOID **vppHandle)
+static VOID f_CloseHandleSafe(VOID **vppHandle)
 {
     if ((vppHandle != NULL) && (*vppHandle != NULL))
     {
-        (void)CloseHandle((HANDLE)(*vppHandle));
+        (VOID)CloseHandle((HANDLE)(*vppHandle));
         *vppHandle = NULL;
     }
 }
 
 // 링버퍼 헤더는 뮤텍스 안에서 처음 한 번만 초기화한다
-static IPC_INT32 s_PrepareRing(st_IpcMsgQ *stpQ)
+static INT32 f_PrepareRing(st_IpcMsgQ *stpQ)
 {
     st_IpcMsgQRing *stpRing = (st_IpcMsgQRing *)stpQ->vpRing;
     DWORD           dwWait;
-    IPC_INT32       iResult = IPC_PASS;
+    INT32       iResult = IPC_PASS;
 
     dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
     if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
@@ -94,29 +97,36 @@ static IPC_INT32 s_PrepareRing(st_IpcMsgQ *stpQ)
         iResult = IPC_FAIL;
     }
 
-    (void)ReleaseMutex((HANDLE)stpQ->vpMutex);
+    (VOID)ReleaseMutex((HANDLE)stpQ->vpMutex);
 
     return iResult;
 }
 
-static st_IpcMsgQ s_MsgQOpenInternal(const char *cpName, IPC_INT32 iCreate)
+//
+// @brief	큐 열기 공통 처리. 공유메모리와 동기화 객체를 준비한다
+// @param	cpName	큐 이름
+// @param	iCreate	1 없으면 생성 / 0 있을 때만 참여
+// @return	큐 핸들 (iStatus 로 확인)
+// @author	hwan
+//
+static st_IpcMsgQ f_MsgQOpenInternal(const CHAR *cpName, INT32 iCreate)
 {
     st_IpcMsgQ  stQ;
     wchar_t     wcaObj[256];
     HANDLE      hMap;
     BOOL        bAlreadyExist = FALSE;
 
-    (void)memset(&stQ, 0, sizeof(stQ));
+    (VOID)memset(&stQ, 0, sizeof(stQ));
     stQ.iStatus = enum_IpcMsgQ_Status_Error;
 
     if ((cpName == NULL) || (cpName[0] == '\0'))
     {
         cpName = IPC_MSGQ_DEFAULT_NAME;
     }
-    (void)strncpy_s(stQ.caName, sizeof(stQ.caName), cpName, _TRUNCATE);
+    (VOID)strncpy_s(stQ.caName, sizeof(stQ.caName), cpName, _TRUNCATE);
 
     // 공유메모리
-    s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".map");
+    f_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".map");
 
     if (iCreate != 0)
     {
@@ -135,38 +145,38 @@ static st_IpcMsgQ s_MsgQOpenInternal(const char *cpName, IPC_INT32 iCreate)
         f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] shared memory failed (%lu)", GetLastError());
         return stQ;
     }
-    stQ.vpMapHandle = (IPC_VOID *)hMap;
+    stQ.vpMapHandle = (VOID *)hMap;
     stQ.iIsCreator  = ((iCreate != 0) && (bAlreadyExist == FALSE)) ? 1 : 0;
 
     stQ.vpRing = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(st_IpcMsgQRing));
     if (stQ.vpRing == NULL)
     {
         f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] map failed (%lu)", GetLastError());
-        (void)f_IpcMsgQClose(&stQ);
+        (VOID)f_IpcMsgQClose(&stQ);
         return stQ;
     }
 
     // 뮤텍스
-    s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".mtx");
-    stQ.vpMutex = (IPC_VOID *)CreateMutexW(NULL, FALSE, wcaObj);
+    f_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".mtx");
+    stQ.vpMutex = (VOID *)CreateMutexW(NULL, FALSE, wcaObj);
 
     // 세마포어 2개. 초기 카운트는 최초 생성 시에만 반영된다
-    s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".sem.e");
-    stQ.vpSemEmpty = (IPC_VOID *)CreateSemaphoreW(NULL, (LONG)IPC_MSGQ_CAPACITY, (LONG)IPC_MSGQ_CAPACITY, wcaObj);
+    f_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".sem.e");
+    stQ.vpSemEmpty = (VOID *)CreateSemaphoreW(NULL, (LONG)IPC_MSGQ_CAPACITY, (LONG)IPC_MSGQ_CAPACITY, wcaObj);
 
-    s_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".sem.f");
-    stQ.vpSemFull = (IPC_VOID *)CreateSemaphoreW(NULL, 0, (LONG)IPC_MSGQ_CAPACITY, wcaObj);
+    f_BuildObjName(wcaObj, sizeof(wcaObj) / sizeof(wcaObj[0]), cpName, L".sem.f");
+    stQ.vpSemFull = (VOID *)CreateSemaphoreW(NULL, 0, (LONG)IPC_MSGQ_CAPACITY, wcaObj);
 
     if ((stQ.vpMutex == NULL) || (stQ.vpSemEmpty == NULL) || (stQ.vpSemFull == NULL))
     {
         f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] sync object failed (%lu)", GetLastError());
-        (void)f_IpcMsgQClose(&stQ);
+        (VOID)f_IpcMsgQClose(&stQ);
         return stQ;
     }
 
-    if (s_PrepareRing(&stQ) != IPC_PASS)
+    if (f_PrepareRing(&stQ) != IPC_PASS)
     {
-        (void)f_IpcMsgQClose(&stQ);
+        (VOID)f_IpcMsgQClose(&stQ);
         return stQ;
     }
 
@@ -183,14 +193,20 @@ static st_IpcMsgQ s_MsgQOpenInternal(const char *cpName, IPC_INT32 iCreate)
 // @return	큐 핸들 (iStatus 로 성공 여부 확인)
 // @author	hwan
 //
-st_IpcMsgQ __cdecl f_IpcMsgQCreate(const char *cpName)
+st_IpcMsgQ __cdecl f_IpcMsgQCreate(const CHAR *cpName)
 {
-    return s_MsgQOpenInternal(cpName, 1);
+    return f_MsgQOpenInternal(cpName, 1);
 }
 
-st_IpcMsgQ __cdecl f_IpcMsgQOpen(const char *cpName)
+//
+// @brief	이미 있는 큐에 참여한다
+// @param	cpName	큐 이름
+// @return	큐 핸들 (iStatus 로 확인)
+// @author	hwan
+//
+st_IpcMsgQ __cdecl f_IpcMsgQOpen(const CHAR *cpName)
 {
-    return s_MsgQOpenInternal(cpName, 0);
+    return f_MsgQOpenInternal(cpName, 0);
 }
 
 //
@@ -201,7 +217,7 @@ st_IpcMsgQ __cdecl f_IpcMsgQOpen(const char *cpName)
 // @return	IPC_PASS / IPC_FAIL(타임아웃 포함)
 // @author	hwan
 //
-IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_UINT32 uiTimeOut_ms)
+INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, UINT32 uiTimeOut_ms)
 {
     st_IpcMsgQRing *stpRing;
     DWORD           dwWait;
@@ -227,7 +243,7 @@ IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_U
     dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
     if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
     {
-        (void)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL);
+        (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL);
         return IPC_FAIL;
     }
 
@@ -235,10 +251,10 @@ IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_U
     stpRing->iTail = (stpRing->iTail + 1) % stpRing->iCapacity;
     stpRing->iCount++;
 
-    (void)ReleaseMutex((HANDLE)stpQ->vpMutex);
+    (VOID)ReleaseMutex((HANDLE)stpQ->vpMutex);
 
 
-    (void)ReleaseSemaphore((HANDLE)stpQ->vpSemFull, 1, NULL);
+    (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemFull, 1, NULL);
 
     return IPC_PASS;
 }
@@ -251,7 +267,7 @@ IPC_INT32 __cdecl f_IpcMsgQSend(st_IpcMsgQ *stpQ, const st_IpcMsg *stpMsg, IPC_U
 // @return	IPC_PASS / IPC_FAIL(타임아웃 포함)
 // @author	hwan
 //
-IPC_INT32 __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg, IPC_UINT32 uiTimeOut_ms)
+INT32 __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg, UINT32 uiTimeOut_ms)
 {
     st_IpcMsgQRing *stpRing;
     DWORD           dwWait;
@@ -273,7 +289,7 @@ IPC_INT32 __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg, IPC_UINT32 
     dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
     if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
     {
-        (void)ReleaseSemaphore((HANDLE)stpQ->vpSemFull, 1, NULL);
+        (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemFull, 1, NULL);
         return IPC_FAIL;
     }
 
@@ -281,15 +297,15 @@ IPC_INT32 __cdecl f_IpcMsgQRecv(st_IpcMsgQ *stpQ, st_IpcMsg *stpMsg, IPC_UINT32 
     stpRing->iHead = (stpRing->iHead + 1) % stpRing->iCapacity;
     stpRing->iCount--;
 
-    (void)ReleaseMutex((HANDLE)stpQ->vpMutex);
+    (VOID)ReleaseMutex((HANDLE)stpQ->vpMutex);
 
 
-    (void)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL);
+    (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL);
 
     return IPC_PASS;
 }
 
-IPC_INT32 __cdecl f_IpcMsgQGetCount(const st_IpcMsgQ *stpQ)
+INT32 __cdecl f_IpcMsgQGetCount(const st_IpcMsgQ *stpQ)
 {
     const st_IpcMsgQRing *stpRing;
 
@@ -309,7 +325,7 @@ IPC_INT32 __cdecl f_IpcMsgQGetCount(const st_IpcMsgQ *stpQ)
 // @return	IPC_PASS / IPC_FAIL(NULL 인자)
 // @author	hwan
 //
-IPC_INT32 __cdecl f_IpcMsgQClose(st_IpcMsgQ *stpQ)
+INT32 __cdecl f_IpcMsgQClose(st_IpcMsgQ *stpQ)
 {
     if (stpQ == NULL)
     {
@@ -318,54 +334,54 @@ IPC_INT32 __cdecl f_IpcMsgQClose(st_IpcMsgQ *stpQ)
 
     if (stpQ->vpRing != NULL)
     {
-        (void)UnmapViewOfFile(stpQ->vpRing);
+        (VOID)UnmapViewOfFile(stpQ->vpRing);
         stpQ->vpRing = NULL;
     }
 
-    s_CloseHandleSafe(&stpQ->vpSemFull);
-    s_CloseHandleSafe(&stpQ->vpSemEmpty);
-    s_CloseHandleSafe(&stpQ->vpMutex);
-    s_CloseHandleSafe(&stpQ->vpMapHandle);
+    f_CloseHandleSafe(&stpQ->vpSemFull);
+    f_CloseHandleSafe(&stpQ->vpSemEmpty);
+    f_CloseHandleSafe(&stpQ->vpMutex);
+    f_CloseHandleSafe(&stpQ->vpMapHandle);
 
     stpQ->iStatus = enum_IpcMsgQ_Status_NotOpened;
 
     return IPC_PASS;
 }
 
-static IPC_INT32 s_IsStopRequested(IPC_UINT32 uiWait_ms)
+static INT32 f_IsStopRequested(UINT32 uiWait_ms)
 {
-    if (g_hDemoStop == NULL)
+    if (s_hDemoStop == NULL)
     {
         return 1;
     }
 
-    return (WaitForSingleObject(g_hDemoStop, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
+    return (WaitForSingleObject(s_hDemoStop, (DWORD)uiWait_ms) == WAIT_OBJECT_0) ? 1 : 0;
 }
 
 //
 // @brief	데모 송신 쓰레드. 1 부터 100 까지 0.1 초 간격으로 큐에 송신한다.
-// @param	vpArg	사용하지 않음
+// @param	vpArg	사용 안함
 // @return	0 고정
 // @author	hwan
 //
-static unsigned __stdcall s_SenderProc(void *vpArg)
+static UINT32 __stdcall f_SenderProc(VOID *vpArg)
 {
     st_IpcMsg   stMsg;
-    IPC_INT32   iData;
-    IPC_INT32   iSeq = 0;
+    INT32   iData;
+    INT32   iSeq = 0;
 
-    (void)vpArg;
+    (VOID)vpArg;
 
     for (iData = IPC_DEMO_FIRST_VALUE; iData <= IPC_DEMO_LAST_VALUE; iData++)
     {
         iSeq++;
 
-        (void)memset(&stMsg, 0, sizeof(stMsg));
+        (VOID)memset(&stMsg, 0, sizeof(stMsg));
         stMsg.iMsgType  = 1;
-        stMsg.iDataSize = (IPC_INT32)sizeof(iData);
-        (void)memcpy(stMsg.ucaData, &iData, sizeof(iData));
+        stMsg.iDataSize = (INT32)sizeof(iData);
+        (VOID)memcpy(stMsg.ucaData, &iData, sizeof(iData));
 
-        if (f_IpcMsgQSend(&g_stDemoQueue, &stMsg, 1000U) != IPC_PASS)
+        if (f_IpcMsgQSend(&s_stDemoQueue, &stMsg, 1000U) != IPC_PASS)
         {
             f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] tx full, data=%d", iData);
         }
@@ -374,7 +390,7 @@ static unsigned __stdcall s_SenderProc(void *vpArg)
             f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] tx %d", iData);
         }
 
-        if (s_IsStopRequested(IPC_DEMO_INTERVAL_MS) != 0)
+        if (f_IsStopRequested(IPC_DEMO_INTERVAL_MS) != 0)
         {
             break;
         }
@@ -390,30 +406,30 @@ static unsigned __stdcall s_SenderProc(void *vpArg)
 
 //
 // @brief	데모 수신 쓰레드. 정지 요청까지 큐에서 메시지를 꺼내 로그로 출력한다.
-// @param	vpArg	사용하지 않음
+// @param	vpArg	사용 안함
 // @return	0 고정
 // @author	hwan
 //
-static unsigned __stdcall s_ReceiverProc(void *vpArg)
+static UINT32 __stdcall f_ReceiverProc(VOID *vpArg)
 {
     st_IpcMsg   stMsg;
-    IPC_INT32   iData;
-    IPC_INT32   iRecvCount = 0;
+    INT32   iData;
+    INT32   iRecvCount = 0;
 
-    (void)vpArg;
+    (VOID)vpArg;
 
-    while (s_IsStopRequested(0U) == 0)
+    while (f_IsStopRequested(0U) == 0)
     {
-        if (f_IpcMsgQRecv(&g_stDemoQueue, &stMsg, IPC_MSGQ_WAIT_SLICE_MS) != IPC_PASS)
+        if (f_IpcMsgQRecv(&s_stDemoQueue, &stMsg, IPC_MSGQ_WAIT_SLICE_MS) != IPC_PASS)
         {
             continue;
         }
 
         iRecvCount++;
 
-        if (stMsg.iDataSize == (IPC_INT32)sizeof(iData))
+        if (stMsg.iDataSize == (INT32)sizeof(iData))
         {
-            (void)memcpy(&iData, stMsg.ucaData, sizeof(iData));
+            (VOID)memcpy(&iData, stMsg.ucaData, sizeof(iData));
             f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] rx %d", iData);
         }
         else
@@ -434,40 +450,40 @@ static unsigned __stdcall s_ReceiverProc(void *vpArg)
 // @return	IPC_PASS / IPC_FAIL(이미 동작 중 포함)
 // @author	hwan
 //
-IPC_INT32 __cdecl f_IpcMsgQDemoStart(const char *cpName, IPC_INT32 iIsSender)
+INT32 __cdecl f_IpcMsgQDemoStart(const CHAR *cpName, INT32 iIsSender)
 {
-    if (InterlockedCompareExchange(&g_lDemoRunning, 1, 0) != 0)
+    if (InterlockedCompareExchange(&s_lDemoRunning, 1, 0) != 0)
     {
         return IPC_FAIL;
     }
 
-    g_stDemoQueue = f_IpcMsgQCreate(cpName);
-    if (g_stDemoQueue.iStatus != enum_IpcMsgQ_Status_Opened)
+    s_stDemoQueue = f_IpcMsgQCreate(cpName);
+    if (s_stDemoQueue.iStatus != enum_IpcMsgQ_Status_Opened)
     {
-        InterlockedExchange(&g_lDemoRunning, 0);
+        InterlockedExchange(&s_lDemoRunning, 0);
         return IPC_FAIL;
     }
 
-    g_hDemoStop = CreateEventW(NULL, TRUE, FALSE, NULL);
-    if (g_hDemoStop == NULL)
+    s_hDemoStop = CreateEventW(NULL, TRUE, FALSE, NULL);
+    if (s_hDemoStop == NULL)
     {
-        (void)f_IpcMsgQClose(&g_stDemoQueue);
-        InterlockedExchange(&g_lDemoRunning, 0);
+        (VOID)f_IpcMsgQClose(&s_stDemoQueue);
+        InterlockedExchange(&s_lDemoRunning, 0);
         return IPC_FAIL;
     }
 
-    g_iDemoIsSender = (iIsSender != 0) ? 1 : 0;
-    g_hDemoThread   = (HANDLE)_beginthreadex(NULL, 0,
-                                             (g_iDemoIsSender != 0) ? s_SenderProc : s_ReceiverProc,
+    s_iDemoIsSender = (iIsSender != 0) ? 1 : 0;
+    s_hDemoThread   = (HANDLE)_beginthreadex(NULL, 0,
+                                             (s_iDemoIsSender != 0) ? f_SenderProc : f_ReceiverProc,
                                              NULL, 0, NULL);
-    if (g_hDemoThread == NULL)
+    if (s_hDemoThread == NULL)
     {
         f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] thread create failed");
-        (void)f_IpcMsgQDemoStop();
+        (VOID)f_IpcMsgQDemoStop();
         return IPC_FAIL;
     }
 
-    f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] start (%s)", (g_iDemoIsSender != 0) ? "tx" : "rx");
+    f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] start (%s)", (s_iDemoIsSender != 0) ? "tx" : "rx");
 
     return IPC_PASS;
 }
@@ -477,29 +493,29 @@ IPC_INT32 __cdecl f_IpcMsgQDemoStart(const char *cpName, IPC_INT32 iIsSender)
 // @return	IPC_PASS 고정
 // @author	hwan
 //
-IPC_INT32 __cdecl f_IpcMsgQDemoStop(IPC_VOID)
+INT32 __cdecl f_IpcMsgQDemoStop(VOID)
 {
-    if (g_hDemoStop != NULL)
+    if (s_hDemoStop != NULL)
     {
-        (void)SetEvent(g_hDemoStop);
+        (VOID)SetEvent(s_hDemoStop);
     }
 
-    if (g_hDemoThread != NULL)
+    if (s_hDemoThread != NULL)
     {
-        (void)WaitForSingleObject(g_hDemoThread, 3000U);
-        (void)CloseHandle(g_hDemoThread);
-        g_hDemoThread = NULL;
+        (VOID)WaitForSingleObject(s_hDemoThread, 3000U);
+        (VOID)CloseHandle(s_hDemoThread);
+        s_hDemoThread = NULL;
     }
 
-    if (g_hDemoStop != NULL)
+    if (s_hDemoStop != NULL)
     {
-        (void)CloseHandle(g_hDemoStop);
-        g_hDemoStop = NULL;
+        (VOID)CloseHandle(s_hDemoStop);
+        s_hDemoStop = NULL;
     }
 
-    (void)f_IpcMsgQClose(&g_stDemoQueue);
+    (VOID)f_IpcMsgQClose(&s_stDemoQueue);
 
-    if (InterlockedCompareExchange(&g_lDemoRunning, 0, 1) == 1)
+    if (InterlockedCompareExchange(&s_lDemoRunning, 0, 1) == 1)
     {
         f_IpcLog(enum_IpcLogCh_MsgQ, "[MQ] stop");
     }
@@ -507,7 +523,7 @@ IPC_INT32 __cdecl f_IpcMsgQDemoStop(IPC_VOID)
     return IPC_PASS;
 }
 
-IPC_INT32 __cdecl f_IpcMsgQDemoIsRunning(IPC_VOID)
+INT32 __cdecl f_IpcMsgQDemoIsRunning(VOID)
 {
-    return (IPC_INT32)InterlockedCompareExchange(&g_lDemoRunning, 0, 0);
+    return (INT32)InterlockedCompareExchange(&s_lDemoRunning, 0, 0);
 }
