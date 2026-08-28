@@ -15,15 +15,19 @@
       IpcSocket.h/.c      TCP/IP 송수신      (SocketUtility.h 의 Windows 포팅)
       IpcCore.c           로그 파이프라인
     IpcUI\              동작 확인용 MFC 대화상자 - CSC
-    docs\               구현 내용 정리
+    ref\                참고 자료 (구현 정리 / 코딩 규칙 / 발표자료 / 원본 소스)
+      IPC구현정리.md      구현 내용 정리
+      codeRule.md         코딩 규칙
+      발표자료\
+        IPC_발표대본.md            발표 대본
+        IPC_발표자료.pptx          23장 (편집용)
+        IPC_발표자료.pdf           같은 내용 PDF
+        IPC_발표자료_대본합본.pdf  대본까지 붙인 PDF
+        과제 내용.txt              과제 원문
+        old\                       이전 버전
+      참고\
+        SocketUtility.h/.c  포팅 기준이 된 원본 리눅스 소스
     .gitignore / .gitattributes
-
-  발표자료\
-    IPC_발표자료.pptx   26장 (편집용)
-    IPC_발표자료.pdf    같은 내용 PDF
-
-  참고\
-    SocketUtility.h     포팅 기준이 된 원본 리눅스 헤더
 
 
 [ 빌드 ]
