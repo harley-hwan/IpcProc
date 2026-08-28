@@ -1,7 +1,6 @@
 ﻿//
 // @file	IpcExternalICD.h
 // @brief	외부 ICD. CSC 간(IpcUI <-> IpcCore), CSCI 간(상대 장비) 통신에 쓰는 공통 정의.
-//			규칙대로 CSCI 당 1개만 두고 프로젝트_CSCI\include 에 둠.
 // @author	hwan
 // @date	2026.08.19.
 //
