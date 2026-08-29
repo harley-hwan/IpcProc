@@ -43,7 +43,7 @@ static volatile LONG        s_lDemoRunning  = 0;
 static INT32                s_iDemoIsSender = 0;
 static INT32                s_iDemoUseNBO   = 0;
 static CHAR                 s_caDemoIp[64]  = "127.0.0.1";
-static UINT16               s_usDemoPort    = 51000U;
+static UINT16               s_usDemoPort    = 12345U;
 
 static BOOL CALLBACK f_WsaInitOnce(PINIT_ONCE ipInitOnce, PVOID vpParam, PVOID *vppCtx)
 {
@@ -1235,7 +1235,7 @@ static UINT32 __stdcall f_TcpReceiverProc(VOID *vpArg)
 // @brief	TCP 데모 시작. 역할에 맞는 쓰레드 띄움
 // @param	iIsSender				1:송신(클라이언트), 0:수신(서버)
 // @param	cpIpAddr				상대(또는 bind) IPv4 주소 (비어 있으면 127.0.0.1)
-// @param	usPortNum				포트 번호 (0 이면 51000)
+// @param	usPortNum				포트 번호 (0 이면 12345)
 // @param	iUseNetworkByteOrder	1:htonl/ntohl 적용
 // @return	SOCKET_PASS / SOCKET_FAIL (이미 동작 중 포함)
 //
@@ -1277,7 +1277,7 @@ INT32 __cdecl f_IpcTcpDemoStart(const INT32 iIsSender, const INT8 *cpIpAddr,
         (VOID)strncpy_s(s_caDemoIp, sizeof(s_caDemoIp), "127.0.0.1", _TRUNCATE);
     }
 
-    s_usDemoPort    = (usPortNum != 0U) ? usPortNum : 51000U;
+    s_usDemoPort    = (usPortNum != 0U) ? usPortNum : 1234U;
     s_iDemoIsSender = (iIsSender != 0) ? 1 : 0;
     s_iDemoUseNBO   = (iUseNetworkByteOrder != 0) ? 1 : 0;
     s_stDemoSocket  = f_MakeInvalidSocket(enum_Socket_Type_NotDefined);

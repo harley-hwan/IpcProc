@@ -42,7 +42,7 @@ CIpcUIDlg::CIpcUIDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_IPCUI_DIALOG, pParent)
 	, m_strQueueName(_T("IpcDemoQ"))
 	, m_strIpAddr(_T("127.0.0.1"))
-	, m_nPortNum(51000)
+	, m_nPortNum(12345)
 	, m_bNetworkByteOrder(FALSE)
 	, m_nLogExtent(0)
 {
