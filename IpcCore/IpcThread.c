@@ -22,44 +22,12 @@ static HANDLE               s_hSemEmpty   = NULL;
 static HANDLE               s_hSemFull    = NULL;
 static LONG                 s_lQueueReady = 0;
 
-// 큐가 커밋 시점에서 tx / rx 로그를 직접 찍을지. 데모 도는 동안만 1.
-//  - 로그를 쓰레드 쪽에서 찍으면 ReleaseSemaphore 이후가 되어, 상대가 먼저 깨어나
-//    로그를 찍어 버리는 창이 열린다 (rx 2 가 tx 2 보다 먼저 나오던 원인).
-static volatile LONG        s_lQueueTrace = 0;
-
 static HANDLE               s_hTxThread    = NULL;
 static HANDLE               s_hRxThread    = NULL;
 static HANDLE               s_hStopEvent   = NULL;
 static volatile LONG        s_lDemoRunning = 0;
 
 #define IPC_THREAD_WAIT_SLICE_MS    100
-
-// 1 로 두면 송신이 수신보다 한 건도 앞서가지 못하게 해서 tx / rx 가 반드시 한 줄씩 번갈아 나온다.
-// 0 (기본) 이면 링버퍼 슬롯 수만큼 앞서갈 수 있다 — 버퍼를 두는 원래 이유가 이것이다.
-// 0.1 초 간격 데모에서는 0 으로 두어도 큐가 매번 비워져서 결과는 번갈아 나온다.
-#define IPC_THREAD_LOCKSTEP         0
-
-#if (IPC_THREAD_LOCKSTEP != 0)
-    #define IPC_THREAD_EMPTY_INIT   1
-#else
-    #define IPC_THREAD_EMPTY_INIT   IPC_THREAD_RING_SLOTS
-#endif
-
-//
-// @brief	커밋 시점 로그.
-//			송신은 ReleaseSemaphore(full) 직전, 수신은 ReleaseSemaphore(empty) 직전에 부른다.
-//			이 자리라야 tx N 줄이 rx N 줄보다 먼저 나오는 것이 보장된다.
-// @param	cpTag	"tx" / "rx"
-// @param	stpMsg	커밋한 메시지
-//
-static VOID f_IpcThreadTrace(const CHAR *cpTag, const ST_IpcThreadMsg *stpMsg)
-{
-    if (InterlockedCompareExchange(&s_lQueueTrace, 0, 0) == 0)
-    {
-        return;
-    }
-    f_IpcLog(enum_IpcLogCh_Thread, "[TH] %s %d", cpTag, stpMsg->iData);
-}
 
 // 큐 생성. 이미 만들어져 있으면 그냥 성공 처리
 INT32 __cdecl f_IpcThreadQueueInit(VOID)
@@ -71,8 +39,8 @@ INT32 __cdecl f_IpcThreadQueueInit(VOID)
 
     InitializeCriticalSection(&s_stRingLock);
 
-    // 빈 슬롯 = IPC_THREAD_EMPTY_INIT, 찬 슬롯 = 0 에서 시작
-    s_hSemEmpty = CreateSemaphoreW(NULL, (LONG)IPC_THREAD_EMPTY_INIT, (LONG)IPC_THREAD_RING_SLOTS, NULL);
+    // 빈 슬롯 = 링버퍼 슬롯 수, 찬 슬롯 = 0 에서 시작
+    s_hSemEmpty = CreateSemaphoreW(NULL, (LONG)IPC_THREAD_RING_SLOTS, (LONG)IPC_THREAD_RING_SLOTS, NULL);
     s_hSemFull  = CreateSemaphoreW(NULL, 0, (LONG)IPC_THREAD_RING_SLOTS, NULL);
     if ((s_hSemEmpty == NULL) || (s_hSemFull == NULL))
     {
@@ -130,8 +98,6 @@ INT32 __cdecl f_IpcThreadQueueSend(const ST_IpcThreadMsg *stpMsg, const UINT32 u
     s_nRingCount++;
     LeaveCriticalSection(&s_stRingLock);
 
-    f_IpcThreadTrace("tx", stpMsg);
-
 	// 3. 찬 슬롯 + 1 - 수신 쓰레드를 깨운다
     (VOID)ReleaseSemaphore(s_hSemFull, 1, NULL);
     return IPC_PASS;
@@ -163,8 +129,6 @@ INT32 __cdecl f_IpcThreadQueueRecv(ST_IpcThreadMsg *stpMsg, const UINT32 uiTimeO
     s_nRingCount--;
     LeaveCriticalSection(&s_stRingLock);
 
-    f_IpcThreadTrace("rx", stpMsg);
-
     // 3. 빈 슬롯 + 1 - 송신 쓰레드를 깨운다
     (VOID)ReleaseSemaphore(s_hSemEmpty, 1, NULL);
     return IPC_PASS;
@@ -195,7 +159,6 @@ static INT32 f_IsStopRequested(const UINT32 uiWait_ms)
 }
 
 // 데모 송신 쓰레드. 1~100 을 0.1 초마다 보냄
-//  tx 로그는 큐가 커밋 시점에 찍으므로 여기서는 실패한 경우만 남긴다.
 static UINT32 __stdcall f_TxThreadProc(VOID *vpArg)
 {
     ST_IpcThreadMsg st_Msg;
@@ -214,10 +177,15 @@ static UINT32 __stdcall f_TxThreadProc(VOID *vpArg)
         {
             f_IpcLog(enum_IpcLogCh_Thread, "[TH] tx full, data=%d", iData);
         }
+        else
+        {
+            f_IpcLog(enum_IpcLogCh_Thread, "[TH] tx %d", iData);
+        }
 
         // 다음 건까지 IPC_DEMO_INTERVAL_MS 를 쉰다.
-        // 이 간격이 수신 쪽이 한 건 꺼내는 시간보다 훨씬 길어서, 큐가 매번 비워지고
-        // 결과적으로 tx / rx 가 한 줄씩 번갈아 나온다.
+        // 이 간격이 수신 쪽이 한 건 꺼내는 시간보다 훨씬 길어서 큐가 매번 비워짐.
+        // 그래서 보통은 한 줄씩 번갈아 나오지만, 로그는 두 쓰레드가 각자 찍으므로
+        // 줄 순서까지 보장되지는 않음.
         if (f_IsStopRequested(IPC_DEMO_INTERVAL_MS) != 0)
         {
             break;
@@ -231,8 +199,8 @@ static UINT32 __stdcall f_TxThreadProc(VOID *vpArg)
     return 0U;
 }
 
-// 데모 수신 쓰레드. 멈추라고 할 때까지 꺼냄
-//  rx 로그는 큐가 커밋 시점에 찍는다. 여기서는 개수 세기와 순번 검증만 한다.
+// 데모 수신 쓰레드. 멈추라고 할 때까지 꺼내서 로그로 찍음
+//  받은 nSeq 를 기대값과 대조해서 순서가 어긋났는지 같이 셈.
 static UINT32 __stdcall f_RxThreadProc(VOID *vpArg)
 {
     ST_IpcThreadMsg st_Msg;
@@ -247,6 +215,7 @@ static UINT32 __stdcall f_RxThreadProc(VOID *vpArg)
         if (f_IpcThreadQueueRecv(&st_Msg, IPC_THREAD_WAIT_SLICE_MS) == IPC_PASS)
         {
             nRecvCount++;
+            f_IpcLog(enum_IpcLogCh_Thread, "[TH] rx %d", st_Msg.iData);
             if (st_Msg.nSeq != nExpectSeq)
             {
                 nSeqErrCount++;
@@ -261,6 +230,7 @@ static UINT32 __stdcall f_RxThreadProc(VOID *vpArg)
     while (f_IpcThreadQueueRecv(&st_Msg, 0U) == IPC_PASS)
     {
         nRecvCount++;
+        f_IpcLog(enum_IpcLogCh_Thread, "[TH] rx %d", st_Msg.iData);
         if (st_Msg.nSeq != nExpectSeq)
         {
             nSeqErrCount++;
@@ -298,9 +268,6 @@ INT32 __cdecl f_IpcThreadDemoStart(VOID)
         return IPC_FAIL;
     }
 
-    // 데모 도는 동안에는 큐가 커밋 시점에서 tx / rx 로그를 찍는다
-    InterlockedExchange(&s_lQueueTrace, 1);
-
     // 시작 로그를 먼저 찍고 쓰레드를 띄운다. 반대로 하면 tx 첫 줄이 start 보다 앞설 수 있다.
     f_IpcLog(enum_IpcLogCh_Thread, "[TH] start");
 
@@ -333,9 +300,6 @@ INT32 __cdecl f_IpcThreadDemoStop(VOID)
     {
         (VOID)WaitForMultipleObjects(nCount, haThread, TRUE, 3000U);
     }
-
-    // 두 쓰레드가 다 끝난 뒤에 끈다. 먼저 끄면 마지막 몇 줄이 로그에서 빠진다.
-    InterlockedExchange(&s_lQueueTrace, 0);
 
     if (s_hTxThread  != NULL) { (VOID)CloseHandle(s_hTxThread);  s_hTxThread  = NULL; }
     if (s_hRxThread  != NULL) { (VOID)CloseHandle(s_hRxThread);  s_hRxThread  = NULL; }
