@@ -203,27 +203,22 @@ INT32 __cdecl f_IpcMsgQSend(ST_IpcMsgQ *stpQ, const ST_IpcMsg *stpMsg, const UIN
 
     stpRing = (ST_IpcMsgQRing *)stpQ->vpRing;
 
-    // 빈 슬롯 대기
+    // 1. 빈 슬롯 대기 (프로세스 간 세마포어)
     if (WaitForSingleObject((HANDLE)stpQ->vpSemEmpty, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;
     }
 
-    // 프로세스 간 상호배제용 뮤텍스
-    dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
-    if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
-    {
-        (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL);
-        return IPC_FAIL;
-    }
+    // 2. 프로세스 간 상호배제 - 네임드 뮤텍스
+    WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
 
+    // 3. 공유메모리 위의 링버퍼에 write
     stpRing->staSlot[stpRing->iTail] = *stpMsg;
     stpRing->iTail = (stpRing->iTail + 1) % stpRing->iCapacity;
     stpRing->nCount++;
 
     (VOID)ReleaseMutex((HANDLE)stpQ->vpMutex);
-
-    (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemFull, 1, NULL);
+    (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemFull, 1, NULL); // 4. 찬 슬롯 + 1
 
     return IPC_PASS;
 }
@@ -247,12 +242,13 @@ INT32 __cdecl f_IpcMsgQRecv(ST_IpcMsgQ *stpQ, ST_IpcMsg *stpMsg, const UINT32 ui
 
     stpRing = (ST_IpcMsgQRing *)stpQ->vpRing;
 
-    // 찬 슬롯 대기
+    // 1. 찬 슬롯 대기
     if (WaitForSingleObject((HANDLE)stpQ->vpSemFull, (DWORD)uiTimeOut_ms) != WAIT_OBJECT_0)
     {
         return IPC_FAIL;
     }
 
+    // 2. 같은 네임드 뮤텍스
     dwWait = WaitForSingleObject((HANDLE)stpQ->vpMutex, 5000U);
     if ((dwWait != WAIT_OBJECT_0) && (dwWait != WAIT_ABANDONED))
     {
@@ -260,13 +256,14 @@ INT32 __cdecl f_IpcMsgQRecv(ST_IpcMsgQ *stpQ, ST_IpcMsg *stpMsg, const UINT32 ui
         return IPC_FAIL;
     }
 
+    // 3. 링버퍼에서 read
     *stpMsg = stpRing->staSlot[stpRing->iHead];
     stpRing->iHead = (stpRing->iHead + 1) % stpRing->iCapacity;
     stpRing->nCount--;
 
     (VOID)ReleaseMutex((HANDLE)stpQ->vpMutex);
 
-    (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL);
+    (VOID)ReleaseSemaphore((HANDLE)stpQ->vpSemEmpty, 1, NULL); // 4. 빈 슬롯 + 1
 
     return IPC_PASS;
 }
