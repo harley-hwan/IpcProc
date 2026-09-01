@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 505" width="1000" height="505"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>2.1.7. Platform Body 좌표계 - Vehicle-Carried NED(x_VC, y_VC, z_VC)와 Platform Body(x_B, y_B, z_B) 좌표계 관계</title>
+  <defs>
+    <marker id="arr_A_p05_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrsm_A_p05_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="505" fill="#ffffff"/>
+
+  <!-- ===== local horizontal reference plane ===== -->
+  <polygon points="280,230 985,230 855,355 150,355" fill="#f2f2f2" stroke="#000" stroke-width="1.4"/>
+
+  <!-- ===== ship (naval platform), bow to the right ===== -->
+  <!-- deck top surface -->
+  <polygon points="282,222 424,230 772,300 758,288 420,214 288,206" fill="#e8e8e8" stroke="#000" stroke-width="1.2"/>
+  <!-- hull side -->
+  <polygon points="282,222 424,230 772,300 742,314 560,292 424,262 282,252" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <!-- superstructure block -->
+  <polygon points="288,212 288,140 306,132 402,132 414,148 452,155 474,176 506,216 512,242 430,234 340,224"
+           fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <!-- bridge / tower -->
+  <polygon points="424,152 424,118 432,104 452,104 462,120 464,160" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <!-- masts and antennas -->
+  <g stroke="#000" stroke-width="1.6" fill="none">
+    <line x1="312" y1="132" x2="312" y2="104"/>
+    <line x1="305" y1="110" x2="319" y2="110"/>
+    <line x1="340" y1="132" x2="340" y2="98"/>
+    <line x1="332" y1="106" x2="348" y2="106"/>
+    <line x1="362" y1="132" x2="362" y2="112"/>
+    <line x1="386" y1="132" x2="386" y2="102"/>
+  </g>
+  <!-- deck house detail -->
+  <line x1="424" y1="262" x2="424" y2="230" stroke="#000" stroke-width="0.8" opacity="0.35"/>
+
+  <!-- ===== Vehicle-Carried NED axes (dash-dot) ===== -->
+  <line x1="424" y1="230" x2="552" y2="51" stroke="#000" stroke-width="2"
+        stroke-dasharray="12,5,2,5" marker-end="url(#arr_A_p05_F1)"/>
+  <line x1="424" y1="428" x2="424" y2="458" stroke="#000" stroke-width="2"
+        stroke-dasharray="6,4,1,4" marker-end="url(#arrsm_A_p05_F1)"/>
+
+  <!-- ===== Body axes ===== -->
+  <line x1="424" y1="230" x2="735" y2="230" stroke="#000" stroke-width="2" marker-end="url(#arr_A_p05_F1)"/>
+  <line x1="424" y1="230" x2="762" y2="290" stroke="#000" stroke-width="2.2" marker-end="url(#arr_A_p05_F1)"/>
+  <line x1="424" y1="230" x2="256" y2="358" stroke="#000" stroke-width="2.2" marker-end="url(#arr_A_p05_F1)"/>
+  <line x1="424" y1="230" x2="424" y2="418" stroke="#000" stroke-width="2.2" marker-end="url(#arr_A_p05_F1)"/>
+
+  <!-- mass point -->
+  <circle cx="424" cy="230" r="6.5" fill="#000"/>
+
+  <!-- ===== Local NED triad ===== -->
+  <g stroke="#000" stroke-width="2.6" fill="none">
+    <line x1="790" y1="325" x2="842" y2="252" marker-end="url(#arr_A_p05_F1)"/>
+    <line x1="790" y1="325" x2="880" y2="325" marker-end="url(#arr_A_p05_F1)"/>
+    <line x1="790" y1="325" x2="790" y2="415" marker-end="url(#arr_A_p05_F1)"/>
+  </g>
+
+  <!-- ===== labels ===== -->
+  <g fill="#000" stroke="#ffffff" stroke-width="3.5" paint-order="stroke" stroke-linejoin="round">
+    <text x="414" y="218" text-anchor="end" font-size="17" font-weight="bold">Mass Point</text>
+
+    <text x="562" y="70" font-size="19" font-style="italic">x<tspan dy="5" font-size="13" font-style="normal">VC</tspan></text>
+    <text x="622" y="219" font-size="19" font-style="italic">y<tspan dy="5" font-size="13" font-style="normal">VC</tspan></text>
+    <text x="440" y="456" font-size="19" font-style="italic">z<tspan dy="5" font-size="13" font-style="normal">VC</tspan></text>
+
+    <text x="748" y="332" font-size="20" font-style="italic" font-weight="bold">x<tspan dy="5" font-size="14" font-style="italic">B</tspan></text>
+    <text x="230" y="344" text-anchor="middle" font-size="20" font-style="italic" font-weight="bold">y<tspan dy="5" font-size="14" font-style="italic">B</tspan></text>
+    <text x="438" y="400" font-size="20" font-style="italic" font-weight="bold">z<tspan dy="5" font-size="14" font-style="italic">B</tspan></text>
+
+    <text x="852" y="256" font-size="20" font-weight="bold" font-style="italic">North</text>
+    <text x="866" y="350" font-size="20" font-weight="bold" font-style="italic">East</text>
+    <text x="806" y="392" font-size="20" font-weight="bold" font-style="italic">Down</text>
+  </g>
+</svg>

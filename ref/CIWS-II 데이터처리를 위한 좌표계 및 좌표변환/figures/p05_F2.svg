@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 540" width="1100" height="540"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>GunBody 좌표계 (함정 Mass Point 기준 GunBody 축과 Vehicle-Carried NED / Body 축 비교)</title>
+  <defs>
+    <marker id="arrK_p05F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrG_p05F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="540" fill="#ffffff"/>
+
+  <!-- Local horizontal reference plane -->
+  <path d="M126,245 L1089,241 L964,408 L8,408 Z" fill="#f2f2f2" stroke="#000" stroke-width="1.6"/>
+
+  <!-- ===== Simplified naval vessel silhouette (bow to the right) ===== -->
+  <!-- hull -->
+  <path d="M251,236 L754,302 L784,317 L737,328 L277,268 Z" fill="#d6d6d6" stroke="#000" stroke-width="1.6"/>
+  <!-- main superstructure block -->
+  <path d="M285,241 L285,160 L394,150 L520,182 L536,279 Z" fill="#e8e8e8" stroke="#000" stroke-width="1.6"/>
+  <!-- forward sloping deckhouse -->
+  <path d="M536,279 L520,182 L646,299 Z" fill="#d6d6d6" stroke="#000" stroke-width="1.6"/>
+  <!-- forward deck / gun mount -->
+  <path d="M660,300 L690,288 L714,300 Z" fill="#e8e8e8" stroke="#000" stroke-width="1.4"/>
+  <!-- mast -->
+  <line x1="442" y1="182" x2="442" y2="92" stroke="#000" stroke-width="3"/>
+  <line x1="425" y1="118" x2="459" y2="112" stroke="#000" stroke-width="2"/>
+  <ellipse cx="442" cy="86" rx="9" ry="11" fill="#000"/>
+
+  <!-- ===== Vehicle-Carried NED axes (dashed / dash-dot, reference) ===== -->
+  <!-- x_vc : dash-dot, up-right -->
+  <line x1="442" y1="147" x2="587" y2="26" stroke="#555" stroke-width="2"
+        stroke-dasharray="14,5,3,5" marker-end="url(#arrG_p05F2)"/>
+  <!-- y_vc : dashed, right -->
+  <line x1="442" y1="147" x2="846" y2="197" stroke="#555" stroke-width="2"
+        stroke-dasharray="11,7" marker-end="url(#arrG_p05F2)"/>
+  <!-- z_vc : dashed, straight down -->
+  <line x1="442" y1="147" x2="440" y2="520" stroke="#555" stroke-width="2"
+        stroke-dasharray="11,7" marker-end="url(#arrG_p05F2)"/>
+
+  <!-- ===== Platform Body axes (dashed, reference) ===== -->
+  <!-- x_B : dashed, toward the bow -->
+  <line x1="442" y1="147" x2="817" y2="308" stroke="#555" stroke-width="2"
+        stroke-dasharray="11,7" marker-end="url(#arrG_p05F2)"/>
+  <!-- y_B : dashed, lower-left -->
+  <line x1="442" y1="147" x2="222" y2="415" stroke="#555" stroke-width="2"
+        stroke-dasharray="11,7" marker-end="url(#arrG_p05F2)"/>
+  <!-- z_B : dashed, down -->
+  <line x1="442" y1="147" x2="440" y2="466" stroke="#555" stroke-width="2"
+        stroke-dasharray="11,7" marker-end="url(#arrG_p05F2)"/>
+
+  <!-- ===== GunBody axes (solid black) ===== -->
+  <line x1="442" y1="147" x2="168" y2="214" stroke="#000" stroke-width="3" marker-end="url(#arrK_p05F2)"/>
+  <line x1="442" y1="147" x2="637" y2="335" stroke="#000" stroke-width="3" marker-end="url(#arrK_p05F2)"/>
+  <line x1="442" y1="147" x2="442" y2="357" stroke="#000" stroke-width="3" marker-end="url(#arrK_p05F2)"/>
+
+  <!-- Mass Point -->
+  <circle cx="423" cy="246" r="8" fill="#000"/>
+  <text x="262" y="238" font-size="19" font-weight="bold">Mass Point</text>
+
+  <!-- ===== Axis labels ===== -->
+  <!-- GunBody -->
+  <text x="146" y="248" font-size="20" font-style="italic">y<tspan dy="5" font-size="13">G.B</tspan></text>
+  <text x="598" y="360" font-size="20" font-style="italic">x<tspan dy="5" font-size="13">G.B</tspan></text>
+  <text x="454" y="366" font-size="20" font-style="italic">z<tspan dy="5" font-size="13">G.B</tspan></text>
+
+  <!-- Vehicle-Carried NED -->
+  <text x="598" y="48" font-size="19" font-style="italic" fill="#555">x<tspan dy="5" font-size="13">vc</tspan></text>
+  <text x="742" y="224" font-size="19" font-style="italic" fill="#555">y<tspan dy="5" font-size="13">vc</tspan></text>
+  <text x="452" y="518" font-size="19" font-style="italic" fill="#555">z<tspan dy="5" font-size="13">vc</tspan></text>
+
+  <!-- Platform Body -->
+  <text x="786" y="336" font-size="19" font-style="italic" fill="#555">x<tspan dy="5" font-size="13">B</tspan></text>
+  <text x="190" y="388" font-size="19" font-style="italic" fill="#555">y<tspan dy="5" font-size="13">B</tspan></text>
+  <text x="452" y="462" font-size="19" font-style="italic" fill="#555">z<tspan dy="5" font-size="13">B</tspan></text>
+
+  <!-- ===== Local NED triad (North-East-Down) ===== -->
+  <line x1="878" y1="360" x2="951" y2="263" stroke="#000" stroke-width="3.5" marker-end="url(#arrK_p05F2)"/>
+  <line x1="878" y1="360" x2="1016" y2="360" stroke="#000" stroke-width="3.5" marker-end="url(#arrK_p05F2)"/>
+  <line x1="878" y1="360" x2="878" y2="488" stroke="#000" stroke-width="3.5" marker-end="url(#arrK_p05F2)"/>
+  <text x="956" y="272" font-size="21" font-weight="bold" font-style="italic">North</text>
+  <text x="958" y="388" font-size="21" font-weight="bold" font-style="italic">East</text>
+  <text x="890" y="440" font-size="21" font-weight="bold" font-style="italic">Down</text>
+</svg>

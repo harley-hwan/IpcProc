@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 447" width="1000" height="447"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 5 F-16 INU 좌표계</title>
+  <defs>
+    <marker id="arr_B_p07_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrs_B_p07_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="447" fill="#ffffff"/>
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round" fill="#f2f2f2">
+    <path d="M176,169 C176,162 196,163 250,166 L330,170 L398,177 L470,183 L560,193 L660,204 L760,216 L832,229 L884,247 L897,252 L897,287 L884,288 L800,289 L700,281 L650,267 L480,233 L330,197 L176,172 Z"/>
+    <path d="M336,198 L500,236 L503,248 L344,208 Z" fill="#e8e8e8"/>
+    <path d="M752,211 L872,138 L948,143 L901,239 Z" fill="#e8e8e8"/>
+    <path d="M752,211 L901,239 L880,246 L744,218 Z" fill="#e8e8e8"/>
+    <path d="M468,186 L560,182 L680,181 L690,191 L570,193 L470,193 Z" fill="#e8e8e8"/>
+    <path d="M886,252 L972,262 L978,271 L890,265 Z" fill="#e8e8e8"/>
+    <path d="M415,206 L805,338 L868,366 L660,278 Z" fill="#e8e8e8"/>
+    <path d="M856,292 L988,349 L998,375 L872,331 Z" fill="#e8e8e8"/>
+    <path d="M884,247 L903,251 L903,288 L884,288 Z" fill="#d6d6d6"/>
+    <path d="M398,177 C 414,155 458,145 505,156 L536,173 L470,183 L420,181 Z" fill="#d6d6d6"/>
+  </g>
+  <g stroke="#000" stroke-width="1" fill="none">
+    <path d="M176,169 L330,183 L480,206 L660,240 L800,268 L884,282"/>
+    <path d="M536,173 L660,204"/>
+    <path d="M660,278 L805,338"/>
+    <path d="M415,206 L660,278"/>
+    <path d="M470,193 L690,191"/>
+    <path d="M148,166 L176,167"/>
+  </g>
+  <g stroke="#000" stroke-width="1.3" fill="#f2f2f2">
+    <path d="M540,169 L556,164 L612,166 L620,171 L612,176 L556,175 Z"/>
+    <path d="M606,163 L616,158 L618,166 Z"/>
+    <path d="M566,163 L574,157 L578,164 Z"/>
+  </g>
+  <g stroke="#000" stroke-width="1.3" fill="#f2f2f2">
+    <path d="M716,340 L732,338 L862,362 L874,369 L862,374 L730,350 Z"/>
+    <path d="M850,356 L864,350 L866,361 Z"/>
+    <path d="M758,344 L768,336 L774,345 Z"/>
+  </g>
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M308,178 L322,172 L340,176 L340,188 L322,193 L308,189 Z" fill="#d6d6d6"/>
+    <path d="M308,178 L322,183 L340,176 M322,183 L322,193" fill="none" stroke-width="1"/>
+  </g>
+  <g>
+    <path d="M312.0,186.0 L30.0,241.0" fill="none" stroke="#000" stroke-width="1.8"/>
+    <path d="M312.0,190.0 L30.0,267.0" fill="none" stroke="#000" stroke-width="1.4"/>
+    <path d="M312.0,186.0 L312.0,190.0" stroke="#000" stroke-width="1.2"/>
+    <path d="M300.2,188.3 L300.2,193.2" stroke="#000" stroke-width="1.2"/>
+    <path d="M288.5,190.6 L288.5,196.4" stroke="#000" stroke-width="1.2"/>
+    <path d="M276.8,192.9 L276.8,199.6" stroke="#000" stroke-width="1.2"/>
+    <path d="M265.0,195.2 L265.0,202.8" stroke="#000" stroke-width="1.2"/>
+    <path d="M253.2,197.5 L253.2,206.0" stroke="#000" stroke-width="1.2"/>
+    <path d="M241.5,199.8 L241.5,209.2" stroke="#000" stroke-width="1.2"/>
+    <path d="M229.8,202.0 L229.8,212.5" stroke="#000" stroke-width="1.2"/>
+    <path d="M218.0,204.3 L218.0,215.7" stroke="#000" stroke-width="1.2"/>
+    <path d="M206.2,206.6 L206.2,218.9" stroke="#000" stroke-width="1.2"/>
+    <path d="M194.5,208.9 L194.5,222.1" stroke="#000" stroke-width="1.2"/>
+    <path d="M182.8,211.2 L182.8,225.3" stroke="#000" stroke-width="1.2"/>
+    <path d="M171.0,213.5 L171.0,228.5" stroke="#000" stroke-width="1.2"/>
+    <path d="M159.2,215.8 L159.2,231.7" stroke="#000" stroke-width="1.2"/>
+    <path d="M147.5,218.1 L147.5,234.9" stroke="#000" stroke-width="1.2"/>
+    <path d="M135.8,220.4 L135.8,238.1" stroke="#000" stroke-width="1.2"/>
+    <path d="M124.0,222.7 L124.0,241.3" stroke="#000" stroke-width="1.2"/>
+    <path d="M112.2,225.0 L112.2,244.5" stroke="#000" stroke-width="1.2"/>
+    <path d="M100.5,227.2 L100.5,247.8" stroke="#000" stroke-width="1.2"/>
+    <path d="M88.8,229.5 L88.8,251.0" stroke="#000" stroke-width="1.2"/>
+    <path d="M77.0,231.8 L77.0,254.2" stroke="#000" stroke-width="1.2"/>
+    <path d="M65.2,234.1 L65.2,257.4" stroke="#000" stroke-width="1.2"/>
+    <path d="M53.5,236.4 L53.5,260.6" stroke="#000" stroke-width="1.2"/>
+    <path d="M41.8,238.7 L41.8,263.8" stroke="#000" stroke-width="1.2"/>
+    <path d="M30.0,241.0 L30.0,267.0" stroke="#000" stroke-width="1.2"/>
+    <path d="M30.0,241.0 L49.9,228.0 L53.3,245.6 Z" fill="#000" stroke="none"/>
+    <path d="M336.0,190.0 L568.0,316.0" fill="none" stroke="#000" stroke-width="1.8"/>
+    <path d="M336.0,194.0 L568.0,343.0" fill="none" stroke="#000" stroke-width="1.4"/>
+    <path d="M336.0,190.0 L336.0,194.0" stroke="#000" stroke-width="1.2"/>
+    <path d="M347.6,196.3 L347.6,201.5" stroke="#000" stroke-width="1.2"/>
+    <path d="M359.2,202.6 L359.2,208.9" stroke="#000" stroke-width="1.2"/>
+    <path d="M370.8,208.9 L370.8,216.3" stroke="#000" stroke-width="1.2"/>
+    <path d="M382.4,215.2 L382.4,223.8" stroke="#000" stroke-width="1.2"/>
+    <path d="M394.0,221.5 L394.0,231.2" stroke="#000" stroke-width="1.2"/>
+    <path d="M405.6,227.8 L405.6,238.7" stroke="#000" stroke-width="1.2"/>
+    <path d="M417.2,234.1 L417.2,246.2" stroke="#000" stroke-width="1.2"/>
+    <path d="M428.8,240.4 L428.8,253.6" stroke="#000" stroke-width="1.2"/>
+    <path d="M440.4,246.7 L440.4,261.1" stroke="#000" stroke-width="1.2"/>
+    <path d="M452.0,253.0 L452.0,268.5" stroke="#000" stroke-width="1.2"/>
+    <path d="M463.6,259.3 L463.6,275.9" stroke="#000" stroke-width="1.2"/>
+    <path d="M475.2,265.6 L475.2,283.4" stroke="#000" stroke-width="1.2"/>
+    <path d="M486.8,271.9 L486.8,290.8" stroke="#000" stroke-width="1.2"/>
+    <path d="M498.4,278.2 L498.4,298.3" stroke="#000" stroke-width="1.2"/>
+    <path d="M510.0,284.5 L510.0,305.8" stroke="#000" stroke-width="1.2"/>
+    <path d="M521.6,290.8 L521.6,313.2" stroke="#000" stroke-width="1.2"/>
+    <path d="M533.2,297.1 L533.2,320.7" stroke="#000" stroke-width="1.2"/>
+    <path d="M544.8,303.4 L544.8,328.1" stroke="#000" stroke-width="1.2"/>
+    <path d="M556.4,309.7 L556.4,335.6" stroke="#000" stroke-width="1.2"/>
+    <path d="M568.0,316.0 L568.0,343.0" stroke="#000" stroke-width="1.2"/>
+    <path d="M568.0,316.0 L544.4,313.4 L553.0,297.6 Z" fill="#000" stroke="none"/>
+  </g>
+  <g stroke="#000" fill="none" stroke-width="1.8">
+    <path d="M322,180 L322,14" marker-end="url(#arr_B_p07_F1)"/>
+    <path d="M322,158 L322,116" stroke-width="3.4" marker-end="url(#arr_B_p07_F1)"/>
+    <path d="M279,238 L279,204" stroke-width="2.6" marker-end="url(#arrs_B_p07_F1)"/>
+    <path d="M370,248 L370,222" stroke-width="2.6" marker-end="url(#arrs_B_p07_F1)"/>
+  </g>
+  <g stroke="#000" fill="none" stroke-width="1.5">
+    <path d="M637,251 L423,127" marker-end="url(#arr_B_p07_F1)"/>
+    <path d="M637,251 L302,312" marker-end="url(#arr_B_p07_F1)"/>
+    <path d="M637,251 L635,424" marker-end="url(#arr_B_p07_F1)"/>
+  </g>
+  <circle cx="637" cy="251" r="7" fill="#ffffff" stroke="#000" stroke-width="1.8"/>
+  <circle cx="637" cy="251" r="2.6" fill="#000"/>
+  <text x="306" y="32" text-anchor="end" fill="#000"><tspan font-size="17">z</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="336" y="132" text-anchor="start" fill="#000"><tspan font-size="17">k</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <path d="M336,113 L342,105 L349,112" fill="none" stroke="#000" stroke-width="1.6"/>
+  <text x="286" y="250" text-anchor="start" fill="#000"><tspan font-size="17">î</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="377" y="258" text-anchor="start" fill="#000"><tspan font-size="17">ĵ</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="4" y="276" text-anchor="start" fill="#000"><tspan font-size="17">α</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="64" y="296" text-anchor="start" fill="#000"><tspan font-size="17">x</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="586" y="312" text-anchor="start" fill="#000"><tspan font-size="17">y</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="524" y="348" text-anchor="start" fill="#000"><tspan font-size="17">α</tspan><tspan dy="4" font-size="11">INU</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="430" y="104" text-anchor="start" fill="#000"><tspan font-size="17">Y</tspan><tspan dy="4" font-size="11">I</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="300" y="340" text-anchor="start" fill="#000"><tspan font-size="17">X</tspan><tspan dy="4" font-size="11">I</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+  <text x="650" y="432" text-anchor="start" fill="#000"><tspan font-size="17">Z</tspan><tspan dy="4" font-size="11">I</tspan><tspan dy="-4" font-size="11"> </tspan></text>
+</svg>

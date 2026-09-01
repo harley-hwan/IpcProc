@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 755" width="1000" height="755"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 17 Space Stable 구면 좌표계</title>
+  <defs>
+    <marker id="arr_B_p21_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arr_B_p21_F1_s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arr_B_p21_F1_d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="755" fill="#ffffff"/>
+
+  <!-- ================= 항공기 실루엣 (기수: 좌측, 꼬리: 우측, 상면도) ================= -->
+  <g stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+    <!-- 원거리(위쪽) 주익 -->
+    <path d="M500,242 L655,196 L716,206 L706,240 Z" fill="#e8e8e8"/>
+    <!-- 근거리(아래쪽) 주익 -->
+    <path d="M452,332 L585,430 L655,440 L762,348 Z" fill="#e8e8e8"/>
+    <!-- 수직 미익 (위/아래) -->
+    <path d="M792,250 L830,208 L858,214 L832,256 Z" fill="#d6d6d6"/>
+    <path d="M800,342 L842,384 L866,376 L836,336 Z" fill="#d6d6d6"/>
+    <!-- 수평 미익 (위/아래) -->
+    <path d="M856,254 L916,232 L940,244 L900,268 Z" fill="#e8e8e8"/>
+    <path d="M866,336 L926,364 L946,354 L902,322 Z" fill="#e8e8e8"/>
+    <!-- 동체 -->
+    <path d="M234,264 L320,246 L470,238 L700,240 L862,252 L906,286 L898,326 L800,346 L640,350 L452,332 L330,302 Z" fill="#d6d6d6"/>
+    <!-- 조종석 캐노피 -->
+    <path d="M336,264 L404,250 L468,254 L450,282 L362,284 Z" fill="#a8a8a8"/>
+    <!-- 배기 노즐 -->
+    <ellipse cx="899" cy="306" rx="11" ry="19" fill="#b8b8b8"/>
+  </g>
+
+  <!-- ================= 좌표축 ================= -->
+  <g stroke="#000" fill="none">
+    <!-- X_S (좌측 수평) -->
+    <line x1="634" y1="330" x2="101" y2="322" stroke-width="2" marker-end="url(#arr_B_p21_F1)"/>
+    <!-- Y_S (우상단) -->
+    <line x1="634" y1="330" x2="852" y2="103" stroke-width="2" marker-end="url(#arr_B_p21_F1)"/>
+    <!-- Z_S, Z_ins (하단) -->
+    <line x1="634" y1="330" x2="635" y2="692" stroke-width="2" marker-end="url(#arr_B_p21_F1)"/>
+    <!-- AZ 방향선 -->
+    <line x1="634" y1="330" x2="157" y2="247" stroke-width="1.6" marker-end="url(#arr_B_p21_F1_s)"/>
+    <!-- EL 방향선 (시선 방향) -->
+    <line x1="634" y1="330" x2="158" y2="140" stroke-width="1.6" marker-end="url(#arr_B_p21_F1_s)"/>
+  </g>
+
+  <!-- ================= INS 축 (점선) ================= -->
+  <g stroke="#555" fill="none" stroke-width="1.6" stroke-dasharray="7 5">
+    <line x1="634" y1="330" x2="184" y2="366" marker-end="url(#arr_B_p21_F1_d)"/>
+    <line x1="634" y1="330" x2="762" y2="81" marker-end="url(#arr_B_p21_F1_d)"/>
+  </g>
+
+  <!-- ================= 각도 호 ================= -->
+  <g stroke="#000" fill="none" stroke-width="1.5">
+    <!-- AZ : X_S 로부터 방위각 -->
+    <path d="M104,317 Q104,285 128,254" marker-end="url(#arr_B_p21_F1_s)"/>
+    <!-- EL : AZ 방향선으로부터 고각 -->
+    <path d="M131,251 Q122,201 140,152" marker-end="url(#arr_B_p21_F1_s)"/>
+    <!-- Yaw(Ψ) : X_ins → X_S -->
+    <path d="M180,362 Q130,352 104,328" marker-end="url(#arr_B_p21_F1_s)"/>
+    <!-- Yaw(Ψ) : Y_ins → Y_S -->
+    <path d="M762,81 Q800,66 833,94" marker-end="url(#arr_B_p21_F1_s)"/>
+  </g>
+
+  <!-- ================= 라벨 ================= -->
+  <g fill="#000">
+    <text x="38" y="342" font-size="29">X<tspan dy="8" font-size="20">S</tspan></text>
+    <text x="866" y="128" font-size="29">Y<tspan dy="8" font-size="20">S</tspan></text>
+    <text x="610" y="740" font-size="26">Z<tspan dy="7" font-size="18">S</tspan><tspan dy="-7" font-size="26">, Z</tspan><tspan dy="7" font-size="18">ins</tspan></text>
+
+    <text x="712" y="60" font-size="20">Y<tspan dy="5" font-size="14">ins</tspan></text>
+    <text x="196" y="408" font-size="20">X<tspan dy="5" font-size="14">ins</tspan></text>
+
+    <text x="790" y="58" font-size="20">Yaw(Ψ)</text>
+    <text x="16" y="386" font-size="20">Yaw(Ψ)</text>
+
+    <text x="146" y="206" font-size="21">EL</text>
+    <text x="140" y="301" font-size="21">AZ</text>
+  </g>
+</svg>

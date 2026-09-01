@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="1100" height="800"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>CIWS-II 좌표계간 변환 정리</title>
+  <defs>
+    <marker id="arr_A_p07_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrS_A_p07_F1" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="800" fill="#ffffff"/>
+
+  <!-- ============ group panels ============ -->
+  <rect x="18" y="36" width="462" height="442" rx="10" fill="#f2f2f2" stroke="#000" stroke-width="1"/>
+  <text x="32" y="58" font-size="14">Radar Ant.</text>
+
+  <rect x="18" y="484" width="462" height="296" rx="10" fill="#f2f2f2" stroke="#000" stroke-width="1"/>
+  <text x="32" y="770" font-size="14">Pos. &amp; Att. Sensor</text>
+
+  <rect x="676" y="192" width="398" height="342" rx="10" fill="#f2f2f2" stroke="#000" stroke-width="1"/>
+  <text x="1060" y="526" font-size="14" text-anchor="end">Platform Pos. Compensate</text>
+
+  <!-- ============ connection lines (drawn under the blocks) ============ -->
+  <g stroke="#000" stroke-width="1.6" fill="none">
+    <!-- DetectAnt.XYZ  <->  GunBody -->
+    <line x1="688" y1="119" x2="456" y2="119" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="452" y1="119" x2="686" y2="119" marker-end="url(#arr_A_p07_F1)"/>
+    <!-- Ant.Offset feeds that link -->
+    <path d="M610,60 L566,60 L566,111" marker-end="url(#arr_A_p07_F1)"/>
+    <!-- branch down to TrackingAnt.XYZ -->
+    <path d="M496,119 L496,436 L458,436" marker-end="url(#arr_A_p07_F1)"/>
+
+    <!-- GunBody.Att(v, lambda) and GunBody.Att  ->  GunBody <-> Platform Body -->
+    <path d="M452,516 L578,516"/>
+    <path d="M452,580 L578,580 L578,171 L776,171" marker-end="url(#arr_A_p07_F1)"/>
+    <!-- Body.Att(phi, theta, psi)  ->  Platform Body <-> VcNED -->
+    <path d="M452,644 L598,644 L598,268 L776,268" marker-end="url(#arr_A_p07_F1)"/>
+    <!-- Body.LLA  ->  VcNED <-> Ecef -->
+    <path d="M452,721 L642,721 L642,358 L776,358" marker-end="url(#arr_A_p07_F1)"/>
+
+    <!-- GunBody.Offset -> GunBody <-> Platform Body -->
+    <path d="M916,171 L794,171" marker-end="url(#arr_A_p07_F1)"/>
+    <!-- Ins.Body Offset -> Platform Body -->
+    <path d="M995,252 L995,223 L884,223" marker-end="url(#arr_A_p07_F1)"/>
+
+    <!-- vertical double arrows on the right column -->
+    <line x1="785" y1="146" x2="785" y2="198" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="785" y1="248" x2="785" y2="288" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="785" y1="338" x2="785" y2="378" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="785" y1="428" x2="785" y2="468" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+
+    <!-- double arrows inside Radar Ant. -->
+    <line x1="354" y1="122" x2="354" y2="178" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="208" y1="213" x2="244" y2="213" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="210" y1="337" x2="266" y2="337" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="360" y1="360" x2="360" y2="410" marker-start="url(#arrS_A_p07_F1)" marker-end="url(#arr_A_p07_F1)"/>
+
+    <!-- sensor -> state arrows -->
+    <line x1="204" y1="516" x2="262" y2="516" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="204" y1="580" x2="262" y2="580" marker-end="url(#arr_A_p07_F1)"/>
+    <line x1="204" y1="644" x2="262" y2="644" marker-end="url(#arr_A_p07_F1)"/>
+    <path d="M118,664 L118,721 L262,721" marker-end="url(#arr_A_p07_F1)"/>
+  </g>
+
+  <!-- ============ Radar Ant. blocks ============ -->
+  <!-- DetectAnt.XYZ (stacked) -->
+  <g stroke="#000" stroke-width="1.4">
+    <rect x="244" y="64" width="196" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="248" y="68" width="196" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="252" y="72" width="196" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="256" y="76" width="196" height="46" rx="9" fill="#d6d6d6"/>
+  </g>
+  <text x="354" y="104" text-anchor="middle">DetectAnt.XYZ</text>
+
+  <!-- DetectAnt.Sph (stacked) -->
+  <g stroke="#000" stroke-width="1.4">
+    <rect x="244" y="178" width="196" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="248" y="182" width="196" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="252" y="186" width="196" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="256" y="190" width="196" height="46" rx="9" fill="#d6d6d6"/>
+  </g>
+  <text x="354" y="218" text-anchor="middle">DetectAnt.Sph</text>
+
+  <!-- DetectAnt.uv (stacked) -->
+  <g stroke="#000" stroke-width="1.4">
+    <rect x="20" y="178" width="176" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="24" y="182" width="176" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="28" y="186" width="176" height="46" rx="9" fill="#e8e8e8"/>
+    <rect x="32" y="190" width="176" height="46" rx="9" fill="#d6d6d6"/>
+  </g>
+  <text x="120" y="218" text-anchor="middle">DetectAnt.uv</text>
+
+  <!-- TrackingAnt.uv -->
+  <rect x="32" y="316" width="176" height="42" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="120" y="342" text-anchor="middle">TrackingAnt.uv</text>
+
+  <!-- TrackingAnt.Sph -->
+  <rect x="268" y="316" width="184" height="42" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="360" y="342" text-anchor="middle">TrackingAnt.Sph</text>
+
+  <!-- TrackingAnt.XYZ -->
+  <rect x="268" y="412" width="184" height="44" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="360" y="439" text-anchor="middle">TrackingAnt.XYZ</text>
+
+  <!-- ============ Pos. &amp; Att. Sensor blocks ============ -->
+  <rect x="32" y="496" width="172" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="118" y="521" text-anchor="middle">Encoder</text>
+
+  <rect x="264" y="496" width="188" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="358" y="521" text-anchor="middle">GunBody.Att(<tspan font-style="italic">ν</tspan>, <tspan font-style="italic">λ</tspan>)</text>
+
+  <rect x="32" y="560" width="172" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="118" y="585" text-anchor="middle">IMU</text>
+
+  <rect x="264" y="560" width="188" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="358" y="585" text-anchor="middle">GunBody.Att</text>
+
+  <rect x="32" y="624" width="172" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="118" y="649" text-anchor="middle">INS + GPS</text>
+
+  <rect x="264" y="624" width="188" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="358" y="649" text-anchor="middle">Body.Att(<tspan font-style="italic">ϕ</tspan>, <tspan font-style="italic">θ</tspan>, <tspan font-style="italic">ψ</tspan>)</text>
+
+  <rect x="264" y="700" width="188" height="42" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="358" y="726" text-anchor="middle">Body.LLA</text>
+
+  <!-- ============ right side blocks ============ -->
+  <rect x="610" y="40" width="132" height="40" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="676" y="65" text-anchor="middle">Ant.Offset</text>
+
+  <rect x="690" y="96" width="190" height="46" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="785" y="124" text-anchor="middle">GunBody</text>
+
+  <rect x="690" y="200" width="190" height="46" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="785" y="228" text-anchor="middle">Platform Body</text>
+
+  <rect x="690" y="290" width="190" height="46" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="785" y="318" text-anchor="middle">VcNED</text>
+
+  <rect x="690" y="380" width="190" height="46" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="785" y="408" text-anchor="middle">Ecef</text>
+
+  <rect x="690" y="470" width="190" height="46" rx="9" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="785" y="498" text-anchor="middle">LLA</text>
+
+  <rect x="916" y="152" width="158" height="38" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="995" y="176" text-anchor="middle">GunBody.Offset</text>
+
+  <rect x="916" y="252" width="158" height="38" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="995" y="276" text-anchor="middle">Ins.Body Offset</text>
+</svg>

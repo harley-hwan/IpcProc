@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 477" width="1100" height="477"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>2.1.10. Antenna Spherical 좌표계 (Detect Antenna, Tracking Antenna)</title>
+  <defs>
+    <marker id="arr_A_p06_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="477" fill="#ffffff"/>
+
+  <!-- ============ LEFT : CIWS-II 마운트 (탐지/추적 안테나 위치) ============ -->
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+
+    <!-- 하부 베이스 데크 -->
+    <polygon points="16,390 316,390 302,434 30,434" fill="#e8e8e8"/>
+    <polygon points="30,434 302,434 296,447 36,447" fill="#d6d6d6"/>
+
+    <!-- 좌측 쉬라우드 -->
+    <polygon points="120,158 72,172 45,242 37,322 48,390 120,390" fill="#d6d6d6"/>
+    <!-- 우측 쉬라우드 -->
+    <polygon points="188,156 246,148 296,236 302,332 288,390 188,390" fill="#d6d6d6"/>
+
+    <!-- 중앙 터렛 몸체 -->
+    <rect x="118" y="166" width="72" height="224" fill="#f2f2f2"/>
+
+    <!-- 센서 헤드 -->
+    <rect x="120" y="170" width="68" height="50" rx="5" fill="#d6d6d6"/>
+    <rect x="128" y="180" width="26" height="26" fill="#f2f2f2"/>
+    <circle cx="170" cy="190" r="8" fill="#e8e8e8"/>
+    <rect x="134" y="196" width="12" height="16" rx="2" fill="#e8e8e8"/>
+
+    <!-- 헤드~레이돔 연결 마스트 -->
+    <rect x="150" y="156" width="28" height="16" fill="#e8e8e8"/>
+
+    <!-- 상부 탐지 안테나 레이돔 -->
+    <polygon points="132,60 150,44 196,44 208,58 208,150 132,150" fill="#d6d6d6"/>
+
+    <!-- 포신/구동부 트러스 -->
+    <polygon points="126,224 186,224 178,326 118,326" fill="#e8e8e8"/>
+    <path d="M126,232 L178,262 M126,262 L178,292 M126,292 L176,320" fill="none" stroke-width="1.4"/>
+    <!-- 하부 급탄/포신 블록 -->
+    <polygon points="108,330 188,330 192,390 104,390" fill="#d6d6d6"/>
+
+    <!-- 좌측 안테나 소자 -->
+    <ellipse cx="61" cy="203" rx="13" ry="30" fill="#e8e8e8"/>
+    <!-- 우측 추적 안테나 레이돔 -->
+    <ellipse cx="252" cy="213" rx="26" ry="32" fill="#e8e8e8"/>
+  </g>
+
+  <!-- 강조 박스 3개 -->
+  <g fill="none" stroke="#000" stroke-width="5">
+    <rect x="119" y="30" width="98" height="134"/>
+    <rect x="24" y="166" width="66" height="74"/>
+    <rect x="219" y="175" width="66" height="77"/>
+  </g>
+
+  <!-- ============ 중앙 굵은 화살표 ============ -->
+  <polygon points="352,214 596,214 596,199 646,227 596,255 596,240 352,240" fill="#000"/>
+
+  <!-- ============ RIGHT : 안테나 구면 좌표계 ============ -->
+
+  <!-- 안테나 조립체 (단순 실루엣) -->
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+    <rect x="674" y="54" width="284" height="314" rx="30" fill="#e8e8e8"/>
+    <rect x="692" y="90" width="250" height="244" rx="8" fill="#d6d6d6"/>
+  </g>
+  <g stroke="#b0b0b0" stroke-width="1" fill="none">
+    <path d="M734,90 L734,334 M776,90 L776,334 M818,90 L818,334 M860,90 L860,334 M902,90 L902,334"/>
+    <path d="M692,131 L942,131 M692,172 L942,172 M692,213 L942,213 M692,254 L942,254 M692,295 L942,295"/>
+  </g>
+
+  <!-- 좌표축 -->
+  <g stroke="#000" stroke-width="3.4" fill="none" marker-end="url(#arr_A_p06_F2)">
+    <line x1="793" y1="235" x2="793" y2="26"/>
+    <line x1="793" y1="235" x2="1043" y2="263"/>
+    <line x1="793" y1="235" x2="660" y2="343"/>
+  </g>
+
+  <!-- R_Ant 벡터 -->
+  <line x1="793" y1="235" x2="963" y2="97" stroke="#000" stroke-width="3.4"/>
+  <circle cx="966" cy="94" r="9" fill="#000"/>
+
+  <!-- 투영 보조선 (점선) -->
+  <g stroke="#000" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-dasharray="2 9">
+    <line x1="966" y1="94" x2="966" y2="330"/>
+    <line x1="793" y1="235" x2="964" y2="327"/>
+  </g>
+
+  <!-- 각도 호 : R_Ant 와 x-z 평면 투영선 사이 -->
+  <path d="M916,134 A159,159 0 0 1 933,311" fill="none" stroke="#000" stroke-width="2.6"/>
+
+  <!-- 라벨 -->
+  <g font-style="italic" font-weight="bold">
+    <text x="816" y="48" font-size="24">y<tspan dy="6" font-size="16">Ant</tspan></text>
+    <text x="978" y="300" font-size="24">x<tspan dy="6" font-size="16">Ant</tspan></text>
+    <text x="676" y="368" font-size="24">z<tspan dy="6" font-size="16">Ant</tspan></text>
+    <text x="856" y="80" font-size="26">R<tspan dy="6" font-size="16">Ant</tspan></text>
+    <text x="838" y="226" font-size="24">θ<tspan dy="6" font-size="16">Ant</tspan></text>
+  </g>
+</svg>

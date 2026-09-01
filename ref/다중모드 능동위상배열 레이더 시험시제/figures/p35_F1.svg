@@ -1,0 +1,311 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1100 594" width="1100" height="594"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 29 공대지 탐색 송신시 좌표계 운용</title>
+  <defs>
+    <marker id="arr_B_p35_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrs_B_p35_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <g id="jet_B_p35_F1">
+      <path d="M0,6 L26,1 L70,-2 L90,0 L92,8 L66,11 L24,11 Z" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+      <path d="M52,2 L72,-12 L86,-11 L68,4 Z" fill="#e8e8e8" stroke="#000" stroke-width="1"/>
+      <path d="M44,6 L30,22 L50,23 L64,9 Z" fill="#e8e8e8" stroke="#000" stroke-width="1"/>
+      <path d="M76,-1 L82,-17 L88,-16 L86,0 Z" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+      <path d="M80,7 L88,-8 L93,-7 L86,8 Z" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+      <path d="M84,5 L96,12 L101,11 L90,4 Z" fill="#e8e8e8" stroke="#000" stroke-width="1"/>
+      <path d="M89,0 L96,1 L96,9 L89,9 Z" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+      <path d="M28,2 L40,0 L46,2 L34,5 Z" fill="#f2f2f2" stroke="#000" stroke-width="0.9"/>
+    </g>
+  </defs>
+
+  <rect width="1100" height="594" fill="#ffffff"/>
+
+  <!-- ============ 상단 주석 ============ -->
+  <g font-size="13.5" fill="#000">
+    <text x="386" y="41" text-anchor="middle">Body Stabilized Motion 모사 위해 항법시스템</text>
+    <text x="386" y="60" text-anchor="middle">정보/공기역학 정보(0, 0, Yaw+Drift)적용</text>
+    <text x="707" y="50" text-anchor="middle">3D Sphere → Cartesian 변환</text>
+    <text x="943" y="27" text-anchor="middle">MFD, HOTAS 제어</text>
+  </g>
+  <g stroke="#000" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#arr_B_p35_F1)">
+    <line x1="407" y1="70" x2="407" y2="94"/>
+    <line x1="623" y1="60" x2="623" y2="94"/>
+    <line x1="930" y1="33" x2="930" y2="46"/>
+  </g>
+
+  <!-- ============ 1행 블록 ============ -->
+  <g stroke="#000" stroke-width="1.4">
+    <rect x="200" y="100" width="190" height="58" rx="3" fill="#d6d6d6"/>
+    <rect x="424" y="100" width="186" height="58" rx="3" fill="#d6d6d6"/>
+    <rect x="637" y="100" width="186" height="58" rx="3" fill="#d6d6d6"/>
+  </g>
+
+  <!-- 3 INU(P_inu) -->
+  <text x="256" y="136" font-size="16" font-weight="bold">INU (</text>
+  <text x="299" y="136" font-size="17" font-weight="bold" font-family="'Times New Roman', Times, serif" font-style="italic">P<tspan dy="4" font-size="11">inu</tspan><tspan dy="-4" font-size="16" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <line x1="297" y1="116" x2="313" y2="116" stroke="#000" stroke-width="1.2" marker-end="url(#arrs_B_p35_F1)"/>
+
+  <!-- 2 Drift Stable(P_w) -->
+  <text x="450" y="136" font-size="16" font-weight="bold">Drift Stable (</text>
+  <text x="553" y="136" font-size="17" font-weight="bold" font-family="'Times New Roman', Times, serif" font-style="italic">P<tspan dy="4" font-size="11">w</tspan><tspan dy="-4" font-size="16" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <line x1="551" y1="116" x2="567" y2="116" stroke="#000" stroke-width="1.2" marker-end="url(#arrs_B_p35_F1)"/>
+
+  <!-- 1 Drift Stable AZ-EL -->
+  <text x="736" y="136" font-size="16" font-weight="bold" text-anchor="middle">Drift Stable AZ-EL</text>
+
+  <!-- 번호 원 1,2,3 -->
+  <g>
+    <circle cx="213" cy="113" r="10.5" fill="#000"/>
+    <text x="213" y="118" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">3</text>
+    <circle cx="437" cy="113" r="10.5" fill="#000"/>
+    <text x="437" y="118" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">2</text>
+    <circle cx="650" cy="113" r="10.5" fill="#000"/>
+    <text x="650" y="118" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">1</text>
+  </g>
+
+  <!-- MFD / HOTAS 조종석 표시장치 (도식) -->
+  <g stroke="#000" stroke-width="1.3">
+    <rect x="866" y="50" width="155" height="140" rx="4" fill="#d6d6d6"/>
+    <rect x="886" y="66" width="115" height="92" fill="#e8e8e8"/>
+  </g>
+  <g stroke="#000" stroke-width="0.9" fill="none">
+    <line x1="886" y1="96" x2="1001" y2="96"/>
+    <line x1="886" y1="127" x2="1001" y2="127"/>
+    <line x1="943" y1="66" x2="943" y2="158"/>
+    <path d="M901,158 A 42,60 0 0 1 985,158"/>
+  </g>
+  <g fill="#7a7a7a">
+    <rect x="915" y="82" width="7" height="7"/>
+    <rect x="962" y="106" width="7" height="7"/>
+    <rect x="930" y="138" width="7" height="7"/>
+  </g>
+  <g fill="#f2f2f2" stroke="#000" stroke-width="0.9">
+    <rect x="870" y="72" width="12" height="10"/><rect x="870" y="92" width="12" height="10"/>
+    <rect x="870" y="112" width="12" height="10"/><rect x="870" y="132" width="12" height="10"/>
+    <rect x="1005" y="72" width="12" height="10"/><rect x="1005" y="92" width="12" height="10"/>
+    <rect x="1005" y="112" width="12" height="10"/><rect x="1005" y="132" width="12" height="10"/>
+    <rect x="890" y="166" width="16" height="10"/><rect x="915" y="166" width="16" height="10"/>
+    <rect x="940" y="166" width="16" height="10"/><rect x="965" y="166" width="16" height="10"/>
+  </g>
+
+  <!-- 1행 흐름 화살표 (오른쪽 -> 왼쪽) -->
+  <g stroke="#000" stroke-width="2" fill="none" marker-end="url(#arr_B_p35_F1)">
+    <line x1="866" y1="129" x2="827" y2="129"/>
+    <line x1="637" y1="129" x2="614" y2="129"/>
+    <line x1="424" y1="129" x2="394" y2="129"/>
+  </g>
+
+  <!-- 3 -> 4 연결 -->
+  <path d="M200,129 L175,129 L175,215" stroke="#000" stroke-width="2" fill="none" marker-end="url(#arr_B_p35_F1)"/>
+  <!-- 4 -> 5 연결 -->
+  <path d="M175,289 L175,402 L201,402" stroke="#000" stroke-width="2" fill="none" marker-end="url(#arr_B_p35_F1)"/>
+
+  <!-- ============ 4 NED 블록 ============ -->
+  <rect x="30" y="219" width="189" height="70" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.4"/>
+  <text x="84" y="260" font-size="16" font-weight="bold">NED (</text>
+  <text x="131" y="260" font-size="17" font-weight="bold" font-family="'Times New Roman', Times, serif" font-style="italic">P<tspan dy="4" font-size="11">nv</tspan><tspan dy="-4" font-size="16" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <line x1="129" y1="240" x2="145" y2="240" stroke="#000" stroke-width="1.2" marker-end="url(#arrs_B_p35_F1)"/>
+  <circle cx="43" cy="232" r="10.5" fill="#000"/>
+  <text x="43" y="237" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">4</text>
+
+  <!-- ============ 중단 주석 ============ -->
+  <g font-size="13.5" fill="#000">
+    <text x="430" y="322" text-anchor="middle">실 자세 반영한</text>
+    <text x="430" y="341" text-anchor="middle">항법시스템 정보(Roll, Pitch, Yaw) 적용</text>
+    <text x="915" y="341" text-anchor="middle">안테나 장치 빔 적용 (sine-domain 값)</text>
+  </g>
+  <g stroke="#000" stroke-width="1.6" fill="none" stroke-dasharray="5,4" marker-end="url(#arr_B_p35_F1)">
+    <line x1="408" y1="350" x2="408" y2="366"/>
+    <line x1="823" y1="350" x2="823" y2="366"/>
+  </g>
+
+  <!-- ============ 2행 블록 ============ -->
+  <g stroke="#000" stroke-width="1.4">
+    <rect x="205" y="372" width="190" height="60" rx="3" fill="#d6d6d6"/>
+    <rect x="421" y="372" width="184" height="60" rx="3" fill="#d6d6d6"/>
+    <rect x="626" y="372" width="184" height="60" rx="3" fill="#d6d6d6"/>
+    <rect x="837" y="372" width="205" height="60" rx="3" fill="#d6d6d6"/>
+  </g>
+
+  <!-- 5 INU(P_bnv) -->
+  <text x="260" y="409" font-size="16" font-weight="bold">INU (</text>
+  <text x="303" y="409" font-size="17" font-weight="bold" font-family="'Times New Roman', Times, serif" font-style="italic">P<tspan dy="4" font-size="11">bnv</tspan><tspan dy="-4" font-size="16" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <line x1="301" y1="389" x2="317" y2="389" stroke="#000" stroke-width="1.2" marker-end="url(#arrs_B_p35_F1)"/>
+
+  <!-- 6 Body(P_b) -->
+  <text x="474" y="409" font-size="16" font-weight="bold">Body (</text>
+  <text x="526" y="409" font-size="17" font-weight="bold" font-family="'Times New Roman', Times, serif" font-style="italic">P<tspan dy="4" font-size="11">b</tspan><tspan dy="-4" font-size="16" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <line x1="524" y1="389" x2="540" y2="389" stroke="#000" stroke-width="1.2" marker-end="url(#arrs_B_p35_F1)"/>
+
+  <!-- 7 Antenna(P_a) -->
+  <text x="666" y="409" font-size="16" font-weight="bold">Antenna (</text>
+  <text x="745" y="409" font-size="17" font-weight="bold" font-family="'Times New Roman', Times, serif" font-style="italic">P<tspan dy="4" font-size="11">a</tspan><tspan dy="-4" font-size="16" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <line x1="743" y1="389" x2="759" y2="389" stroke="#000" stroke-width="1.2" marker-end="url(#arrs_B_p35_F1)"/>
+
+  <!-- 8 Antenna(theta x, theta y) -->
+  <text x="939" y="409" font-size="16" font-weight="bold" text-anchor="middle">Antenna (<tspan font-family="'Times New Roman', Times, serif" font-style="italic">θ<tspan dy="4" font-size="11">x</tspan><tspan dy="-4">, θ</tspan><tspan dy="4" font-size="11">y</tspan></tspan><tspan dy="-4">)</tspan></text>
+
+  <!-- 번호 원 5,6,7,8 -->
+  <g>
+    <circle cx="218" cy="385" r="10.5" fill="#000"/>
+    <text x="218" y="390" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">5</text>
+    <circle cx="434" cy="385" r="10.5" fill="#000"/>
+    <text x="434" y="390" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">6</text>
+    <circle cx="639" cy="385" r="10.5" fill="#000"/>
+    <text x="639" y="390" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">7</text>
+    <circle cx="850" cy="385" r="10.5" fill="#000"/>
+    <text x="850" y="390" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">8</text>
+  </g>
+
+  <!-- 2행 흐름 화살표 (왼쪽 -> 오른쪽) -->
+  <g stroke="#000" stroke-width="2" fill="none" marker-end="url(#arr_B_p35_F1)">
+    <line x1="395" y1="402" x2="417" y2="402"/>
+    <line x1="605" y1="402" x2="622" y2="402"/>
+    <line x1="810" y1="402" x2="833" y2="402"/>
+  </g>
+
+  <!-- ============ 좌표계 : INU (3번 아래) ============ -->
+  <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+    <line x1="325" y1="228" x2="299" y2="197"/>
+    <line x1="325" y1="228" x2="256" y2="255"/>
+    <line x1="325" y1="228" x2="270" y2="261"/>
+    <line x1="325" y1="228" x2="327" y2="266"/>
+  </g>
+  <g font-size="13" text-anchor="middle">
+    <text x="292" y="188">Y<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="264" y="280">X<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="332" y="286">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  </g>
+
+  <!-- ============ 좌표계 : NV / NED (4번 아래) ============ -->
+  <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+    <line x1="88" y1="342" x2="62" y2="313"/>
+    <line x1="88" y1="342" x2="20" y2="370"/>
+    <line x1="88" y1="342" x2="34" y2="376"/>
+    <line x1="88" y1="342" x2="90" y2="378"/>
+  </g>
+  <g font-size="13" text-anchor="middle">
+    <text x="55" y="304">Y<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="28" y="395">X<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="95" y="398">Z<tspan dy="4" font-size="11">nv</tspan></text>
+  </g>
+
+  <!-- ============ 좌표계 : Drift Stable / Wind (2번 아래) ============ -->
+  <g>
+    <use href="#jet_B_p35_F1" xlink:href="#jet_B_p35_F1" transform="translate(495,214) scale(0.88)"/>
+    <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+      <line x1="537" y1="228" x2="462" y2="217"/>
+      <line x1="537" y1="228" x2="461" y2="228"/>
+      <line x1="537" y1="228" x2="476" y2="249"/>
+      <line x1="537" y1="228" x2="573" y2="196"/>
+      <line x1="537" y1="228" x2="578" y2="192"/>
+      <line x1="537" y1="228" x2="540" y2="274"/>
+    </g>
+    <g stroke="#000" stroke-width="1" fill="none">
+      <path d="M497.4,222.2 A 40,40 0 0 0 497,228"/>
+      <path d="M491,228 A 46,46 0 0 0 493.5,243"/>
+      <path d="M475,228 A 62,62 0 0 0 478.3,248.2"/>
+    </g>
+    <g font-size="13">
+      <text x="459" y="207" text-anchor="middle">X<tspan dy="4" font-size="11">s</tspan></text>
+      <text x="454" y="234" text-anchor="end">X<tspan dy="4" font-size="11">w</tspan></text>
+      <text x="489" y="212" text-anchor="middle">β</text>
+      <text x="514" y="222" text-anchor="middle">AZ</text>
+      <text x="509" y="253" text-anchor="middle">EL</text>
+      <text x="559" y="190" text-anchor="end">Y<tspan dy="4" font-size="11">w</tspan></text>
+      <text x="584" y="192" text-anchor="start">Y<tspan dy="4" font-size="11">s</tspan></text>
+      <text x="543" y="291" text-anchor="middle">Z<tspan dy="4" font-size="11">s</tspan><tspan dy="-4">, Z</tspan><tspan dy="4" font-size="11">w</tspan></text>
+    </g>
+  </g>
+
+  <!-- ============ 좌표계 : Drift Stable AZ-EL (1번 아래) ============ -->
+  <g transform="translate(202,0)">
+    <use href="#jet_B_p35_F1" xlink:href="#jet_B_p35_F1" transform="translate(495,214) scale(0.88)"/>
+    <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+      <line x1="537" y1="228" x2="462" y2="217"/>
+      <line x1="537" y1="228" x2="461" y2="228"/>
+      <line x1="537" y1="228" x2="476" y2="249"/>
+      <line x1="537" y1="228" x2="573" y2="196"/>
+      <line x1="537" y1="228" x2="578" y2="192"/>
+      <line x1="537" y1="228" x2="540" y2="274"/>
+    </g>
+    <g stroke="#000" stroke-width="1" fill="none">
+      <path d="M497.4,222.2 A 40,40 0 0 0 497,228"/>
+      <path d="M491,228 A 46,46 0 0 0 493.5,243"/>
+      <path d="M475,228 A 62,62 0 0 0 478.3,248.2"/>
+    </g>
+    <g font-size="13">
+      <text x="459" y="207" text-anchor="middle">X<tspan dy="4" font-size="11">s</tspan></text>
+      <text x="454" y="234" text-anchor="end">X<tspan dy="4" font-size="11">w</tspan></text>
+      <text x="489" y="212" text-anchor="middle">β</text>
+      <text x="514" y="222" text-anchor="middle">AZ</text>
+      <text x="509" y="253" text-anchor="middle">EL</text>
+      <text x="559" y="190" text-anchor="end">Y<tspan dy="4" font-size="11">w</tspan></text>
+      <text x="584" y="192" text-anchor="start">Y<tspan dy="4" font-size="11">s</tspan></text>
+      <text x="543" y="291" text-anchor="middle">Z<tspan dy="4" font-size="11">s</tspan><tspan dy="-4">, Z</tspan><tspan dy="4" font-size="11">w</tspan></text>
+    </g>
+  </g>
+
+  <!-- ============ 좌표계 : INU (5번 아래) ============ -->
+  <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+    <line x1="330" y1="512" x2="304" y2="481"/>
+    <line x1="330" y1="512" x2="261" y2="539"/>
+    <line x1="330" y1="512" x2="275" y2="545"/>
+    <line x1="330" y1="512" x2="332" y2="550"/>
+  </g>
+  <g font-size="13" text-anchor="middle">
+    <text x="297" y="472">Y<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="269" y="564">X<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="337" y="570">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  </g>
+
+  <!-- ============ 좌표계 : Body (6번 아래) ============ -->
+  <g>
+    <use href="#jet_B_p35_F1" xlink:href="#jet_B_p35_F1" transform="translate(473,500)"/>
+    <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+      <line x1="520" y1="515" x2="549" y2="484"/>
+      <line x1="520" y1="515" x2="452" y2="540"/>
+      <line x1="520" y1="515" x2="452" y2="551"/>
+      <line x1="520" y1="515" x2="540" y2="557"/>
+    </g>
+    <g font-size="13">
+      <text x="554" y="478" text-anchor="start">Y<tspan dy="4" font-size="11">b</tspan></text>
+      <text x="446" y="527" text-anchor="end">X<tspan dy="4" font-size="11">b</tspan></text>
+      <text x="546" y="576" text-anchor="middle">Z<tspan dy="4" font-size="11">b</tspan></text>
+    </g>
+  </g>
+
+  <!-- ============ 좌표계 : Antenna (7번 아래) ============ -->
+  <g>
+    <use href="#jet_B_p35_F1" xlink:href="#jet_B_p35_F1" transform="translate(727,497)"/>
+    <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+      <line x1="722" y1="512" x2="714" y2="479"/>
+      <line x1="722" y1="512" x2="662" y2="524"/>
+      <line x1="722" y1="512" x2="648" y2="538"/>
+      <line x1="722" y1="512" x2="706" y2="531"/>
+    </g>
+    <g font-size="13" text-anchor="middle">
+      <text x="714" y="470">Y<tspan dy="4" font-size="11">a</tspan></text>
+      <text x="659" y="512">Z<tspan dy="4" font-size="11">a</tspan></text>
+      <text x="711" y="549">X<tspan dy="4" font-size="11">a</tspan></text>
+    </g>
+  </g>
+
+  <!-- ============ 좌표계 : Antenna (8번 아래) ============ -->
+  <g transform="translate(228,0)">
+    <use href="#jet_B_p35_F1" xlink:href="#jet_B_p35_F1" transform="translate(727,497)"/>
+    <g stroke="#000" stroke-width="1.3" fill="none" marker-end="url(#arrs_B_p35_F1)">
+      <line x1="722" y1="512" x2="714" y2="479"/>
+      <line x1="722" y1="512" x2="662" y2="524"/>
+      <line x1="722" y1="512" x2="648" y2="538"/>
+      <line x1="722" y1="512" x2="706" y2="531"/>
+    </g>
+    <g font-size="13" text-anchor="middle">
+      <text x="714" y="470">Y<tspan dy="4" font-size="11">a</tspan></text>
+      <text x="659" y="512">Z<tspan dy="4" font-size="11">a</tspan></text>
+      <text x="711" y="549">X<tspan dy="4" font-size="11">a</tspan></text>
+    </g>
+  </g>
+</svg>

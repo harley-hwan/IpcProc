@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 420" width="620" height="420"
+     font-family="Helvetica, Arial, sans-serif" font-size="15">
+  <title>그림 3. ECEF 좌표계</title>
+  <defs>
+    <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="620" height="420" fill="#ffffff"/>
+
+  <text x="310" y="30" text-anchor="middle">Earth True Rotational Axis</text>
+
+  <!-- dome -->
+  <path d="M110,300 A200,200 0 0 1 510,300" fill="none" stroke="#000" stroke-width="1.6"/>
+  <!-- mean equator -->
+  <ellipse cx="310" cy="300" rx="200" ry="58" fill="none" stroke="#000" stroke-width="1.6"/>
+
+  <!-- Z axis (ECI = ECEF) -->
+  <line x1="310" y1="300" x2="310" y2="48" stroke="#000" stroke-width="1.4"
+        stroke-dasharray="6 4" marker-end="url(#ar3)"/>
+  <text x="322" y="60">Z<tspan dy="5" font-size="11">ECI</tspan></text>
+  <text x="322" y="88">Z<tspan dy="5" font-size="11">ECEF</tspan></text>
+
+  <!-- X_ECI -->
+  <line x1="310" y1="300" x2="112" y2="305" stroke="#000" stroke-width="1.4"
+        stroke-dasharray="6 4" marker-end="url(#ar3)"/>
+  <text x="66" y="300">X<tspan dy="5" font-size="11">ECI</tspan></text>
+
+  <!-- X_ECEF -->
+  <line x1="310" y1="300" x2="130" y2="326" stroke="#000" stroke-width="1.4"
+        stroke-dasharray="6 4" marker-end="url(#ar3)"/>
+  <text x="70" y="348">X<tspan dy="5" font-size="11">ECEF</tspan></text>
+
+  <!-- Y_ECI -->
+  <line x1="310" y1="300" x2="362" y2="356" stroke="#000" stroke-width="1.4"
+        stroke-dasharray="6 4" marker-end="url(#ar3)"/>
+  <text x="344" y="380">Y<tspan dy="5" font-size="11">ECI</tspan></text>
+
+  <!-- Y_ECEF -->
+  <line x1="310" y1="300" x2="452" y2="342" stroke="#000" stroke-width="1.4"
+        stroke-dasharray="6 4" marker-end="url(#ar3)"/>
+  <text x="440" y="366">Y<tspan dy="5" font-size="11">ECEF</tspan></text>
+
+  <!-- rotation angle -->
+  <path d="M215,302 A95,95 0 0 0 216,313" fill="none" stroke="#000" stroke-width="1.3"/>
+  <path d="M204,290 A106,106 0 0 0 206,316" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#ar3)"/>
+  <text x="224" y="292" font-style="italic">Ω<tspan dy="5" font-size="11">E</tspan><tspan dy="-5" font-size="15">t</tspan></text>
+
+  <text x="470" y="330">Mean Equator</text>
+</svg>

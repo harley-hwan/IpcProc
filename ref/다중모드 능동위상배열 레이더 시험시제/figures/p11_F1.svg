@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 348" width="1080" height="348"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 9 항공기 Body 좌표계와 AESA 안테나 좌표계</title>
+  <defs>
+    <marker id="arr_B_p11_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1080" height="348" fill="#ffffff"/>
+
+  <!-- ===================== (a) 항공기 Body 좌표계 ===================== -->
+  <g stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+
+    <!-- 수평 미익 (좌) -->
+    <path d="M172.4,106.7 L116.6,82.5 L114.5,88.2 L170.6,113.1 Z" fill="#d6d6d6"/>
+    <!-- 수평 미익 (우) -->
+    <path d="M248.8,96.8 L328.7,91.8 L329.8,97.8 L250.6,105.0 Z" fill="#d6d6d6"/>
+
+    <!-- 수직 미익 (좌) -->
+    <path d="M166.3,106.7 L170.6,11.4 L174.2,19.6 L180.5,105.0 Z" fill="#e8e8e8"/>
+    <!-- 수직 미익 (우) -->
+    <path d="M245.2,106.7 L255.2,13.5 L259.4,22.1 L261.2,105.0 Z" fill="#e8e8e8"/>
+
+    <!-- 주익 (좌) -->
+    <path d="M172.4,115.6 L43.7,118.1 L48.4,140.5 L157.1,170.1 Z" fill="#d6d6d6"/>
+    <!-- 주익 (우) -->
+    <path d="M245.2,123.8 L361.8,134.5 L356.1,154.8 L261.2,179.7 Z" fill="#d6d6d6"/>
+
+    <!-- 주익 파일런 -->
+    <g fill="#e8e8e8" stroke-width="0.9">
+      <rect x="73" y="147" width="4" height="8"/>
+      <rect x="84" y="150" width="4" height="8"/>
+      <rect x="95" y="154" width="4" height="8"/>
+      <rect x="330" y="160" width="4" height="8"/>
+      <rect x="321" y="163" width="4" height="8"/>
+      <rect x="311" y="165" width="4" height="8"/>
+    </g>
+
+    <!-- 동체 -->
+    <path d="M133.3,265.1 L128.7,254.4 L138.6,227.7 L149.3,193.9 L158.2,167.2 L166.3,128.1
+             L170.6,106.7 L175.9,95.3 L193.7,87.2 L220.4,86.1 L245.2,95.3 L254.1,106.7
+             L261.2,124.5 L263.0,153.0 L259.4,177.9 L245.2,192.1 L216.8,199.2 L191.9,201.0
+             L174.2,213.5 L156.4,234.8 L142.2,256.1 Z" fill="#e8e8e8"/>
+    <!-- 캐노피 -->
+    <path d="M152.0,197.0 L160.5,170.0 L176.0,164.0 L182.0,182.0 L168.0,200.0 Z" fill="#d6d6d6" stroke-width="1"/>
+
+    <!-- 기수 하부 장착물(포드) -->
+    <path d="M145.0,177.9 L157.1,185.7 L142.9,245.5 L131.5,239.1 Z" fill="#d6d6d6"/>
+    <line x1="141.5" y1="195.0" x2="153.5" y2="202.5" stroke-width="0.9"/>
+    <line x1="138.5" y1="212.0" x2="150.5" y2="219.5" stroke-width="0.9"/>
+    <ellipse cx="137.2" cy="241.0" rx="6.5" ry="7.5" fill="#e8e8e8" stroke-width="1"/>
+  </g>
+
+  <!-- (a) 좌표축 -->
+  <g stroke="#000" stroke-width="2.4" fill="none">
+    <line x1="180" y1="142" x2="41" y2="110" marker-end="url(#arr_B_p11_F1)"/>
+    <line x1="180" y1="142" x2="186" y2="256" marker-end="url(#arr_B_p11_F1)"/>
+    <line x1="180" y1="142" x2="137" y2="278" marker-end="url(#arr_B_p11_F1)"/>
+  </g>
+  <g font-size="21" font-weight="bold" fill="#000">
+    <text x="37" y="98">Y<tspan dy="5" font-size="14">b</tspan></text>
+    <text x="197" y="261">Z<tspan dy="5" font-size="14">b</tspan></text>
+    <text x="89" y="290">X<tspan dy="5" font-size="14">b</tspan></text>
+  </g>
+
+  <!-- ===================== (b) AESA 안테나 조립체 좌표계 ===================== -->
+  <g stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+    <!-- 후방 플랜지 디스크 -->
+    <ellipse cx="606" cy="131" rx="51" ry="59" fill="#e8e8e8"/>
+    <!-- 원통 몸체 -->
+    <path d="M488,150 L581,79 L631,183 L532,237 Z" fill="#e8e8e8"/>
+    <!-- 몸체 상부 전장 박스 -->
+    <path d="M563,150 L600,124 L620,133 L618,158 L582,176 L562,168 Z" fill="#f2f2f2"/>
+    <path d="M587,137 L589,114 L595,113 L593,136 Z" fill="#f2f2f2"/>
+    <!-- 몸체 하부 커넥터 -->
+    <path d="M580,190 L596,177 L606,182 L590,196 Z" fill="#d6d6d6"/>
+    <path d="M598,177 L612,166 L621,171 L607,183 Z" fill="#d6d6d6"/>
+    <!-- 후방 플랜지 체결홀 -->
+    <ellipse cx="644" cy="133" rx="4.5" ry="5" fill="#ffffff"/>
+    <ellipse cx="650" cy="175" rx="4.5" ry="5" fill="#ffffff"/>
+    <ellipse cx="605" cy="96"  rx="4.5" ry="5" fill="#ffffff"/>
+    <!-- 전방 플랜지 -->
+    <ellipse cx="510" cy="193" rx="49" ry="54" fill="#d6d6d6"/>
+    <ellipse cx="510" cy="193" rx="38" ry="43" fill="#e8e8e8"/>
+    <ellipse cx="471" cy="161" rx="4.5" ry="5" fill="#ffffff"/>
+    <ellipse cx="468" cy="222" rx="4.5" ry="5" fill="#ffffff"/>
+  </g>
+
+  <!-- (b) 좌표축 (안테나 개구면 3분할 선과 일치) -->
+  <g stroke="#000" stroke-width="2.4" fill="none">
+    <line x1="510" y1="193" x2="514" y2="103" marker-end="url(#arr_B_p11_F1)"/>
+    <line x1="510" y1="193" x2="439" y2="228" marker-end="url(#arr_B_p11_F1)"/>
+    <line x1="510" y1="193" x2="594" y2="216" marker-end="url(#arr_B_p11_F1)"/>
+  </g>
+  <g font-size="21" font-weight="bold" fill="#000">
+    <text x="500" y="90">Y<tspan dy="5" font-size="14">a</tspan></text>
+    <text x="424" y="212">Z<tspan dy="5" font-size="14">a</tspan></text>
+    <text x="576" y="251">X<tspan dy="5" font-size="14">a</tspan></text>
+  </g>
+
+  <!-- ===================== (c) 안테나 조립체 장착 형상 ===================== -->
+  <g stroke="#000" stroke-width="1.2" stroke-linejoin="round">
+    <!-- 프레임 (상/우/하 레일) -->
+    <path d="M874,100 L1030,84 L1034,96 L878,112 Z" fill="#f2f2f2"/>
+    <path d="M1030,84 L1042,86 L1046,200 L1034,202 Z" fill="#f2f2f2"/>
+    <path d="M878,214 L1034,196 L1036,208 L880,228 Z" fill="#f2f2f2"/>
+    <!-- 내부 섀시 -->
+    <path d="M896,118 L1028,102 L1032,196 L900,214 Z" fill="#e8e8e8"/>
+    <!-- 커넥터 블록 -->
+    <path d="M968,110 L1016,104 L1018,144 L970,151 Z" fill="#d6d6d6"/>
+    <path d="M918,166 L964,160 L966,202 L920,208 Z" fill="#d6d6d6"/>
+    <path d="M974,156 L1024,150 L1026,192 L976,199 Z" fill="#d6d6d6"/>
+    <!-- 안테나 면 플레이트 (좌측) -->
+    <path d="M850,100 L874,96 L880,226 L856,230 Z" fill="#d6d6d6"/>
+  </g>
+  <g stroke="#000" stroke-width="0.8" fill="none">
+    <line x1="862" y1="98" x2="868" y2="228"/>
+    <line x1="856" y1="99" x2="862" y2="229"/>
+  </g>
+  <g fill="#555555">
+    <circle cx="977" cy="118" r="1.7"/><circle cx="987" cy="117" r="1.7"/><circle cx="997" cy="116" r="1.7"/><circle cx="1007" cy="115" r="1.7"/>
+    <circle cx="977" cy="128" r="1.7"/><circle cx="987" cy="127" r="1.7"/><circle cx="997" cy="126" r="1.7"/><circle cx="1007" cy="125" r="1.7"/>
+    <circle cx="977" cy="138" r="1.7"/><circle cx="987" cy="137" r="1.7"/><circle cx="997" cy="136" r="1.7"/><circle cx="1007" cy="135" r="1.7"/>
+    <circle cx="927" cy="174" r="1.7"/><circle cx="937" cy="173" r="1.7"/><circle cx="947" cy="172" r="1.7"/><circle cx="957" cy="171" r="1.7"/>
+    <circle cx="927" cy="184" r="1.7"/><circle cx="937" cy="183" r="1.7"/><circle cx="947" cy="182" r="1.7"/><circle cx="957" cy="181" r="1.7"/>
+    <circle cx="927" cy="194" r="1.7"/><circle cx="937" cy="193" r="1.7"/><circle cx="947" cy="192" r="1.7"/><circle cx="957" cy="191" r="1.7"/>
+    <circle cx="983" cy="165" r="1.7"/><circle cx="993" cy="164" r="1.7"/><circle cx="1003" cy="163" r="1.7"/><circle cx="1013" cy="162" r="1.7"/>
+    <circle cx="983" cy="175" r="1.7"/><circle cx="993" cy="174" r="1.7"/><circle cx="1003" cy="173" r="1.7"/><circle cx="1013" cy="172" r="1.7"/>
+    <circle cx="983" cy="185" r="1.7"/><circle cx="993" cy="184" r="1.7"/><circle cx="1003" cy="183" r="1.7"/><circle cx="1013" cy="182" r="1.7"/>
+  </g>
+
+  <!-- (c) 좌표축 -->
+  <g stroke="#000" stroke-width="2.4" fill="none">
+    <line x1="856" y1="122" x2="858" y2="90" marker-end="url(#arr_B_p11_F1)"/>
+    <line x1="848" y1="172" x2="782" y2="149" marker-end="url(#arr_B_p11_F1)"/>
+    <line x1="848" y1="172" x2="739" y2="172" marker-end="url(#arr_B_p11_F1)"/>
+  </g>
+  <g font-size="21" font-weight="bold" fill="#000">
+    <text x="866" y="80">Y<tspan dy="5" font-size="14">a</tspan></text>
+    <text x="752" y="140">Z<tspan dy="5" font-size="14">a</tspan></text>
+    <text x="699" y="180">X<tspan dy="5" font-size="14">b</tspan></text>
+  </g>
+
+  <!-- ===================== 소캡션 ===================== -->
+  <g font-size="18" fill="#000" text-anchor="middle">
+    <text x="211" y="332">(a)</text>
+    <text x="546" y="332">(b)</text>
+    <text x="891" y="332">(c)</text>
+  </g>
+</svg>

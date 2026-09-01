@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 307" width="1100" height="307"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 12 R_body_trans_tilt/antenna</title>
+  <defs>
+    <marker id="arr_B_p15_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="307" fill="#ffffff"/>
+
+  <!-- ================= (a) ================= -->
+  <g transform="translate(127,162) rotate(-26.8)">
+    <!-- rear mounting plate -->
+    <ellipse cx="135.5" cy="0" rx="30" ry="66" fill="#d6d6d6" stroke="#000000" stroke-width="1.6"/>
+    <ellipse cx="152" cy="-40" rx="4.5" ry="7" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="156" cy="22" rx="4.5" ry="7" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <!-- body shell -->
+    <path d="M0,-60 L135.5,-66 L135.5,66 L0,60 Z" fill="#e8e8e8" stroke="#000000" stroke-width="1.6"/>
+    <!-- top connector block -->
+    <rect x="58" y="-84" width="44" height="22" fill="#e8e8e8" stroke="#000000" stroke-width="1.4"/>
+    <rect x="90" y="-80" width="12" height="14" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <!-- small post -->
+    <rect x="38" y="-80" width="8" height="18" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <!-- lower-side connector cluster -->
+    <rect x="86" y="28" width="34" height="20" fill="#d6d6d6" stroke="#000000" stroke-width="1.3"/>
+    <path d="M92,32 L92,44 M100,32 L100,44 M108,32 L108,44 M114,32 L114,44" stroke="#000000" stroke-width="1"/>
+    <rect x="96" y="6" width="24" height="14" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <!-- front flange -->
+    <ellipse cx="0" cy="0" rx="34" ry="60" fill="#e8e8e8" stroke="#000000" stroke-width="1.6"/>
+    <!-- array face -->
+    <ellipse cx="0" cy="0" rx="26" ry="46" fill="#f2f2f2" stroke="#000000" stroke-width="1.4"/>
+    <path d="M0,0 L0,-46 M0,0 L-22.5,23 M0,0 L22.5,23" stroke="#000000" stroke-width="1.3" fill="none"/>
+    <!-- flange holes -->
+    <ellipse cx="-20.5" cy="-36.8" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="-29" cy="0" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="-23.8" cy="29.8" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+  </g>
+  <!-- (a) axes : Ya up, Za down-left, Xa down-right -->
+  <g stroke="#000000" stroke-width="2.2" fill="none" marker-end="url(#arr_B_p15_F1)">
+    <line x1="127" y1="162" x2="129" y2="66"/>
+    <line x1="127" y1="162" x2="41" y2="207"/>
+    <line x1="127" y1="162" x2="227" y2="197"/>
+  </g>
+  <g font-size="19" font-weight="bold" fill="#000000">
+    <text x="112" y="54" text-anchor="middle">Y<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+    <text x="20" y="184" text-anchor="start">Z<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+    <text x="214" y="226" text-anchor="middle">X<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+  </g>
+  <text x="145" y="273" font-size="21" fill="#000000" text-anchor="middle">(a)</text>
+
+  <!-- block arrow (a) -> (b) -->
+  <path d="M289,140 L330,140 L330,129 L358,151.5 L330,174 L330,163 L289,163 Z" fill="#000000"/>
+
+  <!-- ================= (b) ================= -->
+  <g transform="translate(477,162) rotate(-26.8)">
+    <ellipse cx="135.5" cy="0" rx="30" ry="66" fill="#d6d6d6" stroke="#000000" stroke-width="1.6"/>
+    <ellipse cx="152" cy="-40" rx="4.5" ry="7" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="156" cy="22" rx="4.5" ry="7" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <path d="M0,-60 L135.5,-66 L135.5,66 L0,60 Z" fill="#e8e8e8" stroke="#000000" stroke-width="1.6"/>
+    <rect x="58" y="-84" width="44" height="22" fill="#e8e8e8" stroke="#000000" stroke-width="1.4"/>
+    <rect x="90" y="-80" width="12" height="14" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <rect x="38" y="-80" width="8" height="18" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <rect x="86" y="28" width="34" height="20" fill="#d6d6d6" stroke="#000000" stroke-width="1.3"/>
+    <path d="M92,32 L92,44 M100,32 L100,44 M108,32 L108,44 M114,32 L114,44" stroke="#000000" stroke-width="1"/>
+    <rect x="96" y="6" width="24" height="14" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <ellipse cx="0" cy="0" rx="34" ry="60" fill="#e8e8e8" stroke="#000000" stroke-width="1.6"/>
+    <ellipse cx="0" cy="0" rx="26" ry="46" fill="#f2f2f2" stroke="#000000" stroke-width="1.4"/>
+    <path d="M0,0 L0,-46 M0,0 L-22.5,23 M0,0 L22.5,23" stroke="#000000" stroke-width="1.3" fill="none"/>
+    <ellipse cx="-20.5" cy="-36.8" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="-29" cy="0" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="-23.8" cy="29.8" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+  </g>
+  <!-- (b) axes : Xa up, Ya left(slightly up), Za down-left -->
+  <g stroke="#000000" stroke-width="2.2" fill="none" marker-end="url(#arr_B_p15_F1)">
+    <line x1="477" y1="162" x2="489" y2="58"/>
+    <line x1="477" y1="162" x2="392" y2="137"/>
+    <line x1="477" y1="162" x2="409" y2="219"/>
+  </g>
+  <g font-size="19" font-weight="bold" fill="#000000">
+    <text x="473" y="63" text-anchor="end">X<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+    <text x="392" y="171" text-anchor="middle">Y<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+    <text x="390" y="245" text-anchor="middle">Z<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+  </g>
+  <text x="491" y="273" font-size="21" fill="#000000" text-anchor="middle">(b)</text>
+
+  <!-- block arrow (b) -> (c) -->
+  <path d="M682,140 L723,140 L723,129 L751,151.5 L723,174 L723,163 L682,163 Z" fill="#000000"/>
+
+  <!-- ================= (c) ================= -->
+  <g transform="translate(850,151) rotate(-26.8)">
+    <ellipse cx="135.5" cy="0" rx="30" ry="66" fill="#d6d6d6" stroke="#000000" stroke-width="1.6"/>
+    <ellipse cx="152" cy="-40" rx="4.5" ry="7" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="156" cy="22" rx="4.5" ry="7" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <path d="M0,-60 L135.5,-66 L135.5,66 L0,60 Z" fill="#e8e8e8" stroke="#000000" stroke-width="1.6"/>
+    <rect x="58" y="-84" width="44" height="22" fill="#e8e8e8" stroke="#000000" stroke-width="1.4"/>
+    <rect x="90" y="-80" width="12" height="14" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <rect x="38" y="-80" width="8" height="18" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <rect x="86" y="28" width="34" height="20" fill="#d6d6d6" stroke="#000000" stroke-width="1.3"/>
+    <path d="M92,32 L92,44 M100,32 L100,44 M108,32 L108,44 M114,32 L114,44" stroke="#000000" stroke-width="1"/>
+    <rect x="96" y="6" width="24" height="14" fill="#d6d6d6" stroke="#000000" stroke-width="1.2"/>
+    <ellipse cx="0" cy="0" rx="34" ry="60" fill="#e8e8e8" stroke="#000000" stroke-width="1.6"/>
+    <ellipse cx="0" cy="0" rx="26" ry="46" fill="#f2f2f2" stroke="#000000" stroke-width="1.4"/>
+    <path d="M0,0 L0,-46 M0,0 L-22.5,23 M0,0 L22.5,23" stroke="#000000" stroke-width="1.3" fill="none"/>
+    <ellipse cx="-20.5" cy="-36.8" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="-29" cy="0" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+    <ellipse cx="-23.8" cy="29.8" rx="4" ry="6" fill="#ffffff" stroke="#000000" stroke-width="1.1"/>
+  </g>
+  <!-- (c) axes : Ya up-left, Xa left(horizontal), Za straight down -->
+  <g stroke="#000000" stroke-width="2.2" fill="none" marker-end="url(#arr_B_p15_F1)">
+    <line x1="850" y1="151" x2="774" y2="128"/>
+    <line x1="850" y1="151" x2="772" y2="157"/>
+    <line x1="850" y1="151" x2="850" y2="232"/>
+  </g>
+  <g font-size="19" font-weight="bold" fill="#000000">
+    <text x="791" y="115" text-anchor="middle">Y<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+    <text x="785" y="186" text-anchor="middle">X<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+    <text x="836" y="228" text-anchor="end">Z<tspan dy="4" font-size="13">a</tspan><tspan dy="-4"> </tspan></text>
+  </g>
+  <text x="902" y="273" font-size="21" fill="#000000" text-anchor="middle">(c)</text>
+</svg>

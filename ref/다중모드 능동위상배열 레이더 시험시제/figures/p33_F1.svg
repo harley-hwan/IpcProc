@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 335" width="1100" height="335"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 25 AAST/NAST/ACM Slew 추적 송신시 좌표계 운용</title>
+  <defs>
+    <marker id="arr_B_p33_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrs_B_p33_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="vec_B_p33_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+
+    <!-- 전투기 실루엣 (기수 = 로컬 원점, 로컬 +x 방향이 기체 후방) -->
+    <g id="jet_B_p33_F1">
+      <path d="M0,0 L28,-4 L44,-6 L72,-30 L80,-31 L84,-11 L96,-10 L104,-24 L110,-24 L114,-7 L122,-5 L124,0
+               L122,5 L114,7 L110,24 L104,24 L96,10 L84,11 L80,31 L72,30 L44,6 L28,4 Z"
+            fill="#d6d6d6" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M90,-2 L98,-15 L105,-14 L110,-2 Z" fill="#e8e8e8" stroke="#000" stroke-width="1.4"/>
+      <path d="M90,2 L98,15 L105,14 L110,2 Z" fill="#e8e8e8" stroke="#000" stroke-width="1.4"/>
+      <path d="M46,0 L100,0" stroke="#000" stroke-width="1.1"/>
+      <path d="M20,-2.6 L34,-3.6 L34,3.6 L20,2.6 Z" fill="#f2f2f2" stroke="#000" stroke-width="1.1"/>
+    </g>
+  </defs>
+
+  <rect width="1100" height="335" fill="#ffffff"/>
+
+  <!-- ================= 블록 ================= -->
+  <g stroke="#000" stroke-width="1.6" fill="#d6d6d6">
+    <rect x="52"  y="26"  width="189" height="61"/>
+    <rect x="227" y="138" width="190" height="52"/>
+    <rect x="443" y="138" width="189" height="52"/>
+    <rect x="655" y="138" width="190" height="52"/>
+    <rect x="869" y="138" width="192" height="52"/>
+  </g>
+
+  <!-- 블록 번호 -->
+  <g fill="#1a1a1a">
+    <circle cx="66"  cy="40"  r="9"/>
+    <circle cx="241" cy="152" r="9"/>
+    <circle cx="457" cy="152" r="9"/>
+    <circle cx="669" cy="152" r="9"/>
+    <circle cx="883" cy="152" r="9"/>
+  </g>
+  <g fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">
+    <text x="66"  y="45">1</text>
+    <text x="241" y="157">2</text>
+    <text x="457" y="157">3</text>
+    <text x="669" y="157">4</text>
+    <text x="883" y="157">5</text>
+  </g>
+
+  <!-- 블록 ① NED ( P_nv ) -->
+  <g fill="#000">
+    <text x="108" y="63" font-size="16" font-weight="bold">NED (</text>
+    <text x="156" y="63" font-size="17" font-style="italic">P<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="182" y="63" font-size="16" font-weight="bold">)</text>
+    <line x1="155" y1="43" x2="178" y2="43" stroke="#000" stroke-width="1.3" marker-end="url(#vec_B_p33_F1)"/>
+  </g>
+
+  <!-- 블록 ② INU ( P_inu ) -->
+  <g fill="#000">
+    <text x="286" y="171" font-size="16" font-weight="bold">INU (</text>
+    <text x="328" y="171" font-size="17" font-style="italic">P<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="357" y="171" font-size="16" font-weight="bold">)</text>
+    <line x1="327" y1="151" x2="353" y2="151" stroke="#000" stroke-width="1.3" marker-end="url(#vec_B_p33_F1)"/>
+  </g>
+
+  <!-- 블록 ③ Body ( P_b ) -->
+  <g fill="#000">
+    <text x="500" y="171" font-size="16" font-weight="bold">Body (</text>
+    <text x="551" y="171" font-size="17" font-style="italic">P<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="572" y="171" font-size="16" font-weight="bold">)</text>
+    <line x1="550" y1="151" x2="568" y2="151" stroke="#000" stroke-width="1.3" marker-end="url(#vec_B_p33_F1)"/>
+  </g>
+
+  <!-- 블록 ④ Antenna( P_a ) -->
+  <g fill="#000">
+    <text x="703" y="171" font-size="16" font-weight="bold">Antenna(</text>
+    <text x="773" y="171" font-size="17" font-style="italic">P<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="794" y="171" font-size="16" font-weight="bold">)</text>
+    <line x1="772" y1="151" x2="790" y2="151" stroke="#000" stroke-width="1.3" marker-end="url(#vec_B_p33_F1)"/>
+  </g>
+
+  <!-- 블록 ⑤ Antenna (θx , θy) -->
+  <g fill="#000">
+    <text x="908" y="171" font-size="16" font-weight="bold">Antenna (</text>
+    <text x="980" y="171" font-size="17" font-style="italic">&#952;<tspan dy="4" font-size="11">x</tspan></text>
+    <text x="998" y="171" font-size="16" font-weight="bold">,</text>
+    <text x="1006" y="171" font-size="17" font-style="italic">&#952;<tspan dy="4" font-size="11">y</tspan></text>
+    <text x="1026" y="171" font-size="16" font-weight="bold">)</text>
+  </g>
+
+  <!-- ================= 블록 연결선 ================= -->
+  <g stroke="#000" stroke-width="1.8" fill="none">
+    <!-- ① -> ② -->
+    <path d="M207,87 L207,164 L223,164" marker-end="url(#arr_B_p33_F1)"/>
+    <!-- ② -> ③ -->
+    <line x1="417" y1="164" x2="439" y2="164" marker-end="url(#arr_B_p33_F1)"/>
+    <!-- ③ -> ④ -->
+    <line x1="632" y1="164" x2="651" y2="164" marker-end="url(#arr_B_p33_F1)"/>
+    <!-- ④ -> ⑤ -->
+    <line x1="845" y1="164" x2="865" y2="164" marker-end="url(#arr_B_p33_F1)"/>
+  </g>
+
+  <!-- ================= 주석 ================= -->
+  <!-- 주석 1 : NED 블록으로 들어가는 점선 화살표 -->
+  <line x1="298" y1="58" x2="245" y2="58" stroke="#000" stroke-width="1.5"
+        stroke-dasharray="5,4" marker-end="url(#arr_B_p33_F1)"/>
+  <text x="304" y="63" font-size="13" fill="#000">항법시스템 정보 Ownship NED Velocity (x, y, z) 통해 예측 표적위치 보상</text>
+
+  <!-- 주석 2 : INU -> Body 변환 -->
+  <text x="313" y="98"  font-size="13" fill="#000">실 자세 반영한</text>
+  <text x="313" y="116" font-size="13" fill="#000">항법시스템 정보(Roll, Pitch, Yaw) 적용</text>
+  <line x1="430" y1="124" x2="430" y2="157" stroke="#000" stroke-width="1.5"
+        stroke-dasharray="5,4" marker-end="url(#arr_B_p33_F1)"/>
+
+  <!-- 주석 3 : Antenna -> Antenna(θ) 변환 -->
+  <text x="773" y="116" font-size="13" fill="#000">안테나 장치 빔 적용 (sine-domain 값)</text>
+  <line x1="857" y1="124" x2="857" y2="157" stroke="#000" stroke-width="1.5"
+        stroke-dasharray="5,4" marker-end="url(#arr_B_p33_F1)"/>
+
+  <!-- ================= 기체 실루엣 ================= -->
+  <use href="#jet_B_p33_F1" transform="translate(492,288) rotate(-18) scale(0.70)"/>
+  <use href="#jet_B_p33_F1" transform="translate(731,281) rotate(-18) scale(0.75)"/>
+  <use href="#jet_B_p33_F1" transform="translate(966,278) rotate(-18) scale(0.75)"/>
+
+  <!-- ================= 좌표계 ① NED ================= -->
+  <g stroke="#000" stroke-width="1.5" fill="none">
+    <line x1="122" y1="148" x2="36"  y2="119" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="122" y1="148" x2="104" y2="120" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="122" y1="148" x2="65"  y2="179" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="122" y1="148" x2="126" y2="194" marker-end="url(#arrs_B_p33_F1)"/>
+  </g>
+  <g fill="#000" font-size="15" text-anchor="middle">
+    <text x="94"  y="112">Y<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="47"  y="192">X<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="128" y="211">Z<tspan dy="4" font-size="11">nv</tspan></text>
+  </g>
+
+  <!-- ================= 좌표계 ② INU ================= -->
+  <g stroke="#000" stroke-width="1.5" fill="none">
+    <line x1="337" y1="266" x2="256" y2="241" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="337" y1="266" x2="320" y2="244" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="337" y1="266" x2="283" y2="296" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="337" y1="266" x2="340" y2="315" marker-end="url(#arrs_B_p33_F1)"/>
+  </g>
+  <g fill="#000" font-size="15" text-anchor="middle">
+    <text x="308" y="233">Y<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="264" y="310">X<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="342" y="330">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  </g>
+
+  <!-- ================= 좌표계 ③ Body ================= -->
+  <g stroke="#000" stroke-width="1.5" fill="none">
+    <line x1="540" y1="267" x2="456" y2="241" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="540" y1="267" x2="554" y2="227" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="540" y1="267" x2="466" y2="289" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="540" y1="267" x2="558" y2="301" marker-end="url(#arrs_B_p33_F1)"/>
+  </g>
+  <g fill="#000" font-size="15" text-anchor="middle">
+    <text x="551" y="217">Y<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="450" y="303">X<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="568" y="318">Z<tspan dy="4" font-size="11">b</tspan></text>
+  </g>
+
+  <!-- ================= 좌표계 ④ Antenna ================= -->
+  <g stroke="#000" stroke-width="1.5" fill="none">
+    <line x1="725" y1="274" x2="672" y2="251" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="725" y1="274" x2="716" y2="243" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="725" y1="274" x2="672" y2="292" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="725" y1="274" x2="717" y2="293" marker-end="url(#arrs_B_p33_F1)"/>
+  </g>
+  <g fill="#000" font-size="15" text-anchor="middle">
+    <text x="708" y="233">Y<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="655" y="306">Z<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="716" y="317">X<tspan dy="4" font-size="11">a</tspan></text>
+  </g>
+
+  <!-- ================= 좌표계 ⑤ Antenna (θx, θy) ================= -->
+  <g stroke="#000" stroke-width="1.5" fill="none">
+    <line x1="960" y1="271" x2="907" y2="248" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="960" y1="271" x2="951" y2="240" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="960" y1="271" x2="907" y2="289" marker-end="url(#arrs_B_p33_F1)"/>
+    <line x1="960" y1="271" x2="952" y2="290" marker-end="url(#arrs_B_p33_F1)"/>
+  </g>
+  <g fill="#000" font-size="15" text-anchor="middle">
+    <text x="943" y="230">Y<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="890" y="303">Z<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="951" y="314">X<tspan dy="4" font-size="11">a</tspan></text>
+  </g>
+</svg>

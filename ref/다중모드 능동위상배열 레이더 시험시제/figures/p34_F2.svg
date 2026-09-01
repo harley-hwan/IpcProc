@@ -1,0 +1,296 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 700" width="1080" height="700"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 28 ACM(Slew 제외) 추적 수신시 좌표계 운용</title>
+  <defs>
+    <marker id="arr_B_p34_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrax_B_p34_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrdash_B_p34_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrvec_B_p34_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+
+    <g id="jet_B_p34_F2" transform="rotate(-20) scale(0.92)">
+      <!-- fighter planform, nose to the left -->
+      <path d="M -95,0 L -72,-6 L -25,-9 L -5,-9 L 30,-50 L 46,-50 L 34,-11 L 52,-11
+               L 66,-40 L 78,-40 L 76,-9 L 92,-6 L 95,0 L 92,6 L 76,9 L 78,40 L 66,40
+               L 52,11 L 34,11 L 46,50 L 30,50 L -5,9 L -25,9 L -72,6 Z"
+            fill="#8c8c8c" stroke="#000" stroke-width="3.5" stroke-linejoin="round"/>
+      <!-- vertical stabiliser -->
+      <path d="M 44,-2 L 62,-2 L 74,-26 L 58,-26 Z" fill="#6e6e6e" stroke="#000" stroke-width="3"/>
+      <!-- canopy -->
+      <ellipse cx="-46" cy="0" rx="18" ry="6" fill="#e8e8e8" stroke="#000" stroke-width="2.5"/>
+    </g>
+  </defs>
+
+  <rect width="1080" height="700" fill="#ffffff"/>
+
+  <g transform="scale(0.551)">
+    <g fill="none" stroke="#000">
+
+      <!-- ================= TOP ROW BLOCKS ================= -->
+      <rect x="375" y="183" width="335" height="120" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="768" y="183" width="342" height="120" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="1160" y="183" width="338" height="120" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+
+      <!-- ================= BOTTOM ROW BLOCKS ================= -->
+      <rect x="62"   y="568" width="343" height="115" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="375"  y="853" width="343" height="115" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="768"  y="850" width="348" height="115" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="1163" y="850" width="338" height="115" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="1545" y="850" width="360" height="115" rx="6" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+
+      <!-- ================= MFD DISPLAY (simplified schematic) ================= -->
+      <rect x="1552" y="95" width="352" height="272" rx="8" fill="#d6d6d6" stroke="#000" stroke-width="3"/>
+      <rect x="1586" y="132" width="284" height="176" fill="#3a3a3a" stroke="#000" stroke-width="2"/>
+      <g stroke="#e8e8e8" stroke-width="2" fill="none">
+        <circle cx="1728" cy="220" r="62"/>
+        <line x1="1666" y1="220" x2="1790" y2="220"/>
+        <line x1="1728" y1="158" x2="1728" y2="282"/>
+        <path d="M 1728,220 L 1782,192"/>
+      </g>
+      <g fill="#e8e8e8" stroke="none">
+        <rect x="1690" y="176" width="12" height="12"/>
+        <rect x="1752" y="240" width="12" height="12"/>
+      </g>
+      <g fill="#f2f2f2" stroke="#000" stroke-width="2">
+        <rect x="1580" y="104" width="42" height="18"/>
+        <rect x="1646" y="104" width="42" height="18"/>
+        <rect x="1712" y="104" width="42" height="18"/>
+        <rect x="1778" y="104" width="42" height="18"/>
+        <rect x="1844" y="104" width="42" height="18"/>
+        <rect x="1580" y="318" width="42" height="18"/>
+        <rect x="1646" y="318" width="42" height="18"/>
+        <rect x="1712" y="318" width="42" height="18"/>
+        <rect x="1778" y="318" width="42" height="18"/>
+        <rect x="1844" y="318" width="42" height="18"/>
+      </g>
+
+      <!-- ================= FLOW ARROWS ================= -->
+      <g stroke="#000" stroke-width="5" fill="none" marker-end="url(#arr_B_p34_F2)">
+        <!-- top row : left to right -->
+        <line x1="710"  y1="243" x2="762"  y2="243"/>
+        <line x1="1110" y1="243" x2="1154" y2="243"/>
+        <line x1="1498" y1="243" x2="1546" y2="243"/>
+        <!-- bottom row : right to left -->
+        <line x1="1545" y1="908" x2="1507" y2="908"/>
+        <line x1="1163" y1="908" x2="1122" y2="908"/>
+        <line x1="768"  y1="908" x2="724"  y2="908"/>
+        <!-- block 4 -> block 5 (left, then up) -->
+        <path d="M 375,910 L 330,910 L 330,689"/>
+        <!-- block 5 -> block 6 (up, then right) -->
+        <path d="M 325,568 L 325,238 L 369,238"/>
+      </g>
+
+      <!-- ================= DASHED ANNOTATION ARROWS ================= -->
+      <g stroke="#000" stroke-width="3.5" fill="none" stroke-dasharray="9,9" marker-end="url(#arrdash_B_p34_F2)">
+        <line x1="740"  y1="146" x2="740"  y2="200"/>
+        <line x1="1130" y1="140" x2="1130" y2="200"/>
+        <line x1="1520" y1="82"  x2="1520" y2="228"/>
+        <line x1="472"  y1="626" x2="414"  y2="626"/>
+        <line x1="740"  y1="848" x2="740"  y2="880"/>
+        <line x1="1723" y1="796" x2="1723" y2="844"/>
+      </g>
+    </g>
+
+    <!-- ================= BLOCK TEXT ================= -->
+    <g fill="#000" font-size="42" font-weight="bold">
+      <!-- 6 : INU (P_inu) -->
+      <text x="428" y="260">INU (</text>
+      <text x="548" y="260" font-style="italic">P<tspan dy="10" font-size="26">inu</tspan></text>
+      <text x="655" y="260">)</text>
+      <!-- 7 : Body (P_b) -->
+      <text x="800" y="260">Body (</text>
+      <text x="962" y="260" font-style="italic">P<tspan dy="10" font-size="26">b</tspan></text>
+      <text x="1035" y="260">)</text>
+      <!-- 8 : Body (AZ-EL) -->
+      <text x="1188" y="260">Body (AZ-EL)</text>
+      <!-- 5 : NED (P_nv) -->
+      <text x="110" y="643">NED (</text>
+      <text x="252" y="643" font-style="italic">P<tspan dy="10" font-size="26">nv</tspan></text>
+      <text x="340" y="643">)</text>
+      <!-- 4 : INU (P_inu) -->
+      <text x="428" y="928">INU (</text>
+      <text x="548" y="928" font-style="italic">P<tspan dy="10" font-size="26">inu</tspan></text>
+      <text x="655" y="928">)</text>
+      <!-- 3 : Body (P_b) -->
+      <text x="800" y="925">Body (</text>
+      <text x="962" y="925" font-style="italic">P<tspan dy="10" font-size="26">b</tspan></text>
+      <text x="1035" y="925">)</text>
+      <!-- 2 : Antenna( P_a ) -->
+      <text x="1198" y="925">Antenna(</text>
+      <text x="1414" y="925" font-style="italic">P<tspan dy="10" font-size="26">a</tspan></text>
+      <text x="1470" y="925">)</text>
+      <!-- 1 : Antenna (theta_x, theta_y) -->
+      <text x="1572" y="925" font-size="40">Antenna (<tspan font-style="italic">θ</tspan><tspan dy="9" font-size="25">x</tspan><tspan dy="-9" font-size="40">, </tspan><tspan font-style="italic" font-size="40">θ</tspan><tspan dy="9" font-size="25">y</tspan><tspan dy="-9" font-size="40">)</tspan></text>
+    </g>
+
+    <!-- vector over-bars with arrow head -->
+    <g stroke="#000" stroke-width="3" fill="none" marker-end="url(#arrvec_B_p34_F2)">
+      <line x1="545"  y1="218" x2="638"  y2="218"/>
+      <line x1="959"  y1="218" x2="1018" y2="218"/>
+      <line x1="249"  y1="601" x2="322"  y2="601"/>
+      <line x1="545"  y1="886" x2="638"  y2="886"/>
+      <line x1="959"  y1="883" x2="1018" y2="883"/>
+      <line x1="1411" y1="883" x2="1456" y2="883"/>
+    </g>
+
+    <!-- ================= NUMBER BULLETS ================= -->
+    <g>
+      <circle cx="395"  cy="205" r="22" fill="#000"/>
+      <circle cx="786"  cy="205" r="22" fill="#000"/>
+      <circle cx="1181" cy="205" r="22" fill="#000"/>
+      <circle cx="82"   cy="590" r="22" fill="#000"/>
+      <circle cx="396"  cy="875" r="22" fill="#000"/>
+      <circle cx="791"  cy="872" r="22" fill="#000"/>
+      <circle cx="1188" cy="872" r="22" fill="#000"/>
+      <circle cx="1563" cy="872" r="22" fill="#000"/>
+      <g fill="#ffffff" font-size="27" font-weight="bold" text-anchor="middle">
+        <text x="395"  y="215">6</text>
+        <text x="786"  y="215">7</text>
+        <text x="1181" y="215">8</text>
+        <text x="82"   y="600">5</text>
+        <text x="396"  y="885">4</text>
+        <text x="791"  y="882">3</text>
+        <text x="1188" y="882">2</text>
+        <text x="1563" y="882">1</text>
+      </g>
+    </g>
+
+    <!-- ================= ANNOTATION TEXT ================= -->
+    <g fill="#000" font-size="30" font-weight="bold">
+      <text x="435" y="82">Body Stabilized Motion 모사 위해</text>
+      <text x="435" y="134">항법시스템 정보(Roll, Pitch, Yaw) 적용</text>
+      <text x="1035" y="126">3D Sphere → Cartesian 변환</text>
+      <text x="1510" y="70">MFD Display</text>
+      <text x="478" y="638" font-size="32">항법시스템 정보 Ownship NED Velocity (x, y, z) 통해 표적위치 보상</text>
+      <text x="405" y="784">실 자세 반영한</text>
+      <text x="405" y="836">항법시스템 정보(Roll, Pitch, Yaw) 적용</text>
+      <text x="1400" y="784" font-size="32">Sine-domain Monopulse data 적용</text>
+    </g>
+
+    <!-- ================= COORDINATE FRAMES ================= -->
+
+    <!-- (A) INU frame, top row (under block 6) : origin 603,436 -->
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="603" y1="436" x2="447" y2="387"/>
+      <line x1="603" y1="436" x2="562" y2="390"/>
+      <line x1="603" y1="436" x2="499" y2="497"/>
+      <line x1="603" y1="436" x2="602" y2="527"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="552" y="376">Y<tspan dy="9" font-size="24">inu</tspan></text>
+      <text x="484" y="526">X<tspan dy="9" font-size="24">inu</tspan></text>
+      <text x="602" y="566">Z<tspan dy="9" font-size="24">inu</tspan></text>
+    </g>
+
+    <!-- (B) Body frame, top row (under block 7) : origin 975,425 -->
+    <use href="#jet_B_p34_F2" transform="translate(975,425)"/>
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="975" y1="425" x2="855"  y2="370"/>
+      <line x1="975" y1="425" x2="997"  y2="350"/>
+      <line x1="975" y1="425" x2="827"  y2="478"/>
+      <line x1="975" y1="425" x2="1003" y2="513"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="1013" y="340">Y<tspan dy="9" font-size="24">b</tspan></text>
+      <text x="830"  y="524">X<tspan dy="9" font-size="24">b</tspan></text>
+      <text x="1037" y="557">Z<tspan dy="9" font-size="24">b</tspan></text>
+    </g>
+
+    <!-- (C) Body AZ-EL frame, top row (under block 8) : origin 1352,424 -->
+    <use href="#jet_B_p34_F2" transform="translate(1352,424)"/>
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="1352" y1="424" x2="1244" y2="369"/>
+      <line x1="1352" y1="424" x2="1380" y2="346"/>
+      <line x1="1352" y1="424" x2="1217" y2="474"/>
+      <line x1="1352" y1="424" x2="1394" y2="509"/>
+      <line x1="1352" y1="424" x2="1233" y2="454"/>
+    </g>
+    <g stroke="#000" stroke-width="3" fill="none">
+      <path d="M 1285,390 A 76,76 0 0 0 1279,442"/>
+      <path d="M 1246,451 A 112,112 0 0 0 1250,464"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="1219" y="409">EL</text>
+      <text x="1272" y="492">AZ</text>
+      <text x="1222" y="525">X<tspan dy="9" font-size="24">b</tspan></text>
+      <text x="1398" y="336">Y<tspan dy="9" font-size="24">b</tspan></text>
+      <text x="1426" y="556">Z<tspan dy="9" font-size="24">b</tspan></text>
+    </g>
+
+    <!-- (D) NED frame (left, under block 5) : origin 183,798 -->
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="183" y1="798" x2="28"  y2="747"/>
+      <line x1="183" y1="798" x2="143" y2="752"/>
+      <line x1="183" y1="798" x2="72"  y2="860"/>
+      <line x1="183" y1="798" x2="182" y2="889"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="140" y="738">Y<tspan dy="9" font-size="24">nv</tspan></text>
+      <text x="62"  y="890">X<tspan dy="9" font-size="24">nv</tspan></text>
+      <text x="182" y="928">Z<tspan dy="9" font-size="24">nv</tspan></text>
+    </g>
+
+    <!-- (E) INU frame, bottom row (under block 4) : origin 592,1090 -->
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="592" y1="1090" x2="436" y2="1041"/>
+      <line x1="592" y1="1090" x2="551" y2="1044"/>
+      <line x1="592" y1="1090" x2="488" y2="1151"/>
+      <line x1="592" y1="1090" x2="591" y2="1181"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="541" y="1030">Y<tspan dy="9" font-size="24">inu</tspan></text>
+      <text x="473" y="1180">X<tspan dy="9" font-size="24">inu</tspan></text>
+      <text x="591" y="1220">Z<tspan dy="9" font-size="24">inu</tspan></text>
+    </g>
+
+    <!-- (F) Body frame, bottom row (under block 3) : origin 967,1100 -->
+    <use href="#jet_B_p34_F2" transform="translate(967,1100)"/>
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="967" y1="1100" x2="847"  y2="1045"/>
+      <line x1="967" y1="1100" x2="989"  y2="1025"/>
+      <line x1="967" y1="1100" x2="819"  y2="1153"/>
+      <line x1="967" y1="1100" x2="995"  y2="1188"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="1005" y="1015">Y<tspan dy="9" font-size="24">b</tspan></text>
+      <text x="822"  y="1199">X<tspan dy="9" font-size="24">b</tspan></text>
+      <text x="1029" y="1232">Z<tspan dy="9" font-size="24">b</tspan></text>
+    </g>
+
+    <!-- (G) Antenna frame, bottom row (under block 2) : origin 1315,1100 -->
+    <use href="#jet_B_p34_F2" transform="translate(1315,1100)"/>
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="1315" y1="1100" x2="1175" y2="1040"/>
+      <line x1="1315" y1="1100" x2="1287" y2="1012"/>
+      <line x1="1315" y1="1100" x2="1291" y2="1195"/>
+      <line x1="1315" y1="1100" x2="1180" y2="1156"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="1267" y="1002">Y<tspan dy="9" font-size="24">a</tspan></text>
+      <text x="1285" y="1240">X<tspan dy="9" font-size="24">a</tspan></text>
+      <text x="1140" y="1180">Z<tspan dy="9" font-size="24">a</tspan></text>
+    </g>
+
+    <!-- (H) Antenna frame, bottom row (under block 1) : origin 1740,1100 -->
+    <use href="#jet_B_p34_F2" transform="translate(1740,1100)"/>
+    <g stroke="#000" stroke-width="4" fill="none" marker-end="url(#arrax_B_p34_F2)">
+      <line x1="1740" y1="1100" x2="1600" y2="1040"/>
+      <line x1="1740" y1="1100" x2="1712" y2="1012"/>
+      <line x1="1740" y1="1100" x2="1716" y2="1195"/>
+      <line x1="1740" y1="1100" x2="1605" y2="1156"/>
+    </g>
+    <g fill="#000" font-size="38" text-anchor="middle">
+      <text x="1692" y="1002">Y<tspan dy="9" font-size="24">a</tspan></text>
+      <text x="1710" y="1240">X<tspan dy="9" font-size="24">a</tspan></text>
+      <text x="1565" y="1180">Z<tspan dy="9" font-size="24">a</tspan></text>
+    </g>
+
+  </g>
+</svg>

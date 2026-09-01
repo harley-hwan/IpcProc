@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460" width="700" height="460"
+     font-family="Helvetica, Arial, sans-serif" font-size="14">
+  <title>그림 6. Antenna 좌표계</title>
+  <defs>
+    <marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="700" height="460" fill="#ffffff"/>
+
+  <!-- earth surface -->
+  <path d="M40,370 A700,700 0 0 1 660,370 L660,440 L40,440 Z" fill="#f0f0f0" stroke="none"/>
+  <path d="M40,370 A700,700 0 0 1 660,370" fill="none" stroke="#000" stroke-width="1.6"/>
+
+  <!-- antenna face -->
+  <polygon points="248,352 428,352 488,300 308,300" fill="#d5d5d5" stroke="#000" stroke-width="1.3"/>
+  <text x="392" y="374">Antenna</text>
+
+  <!-- origin -->
+  <circle cx="358" cy="326" r="3.5" fill="#000"/>
+  <text x="332" y="346">O<tspan dy="5" font-size="11">Ant</tspan></text>
+
+  <!-- Z_Ant -->
+  <line x1="358" y1="326" x2="358" y2="60" stroke="#000" stroke-width="1.6" marker-end="url(#ar6)"/>
+  <text x="336" y="50">Z<tspan dy="5" font-size="11">Ant</tspan></text>
+
+  <!-- Y_Ant -->
+  <line x1="358" y1="326" x2="452" y2="146" stroke="#000" stroke-width="1.6" marker-end="url(#ar6)"/>
+  <text x="456" y="142">Y<tspan dy="5" font-size="11">Ant</tspan></text>
+
+  <!-- X_Ant -->
+  <line x1="358" y1="326" x2="614" y2="326" stroke="#000" stroke-width="1.6" marker-end="url(#ar6)"/>
+  <text x="620" y="330">X<tspan dy="5" font-size="11">Ant</tspan></text>
+
+  <!-- reference plane at target height -->
+  <polygon points="420,232 592,232 634,190 462,190" fill="none" stroke="#000" stroke-width="1"/>
+
+  <!-- target -->
+  <path d="M572,120 l7,17 18,2 -13,13 4,18 -16,-9 -16,9 4,-18 -13,-13 18,-2 z"
+        fill="none" stroke="#000" stroke-width="1.4"/>
+  <text x="556" y="100">Target</text>
+
+  <!-- slant range r -->
+  <line x1="358" y1="326" x2="566" y2="140" stroke="#000" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <!-- ground projection -->
+  <line x1="358" y1="326" x2="546" y2="212" stroke="#000" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <line x1="546" y1="212" x2="572" y2="140" stroke="#000" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="470" y="212" font-style="italic">r</text>
+
+  <!-- azimuth angle theta -->
+  <path d="M414,242 A105,105 0 0 0 452,283" fill="none" stroke="#000" stroke-width="1.3"/>
+  <text x="416" y="272" font-style="italic">θ</text>
+
+  <!-- elevation angle phi -->
+  <path d="M540,178 A70,70 0 0 0 555,196" fill="none" stroke="#000" stroke-width="1.3"/>
+  <text x="546" y="176" font-style="italic">φ</text>
+</svg>

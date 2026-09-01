@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 444" width="1000" height="444"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>2.1.9. Antenna XYZ 좌표계 (Detect Antenna, Tracking Antenna)</title>
+  <defs>
+    <marker id="arr_A_p06_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="444" fill="#ffffff"/>
+
+  <!-- ============ LEFT : CIWS-II 함포/센서 마운트 개략 실루엣 ============ -->
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+
+    <!-- 받침(기초 구조물) -->
+    <polygon points="35,414 278,414 258,372 58,372" fill="#d6d6d6"/>
+
+    <!-- 좌측 측면 패널 -->
+    <polygon points="24,163 98,152 103,376 30,376" fill="#e8e8e8"/>
+    <!-- 우측 측면 패널 -->
+    <polygon points="186,152 272,174 264,380 191,376" fill="#e8e8e8"/>
+
+    <!-- 중앙 장비 박스 -->
+    <rect x="104" y="188" width="82" height="96" fill="#d6d6d6"/>
+    <rect x="113" y="200" width="22" height="22" fill="#f2f2f2"/>
+    <rect x="145" y="197" width="30" height="30" fill="#f2f2f2"/>
+    <rect x="118" y="238" width="52" height="16" fill="#f2f2f2"/>
+
+    <!-- 마스트(안테나 지지대) -->
+    <rect x="139" y="144" width="38" height="46" fill="#d6d6d6"/>
+
+    <!-- 상부 안테나(팔각 형상) -->
+    <polygon points="134,62 182,62 194,80 194,112 182,132 134,132 122,112 122,80"
+             fill="#d6d6d6"/>
+
+    <!-- 좌측 소형 안테나 패널 -->
+    <rect x="34" y="172" width="24" height="54" rx="6" fill="#d6d6d6"/>
+
+    <!-- 우측 원형 안테나 -->
+    <ellipse cx="238" cy="211" rx="24" ry="22" fill="#d6d6d6"/>
+
+    <!-- 하부 트러스 구조 -->
+    <g fill="none" stroke-width="1.4">
+      <path d="M110,286 L92,344"/>
+      <path d="M152,286 L172,350"/>
+      <path d="M96,300 L166,318"/>
+      <path d="M98,326 L170,300"/>
+      <path d="M88,352 L176,352"/>
+      <path d="M105,352 L120,372"/>
+      <path d="M160,352 L150,372"/>
+    </g>
+  </g>
+
+  <!-- 강조 사각형(Detect / Tracking Antenna 위치 표시) -->
+  <g fill="none" stroke="#000" stroke-width="5">
+    <rect x="111" y="37" width="94" height="117"/>
+    <rect x="18"  y="163" width="57" height="71"/>
+    <rect x="205" y="182" width="66" height="58"/>
+  </g>
+
+  <!-- ============ 중앙 : 굵은 지시 화살표 ============ -->
+  <polygon points="330,212 552,212 552,192 604,228 552,264 552,244 330,244" fill="#000"/>
+
+  <!-- ============ RIGHT : 안테나 조립체와 Antenna XYZ 좌표계 ============ -->
+  <g stroke="#000" stroke-linejoin="round">
+
+    <!-- 하우징 뒷면(입체 표현) -->
+    <polygon points="648,66 902,66 936,100 936,300 902,334 648,334 614,300 614,100"
+             fill="#f2f2f2" stroke-width="1.6"/>
+    <!-- 하우징 앞면 프레임 -->
+    <polygon points="666,90 920,90 954,124 954,324 920,358 666,358 632,324 632,124"
+             fill="#e8e8e8" stroke-width="1.8"/>
+    <!-- 뒷면-앞면 연결 모서리 -->
+    <g fill="none" stroke-width="1.2">
+      <path d="M648,66 L666,90"/>
+      <path d="M902,66 L920,90"/>
+      <path d="M936,300 L954,324"/>
+      <path d="M614,300 L632,324"/>
+    </g>
+
+    <!-- 배열 복사면(Array Face) -->
+    <polygon points="682,112 906,112 930,136 930,312 906,336 682,336 658,312 658,136"
+             fill="#d6d6d6" stroke-width="1.6"/>
+
+    <!-- 복사면 텍스처(배열 소자 열) -->
+    <g stroke="#b8b8b8" stroke-width="1" fill="none">
+      <path d="M674,124 L674,324"/><path d="M690,116 L690,332"/>
+      <path d="M706,116 L706,332"/><path d="M722,116 L722,332"/>
+      <path d="M738,116 L738,332"/><path d="M754,116 L754,332"/>
+      <path d="M770,116 L770,332"/><path d="M786,116 L786,332"/>
+      <path d="M802,116 L802,332"/><path d="M818,116 L818,332"/>
+      <path d="M834,116 L834,332"/><path d="M850,116 L850,332"/>
+      <path d="M866,116 L866,332"/><path d="M882,116 L882,332"/>
+      <path d="M898,116 L898,332"/><path d="M914,124 L914,324"/>
+    </g>
+
+    <!-- 모서리 고정부 -->
+    <g fill="#8f8f8f" stroke-width="1">
+      <circle cx="650" cy="106" r="4"/>
+      <circle cx="936" cy="106" r="4"/>
+      <circle cx="650" cy="342" r="4"/>
+      <circle cx="936" cy="342" r="4"/>
+    </g>
+
+    <!-- 우측 중앙 브래킷 -->
+    <rect x="930" y="196" width="10" height="56" fill="#8f8f8f" stroke-width="1.2"/>
+  </g>
+
+  <!-- 좌표축 (원점은 배열 복사면 중심) -->
+  <g stroke="#000" stroke-width="3" fill="none">
+    <line x1="792" y1="224" x2="792" y2="34"  marker-end="url(#arr_A_p06_F1)"/>
+    <line x1="792" y1="224" x2="972" y2="266" marker-end="url(#arr_A_p06_F1)"/>
+    <line x1="792" y1="224" x2="688" y2="356" marker-end="url(#arr_A_p06_F1)"/>
+  </g>
+
+  <!-- 축 라벨 -->
+  <g font-size="24" font-style="italic" font-weight="bold" fill="#000">
+    <text x="806" y="46">y<tspan dy="6" font-size="17">Ant</tspan><tspan dy="-6"> </tspan></text>
+    <text x="912" y="304">x<tspan dy="6" font-size="17">Ant</tspan><tspan dy="-6"> </tspan></text>
+    <text x="622" y="386">z<tspan dy="6" font-size="17">Ant</tspan><tspan dy="-6"> </tspan></text>
+  </g>
+</svg>

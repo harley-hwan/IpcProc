@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 877" width="1080" height="877"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 8 Drift Stable 좌표계</title>
+  <defs>
+    <marker id="arrSolid_B_p10_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrDash_B_p10_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrArc_B_p10_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1080" height="877" fill="#ffffff"/>
+
+  <!-- ===== 전투기 실루엣 (기수 좌측, 단순 벡터 도식) ===== -->
+  <g stroke="#000" stroke-width="1.5" stroke-linejoin="round">
+    <!-- 원측(위쪽) 주익 -->
+    <path d="M660,322 L878,232 L974,258 L742,330 Z" fill="#e8e8e8"/>
+    <!-- 원측 수직/수평 미익 -->
+    <path d="M888,330 L940,266 L976,276 L934,342 Z" fill="#d6d6d6"/>
+    <!-- 근측(아래쪽) 주익 -->
+    <path d="M660,384 L878,478 L974,452 L742,378 Z" fill="#e8e8e8"/>
+    <!-- 근측 수직/수평 미익 -->
+    <path d="M888,374 L940,440 L976,430 L934,364 Z" fill="#d6d6d6"/>
+    <!-- 동체 -->
+    <path d="M285,352 L360,334 L520,325 L700,318 L862,318 L958,330 L986,350
+             L958,370 L862,382 L700,389 L520,381 L360,370 Z" fill="#d6d6d6"/>
+    <!-- 캐노피 -->
+    <path d="M392,352 C400,332 462,326 500,332 C470,340 452,348 444,364
+             C424,364 404,360 392,352 Z" fill="#f2f2f2"/>
+    <!-- 배기 노즐 -->
+    <path d="M958,332 L986,350 L958,368" fill="none"/>
+    <path d="M700,318 L700,389" fill="none" stroke-dasharray="4 6" stroke-width="1"/>
+  </g>
+
+  <!-- ===== 좌표축 ===== -->
+  <g stroke="#000" fill="none">
+    <!-- X_W (실선) -->
+    <line x1="720" y1="355" x2="180" y2="269" stroke-width="5" marker-end="url(#arrSolid_B_p10_F1)"/>
+    <!-- X_s (점선) -->
+    <line x1="720" y1="355" x2="100" y2="351" stroke-width="3" stroke-dasharray="12 10" marker-end="url(#arrDash_B_p10_F1)"/>
+    <!-- X_nv (점선) -->
+    <line x1="720" y1="355" x2="182" y2="505" stroke-width="3" stroke-dasharray="12 10" marker-end="url(#arrDash_B_p10_F1)"/>
+
+    <!-- Y_W (실선) -->
+    <line x1="720" y1="355" x2="982" y2="184" stroke-width="5" marker-end="url(#arrSolid_B_p10_F1)"/>
+    <!-- Y_s (점선) -->
+    <line x1="720" y1="355" x2="928" y2="111" stroke-width="3" stroke-dasharray="12 10" marker-end="url(#arrDash_B_p10_F1)"/>
+    <!-- Y_nv (점선) -->
+    <line x1="720" y1="355" x2="860" y2="88" stroke-width="3" stroke-dasharray="12 10" marker-end="url(#arrDash_B_p10_F1)"/>
+
+    <!-- Z_W, Z_s, Z_nv (실선) -->
+    <line x1="720" y1="355" x2="720" y2="758" stroke-width="5" marker-end="url(#arrSolid_B_p10_F1)"/>
+  </g>
+
+  <!-- ===== 회전각 호 (nv → s → w) ===== -->
+  <g stroke="#000" fill="none" stroke-width="2.5">
+    <!-- 좌측: X_nv → X_s (Yaw ψ) -->
+    <path d="M94,530 A650,650 0 0 1 70,352" marker-end="url(#arrArc_B_p10_F1)"/>
+    <!-- 좌측: X_s → X_W (β) -->
+    <path d="M70,352 A650,650 0 0 1 78,252" marker-end="url(#arrArc_B_p10_F1)"/>
+    <!-- 우측: Y_nv → Y_s (Yaw ψ) -->
+    <path d="M868,60 A330,330 0 0 1 934,104" marker-end="url(#arrArc_B_p10_F1)"/>
+    <!-- 우측: Y_s → Y_W (β) -->
+    <path d="M934,104 A330,330 0 0 1 996,174" marker-end="url(#arrArc_B_p10_F1)"/>
+  </g>
+
+  <!-- ===== 라벨 ===== -->
+  <g fill="#000">
+    <!-- 좌측 X 축 계열 -->
+    <text x="103" y="218" font-size="44" font-weight="bold">X<tspan dy="9" font-size="26" font-weight="bold">W</tspan><tspan dy="-9"> </tspan></text>
+    <text x="26" y="306" font-size="30">β</text>
+    <text x="18" y="392" font-size="42">X<tspan dy="9" font-size="24">s</tspan><tspan dy="-9"> </tspan></text>
+    <text x="112" y="450" font-size="27">Yaw(ψ)</text>
+    <text x="126" y="572" font-size="42">X<tspan dy="9" font-size="24">nv</tspan><tspan dy="-9"> </tspan></text>
+
+    <!-- 우측 Y 축 계열 -->
+    <text x="790" y="54" font-size="38">Y<tspan dy="9" font-size="22">nv</tspan><tspan dy="-9"> </tspan></text>
+    <text x="895" y="40" font-size="26">Yaw(ψ)</text>
+    <text x="966" y="108" font-size="42">Y<tspan dy="9" font-size="24">s</tspan><tspan dy="-9"> </tspan></text>
+    <text x="988" y="168" font-size="30">β</text>
+    <text x="996" y="240" font-size="44" font-weight="bold">Y<tspan dy="9" font-size="26" font-weight="bold">W</tspan><tspan dy="-9"> </tspan></text>
+
+    <!-- Z 축 -->
+    <text x="640" y="852" font-size="44" font-weight="bold">Z<tspan dy="9" font-size="26" font-weight="bold">W</tspan><tspan dy="-9">, Z</tspan><tspan dy="9" font-size="26">s</tspan><tspan dy="-9">,</tspan><tspan font-size="42"> Z</tspan><tspan dy="9" font-size="26">nv</tspan><tspan dy="-9"> </tspan></text>
+  </g>
+</svg>

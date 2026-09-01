@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1100 678" width="1100" height="678"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 23 ACM(Slew 제외) 탐색 수신시 좌표계 운용</title>
+  <defs>
+    <marker id="arr_B_p31_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrv_B_p31_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <g id="jet_B_p31_F1">
+      <path d="M60,0 L46,-5 L26,-7 L14,-7 L-16,-40 L-28,-40 L-12,-7 L-34,-8 L-42,-22 L-50,-22 L-44,-8 L-58,-8 L-62,0 L-58,8 L-44,8 L-50,22 L-42,22 L-34,8 L-12,7 L-28,40 L-16,40 L14,7 L26,7 L46,5 Z" fill="#d6d6d6" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/>
+      <ellipse cx="26" cy="0" rx="14" ry="4.6" fill="#f2f2f2" stroke="#000" stroke-width="1.2"/>
+      <path d="M-30,0 L-56,0" stroke="#000" stroke-width="1.2"/>
+    </g>
+  </defs>
+  <rect width="1100" height="678" fill="#ffffff"/>
+  <rect x="198.0" y="115.0" width="197.0" height="64.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="216.0" cy="131.0" r="11" fill="#111111"/>
+  <text x="216.0" y="136.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">6</text>
+  <text x="244.0" y="158.0" font-size="19" font-weight="bold">INU (</text>
+  <text x="291.1" y="158.0" font-size="20" font-weight="bold" font-style="italic" font-family="Times New Roman, Times, serif">P<tspan dy="4" font-size="12">inu</tspan><tspan dy="-4" font-size="19" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <path d="M290.1,138.0 L322.1,138.0" stroke="#000" stroke-width="1.4" marker-end="url(#arrv_B_p31_F1)"/>
+  <rect x="424.0" y="115.0" width="197.0" height="64.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="442.0" cy="131.0" r="11" fill="#111111"/>
+  <text x="442.0" y="136.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
+  <text x="470.0" y="158.0" font-size="19" font-weight="bold">Body (</text>
+  <text x="528.9" y="158.0" font-size="20" font-weight="bold" font-style="italic" font-family="Times New Roman, Times, serif">P<tspan dy="4" font-size="12">b</tspan><tspan dy="-4" font-size="19" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <path d="M527.9,138.0 L547.9,138.0" stroke="#000" stroke-width="1.4" marker-end="url(#arrv_B_p31_F1)"/>
+  <rect x="646.0" y="115.0" width="197.0" height="64.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="664.0" cy="131.0" r="11" fill="#111111"/>
+  <text x="664.0" y="136.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">8</text>
+  <text x="744.0" y="158.0" font-size="19" text-anchor="middle" font-weight="bold">Body (AZ-EL)</text>
+  <rect x="872" y="72" width="190" height="140" rx="4" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <rect x="880" y="80" width="174" height="20" rx="2" fill="#8f8f8f" stroke="#000" stroke-width="1.2"/>
+  <rect x="886" y="110" width="48" height="48" rx="2" fill="#8f8f8f" stroke="#000" stroke-width="1.4"/>
+  <rect x="892" y="116" width="36" height="36" fill="#e8e8e8" stroke="#000" stroke-width="0.9"/>
+  <rect x="946" y="110" width="48" height="48" rx="2" fill="#8f8f8f" stroke="#000" stroke-width="1.4"/>
+  <rect x="952" y="116" width="36" height="36" fill="#e8e8e8" stroke="#000" stroke-width="0.9"/>
+  <rect x="1006" y="110" width="48" height="48" rx="2" fill="#8f8f8f" stroke="#000" stroke-width="1.4"/>
+  <rect x="1012" y="116" width="36" height="36" fill="#e8e8e8" stroke="#000" stroke-width="0.9"/>
+  <rect x="886" y="168" width="168" height="34" rx="2" fill="#e8e8e8" stroke="#000" stroke-width="1.2"/>
+  <circle cx="898" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="917" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="936" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="955" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="974" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="993" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="1012" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <circle cx="1031" cy="185" r="4.5" fill="#d6d6d6" stroke="#000" stroke-width="1"/>
+  <text x="930.0" y="32.0" font-size="16" text-anchor="middle" font-weight="bold">MFD Display</text>
+  <path d="M930.0,42.0 L930.0,68.0" fill="none" stroke="#000" stroke-width="2.0" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M395.0,147.0 L422.0,147.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M621.0,147.0 L644.0,147.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M843.0,147.0 L870.0,147.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="253.0" y="58.0" font-size="15" text-anchor="start" font-weight="bold">Body Stabilized Motion 모사 위해</text>
+  <text x="253.0" y="81.0" font-size="15" text-anchor="start" font-weight="bold">항법시스템 정보(Roll, Pitch, Yaw) 적용</text>
+  <path d="M410.0,92.0 L410.0,112.0" fill="none" stroke="#000" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="578.0" y="81.0" font-size="15" text-anchor="start" font-weight="bold">3D Sphere → Cartesian 변환</text>
+  <path d="M631.0,92.0 L631.0,112.0" fill="none" stroke="#000" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M330.0,254.0 L245.0,228.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M330.0,254.0 L308.0,224.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="304.0" y="214.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">inu</tspan></text>
+  <path d="M330.0,254.0 L275.0,286.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="267.0" y="304.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">inu</tspan></text>
+  <path d="M330.0,254.0 L334.0,305.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="336.0" y="320.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  <use xlink:href="#jet_B_p31_F1" href="#jet_B_p31_F1" transform="translate(555.0,232.0) rotate(155) scale(0.72)"/>
+  <path d="M529.0,248.0 L471.0,218.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M529.0,248.0 L552.0,207.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="560.0" y="190.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M529.0,248.0 L462.0,278.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="461.0" y="298.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M529.0,248.0 L559.0,293.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="578.0" y="310.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">b</tspan></text>
+  <use xlink:href="#jet_B_p31_F1" href="#jet_B_p31_F1" transform="translate(777.0,227.0) rotate(155) scale(0.72)"/>
+  <path d="M751.0,243.0 L693.0,213.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M751.0,243.0 L774.0,202.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="782.0" y="185.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M751.0,243.0 L684.0,273.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="683.0" y="293.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M751.0,243.0 L781.0,288.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="800.0" y="305.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M751.0,243.0 L689.0,253.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M704,230 Q687,243 698,259" fill="none" stroke="#000" stroke-width="1.4"/>
+  <path d="M705,258 Q695,265 702,274" fill="none" stroke="#000" stroke-width="1.4"/>
+  <text x="676.0" y="240.0" font-size="15" text-anchor="middle" font-weight="bold">EL</text>
+  <text x="722.0" y="281.0" font-size="15" text-anchor="middle" font-weight="bold">AZ</text>
+  <rect x="33.0" y="330.0" width="198.0" height="58.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="51.0" cy="346.0" r="11" fill="#111111"/>
+  <text x="51.0" y="351.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">5</text>
+  <text x="80.0" y="366.0" font-size="19" font-weight="bold">NED (</text>
+  <text x="137.0" y="366.0" font-size="20" font-weight="bold" font-style="italic" font-family="Times New Roman, Times, serif">P<tspan dy="4" font-size="12">nv</tspan><tspan dy="-4" font-size="19" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <path d="M136.0,346.0 L162.0,346.0" stroke="#000" stroke-width="1.4" marker-end="url(#arrv_B_p31_F1)"/>
+  <path d="M165.0,330.0 L165.0,147.0 L196.0,147.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="272.0" y="360.0" font-size="15" text-anchor="start" font-weight="bold">항법시스템 정보 Ownship NED Velocity (x, y, z) 통해 표적위치 보상</text>
+  <path d="M266.0,355.0 L236.0,355.0" fill="none" stroke="#000" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M99.0,449.0 L14.0,423.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M99.0,449.0 L77.0,419.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="73.0" y="409.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">nv</tspan></text>
+  <path d="M99.0,449.0 L44.0,481.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="36.0" y="499.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">nv</tspan></text>
+  <path d="M99.0,449.0 L103.0,500.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="105.0" y="515.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">nv</tspan></text>
+  <rect x="209.0" y="465.0" width="198.0" height="60.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="227.0" cy="481.0" r="11" fill="#111111"/>
+  <text x="227.0" y="486.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">4</text>
+  <text x="258.0" y="503.0" font-size="19" font-weight="bold">INU (</text>
+  <text x="305.1" y="503.0" font-size="20" font-weight="bold" font-style="italic" font-family="Times New Roman, Times, serif">P<tspan dy="4" font-size="12">inu</tspan><tspan dy="-4" font-size="19" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <path d="M304.1,483.0 L336.1,483.0" stroke="#000" stroke-width="1.4" marker-end="url(#arrv_B_p31_F1)"/>
+  <rect x="434.0" y="465.0" width="198.0" height="60.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="452.0" cy="481.0" r="11" fill="#111111"/>
+  <text x="452.0" y="486.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">3</text>
+  <text x="478.0" y="503.0" font-size="19" font-weight="bold">Body (</text>
+  <text x="536.9" y="503.0" font-size="20" font-weight="bold" font-style="italic" font-family="Times New Roman, Times, serif">P<tspan dy="4" font-size="12">b</tspan><tspan dy="-4" font-size="19" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <path d="M535.9,483.0 L555.9,483.0" stroke="#000" stroke-width="1.4" marker-end="url(#arrv_B_p31_F1)"/>
+  <rect x="660.0" y="465.0" width="198.0" height="60.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="678.0" cy="481.0" r="11" fill="#111111"/>
+  <text x="678.0" y="486.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">2</text>
+  <text x="690" y="503" font-size="19" font-weight="bold">Antenna(</text>
+  <text x="784" y="503" font-size="20" font-weight="bold" font-style="italic" font-family="Times New Roman, Times, serif">P<tspan dy="4" font-size="12">a</tspan><tspan dy="-4" font-size="19" font-style="normal" font-family="Helvetica, Arial, sans-serif"> )</tspan></text>
+  <path d="M783,483 L804,483" stroke="#000" stroke-width="1.4" marker-end="url(#arrv_B_p31_F1)"/>
+  <rect x="885.0" y="465.0" width="198.0" height="60.0" rx="3" fill="#d6d6d6" stroke="#000" stroke-width="1.8"/>
+  <circle cx="901.0" cy="481.0" r="11" fill="#111111"/>
+  <text x="901.0" y="486.0" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">1</text>
+  <text x="916" y="503" font-size="19" font-weight="bold">Antenna (<tspan font-size="21" font-style="italic" font-family="Times New Roman, Times, serif">θ</tspan><tspan dy="4" font-size="12" font-style="italic">x</tspan><tspan dy="-4">,</tspan><tspan font-size="21" font-style="italic" font-family="Times New Roman, Times, serif">θ</tspan><tspan dy="4" font-size="12" font-style="italic">y</tspan><tspan dy="-4">)</tspan></text>
+  <path d="M885.0,495.0 L860.0,495.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M660.0,495.0 L634.0,495.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M434.0,495.0 L409.0,495.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M209.0,504.0 L180.0,504.0 L180.0,392.0" fill="none" stroke="#000" stroke-width="2.2" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="225.0" y="416.0" font-size="15" text-anchor="start" font-weight="bold">실 자세 반영한</text>
+  <text x="225.0" y="440.0" font-size="15" text-anchor="start" font-weight="bold">항법시스템 정보(Roll, Pitch, Yaw) 적용</text>
+  <path d="M420.0,450.0 L420.0,490.0" fill="none" stroke="#000" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="792.0" y="421.0" font-size="15" text-anchor="start" font-weight="bold">Sine-domain Monopulse data 적용</text>
+  <path d="M973.0,432.0 L973.0,462.0" fill="none" stroke="#000" stroke-width="1.8" stroke-dasharray="5,4" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M326.0,601.0 L241.0,575.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M326.0,601.0 L304.0,571.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="300.0" y="561.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">inu</tspan></text>
+  <path d="M326.0,601.0 L271.0,633.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="263.0" y="651.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">inu</tspan></text>
+  <path d="M326.0,601.0 L330.0,652.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="332.0" y="667.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  <use xlink:href="#jet_B_p31_F1" href="#jet_B_p31_F1" transform="translate(552.0,585.0) rotate(155) scale(0.72)"/>
+  <path d="M522.0,600.0 L464.0,570.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M522.0,600.0 L545.0,559.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="553.0" y="542.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M522.0,600.0 L455.0,630.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="454.0" y="650.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">b</tspan></text>
+  <path d="M522.0,600.0 L552.0,645.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="571.0" y="662.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">b</tspan></text>
+  <use xlink:href="#jet_B_p31_F1" href="#jet_B_p31_F1" transform="translate(790.0,580.0) rotate(155) scale(0.72)"/>
+  <path d="M733.0,603.0 L674.0,575.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M733.0,603.0 L718.0,564.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="709.0" y="555.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">a</tspan></text>
+  <path d="M733.0,603.0 L687.0,623.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="665.0" y="637.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">a</tspan></text>
+  <path d="M733.0,603.0 L726.0,628.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="730.0" y="649.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">a</tspan></text>
+  <use xlink:href="#jet_B_p31_F1" href="#jet_B_p31_F1" transform="translate(1028.0,580.0) rotate(155) scale(0.72)"/>
+  <path d="M971.0,603.0 L912.0,575.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <path d="M971.0,603.0 L956.0,564.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="947.0" y="555.0" font-size="15" text-anchor="middle" font-weight="bold">Y<tspan dy="4" font-size="11">a</tspan></text>
+  <path d="M971.0,603.0 L925.0,623.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="903.0" y="637.0" font-size="15" text-anchor="middle" font-weight="bold">Z<tspan dy="4" font-size="11">a</tspan></text>
+  <path d="M971.0,603.0 L964.0,628.0" fill="none" stroke="#000" stroke-width="1.5" marker-end="url(#arr_B_p31_F1)"/>
+  <text x="968.0" y="649.0" font-size="15" text-anchor="middle" font-weight="bold">X<tspan dy="4" font-size="11">a</tspan></text>
+</svg>

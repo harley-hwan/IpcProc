@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1050 844" width="1050" height="844" font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 14 Euler Angle Rotation Sequence 통한 Local NED에서 Body좌표계로의 변환</title>
+  <defs>
+    <marker id="arr_B_p16_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+
+    <g id="heli_B_p16_F1" stroke="#000" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+      <!-- tail boom -->
+      <path d="M250,58 L372,50 L372,60 L250,84 Z" fill="#d6d6d6"/>
+      <!-- horizontal stabilizer -->
+      <path d="M344,50 L400,42 L400,52 L344,62 Z" fill="#000" stroke="none"/>
+      <!-- vertical fin -->
+      <path d="M360,16 L384,54 L372,70 L352,42 Z" fill="#000" stroke="none"/>
+      <!-- cabin -->
+      <path d="M196,50 L258,56 L258,120 L196,120 Z" fill="#d6d6d6"/>
+      <!-- canopy -->
+      <path d="M80,118 C80,74 106,52 140,50 L196,50 L196,118 Z" fill="#e8e8e8"/>
+      <path d="M106,54 C92,72 85,94 84,118" fill="none" stroke-width="1.4"/>
+      <path d="M138,50 L132,118" fill="none" stroke-width="1.4"/>
+      <!-- engine cowl -->
+      <rect x="222" y="98" width="66" height="20" rx="10" fill="#e8e8e8"/>
+      <!-- equipment rack -->
+      <rect x="138" y="120" width="124" height="52" fill="#e8e8e8"/>
+      <rect x="148" y="128" width="36" height="36" fill="#d6d6d6" stroke-width="1.4"/>
+      <rect x="196" y="128" width="36" height="36" fill="#d6d6d6" stroke-width="1.4"/>
+      <!-- landing gear struts -->
+      <path d="M158,172 L148,198 M240,172 L250,198 M174,172 L182,216 M228,172 L236,216" fill="none"/>
+      <!-- skids -->
+      <path d="M118,198 L258,198" stroke-width="7" fill="none"/>
+      <path d="M148,216 L288,216" stroke-width="7" fill="none"/>
+      <!-- mast + hub + rotor -->
+      <rect x="196" y="30" width="7" height="24" fill="#000" stroke="none"/>
+      <path d="M185,20 L215,19 L215,32 L185,33 Z" fill="#000" stroke="none"/>
+      <path d="M0,24 L400,12 L400,19 L0,31 Z" fill="#000" stroke="none"/>
+      <rect x="196" y="10" width="5" height="10" fill="#000" stroke="none"/>
+      <rect x="186" y="0" width="26" height="12" fill="#8a8a8a"/>
+    </g>
+  </defs>
+
+  <rect width="1050" height="844" fill="#ffffff"/>
+
+  <g stroke="#000" fill="none" stroke-width="1.8">
+
+    <!-- ================= 패널 1 (좌상) : Local NED / VC-NED 와 Body 좌표계 ================= -->
+    <use xlink:href="#heli_B_p16_F1" href="#heli_B_p16_F1" transform="translate(67,16) scale(1.02)"/>
+
+    <!-- Body 좌표계 (원점 O1) -->
+    <line x1="189" y1="136" x2="98" y2="152" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="189" y1="136" x2="150" y2="54" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="189" y1="136" x2="256" y2="280" marker-end="url(#arr_B_p16_F1)"/>
+    <circle cx="189" cy="136" r="3.5" fill="#000" stroke="none"/>
+
+    <!-- Vehicle-carried NED 좌표계 (원점 O2) -->
+    <line x1="278" y1="119" x2="113" y2="66" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="278" y1="119" x2="163" y2="211" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="278" y1="119" x2="278" y2="389" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="278" y1="250" x2="278" y2="290" marker-end="url(#arr_B_p16_F1)"/>
+    <circle cx="278" cy="119" r="3.5" fill="#000" stroke="none"/>
+
+    <!-- 하단 VC-NED 삼축 (평행 관계 표시) -->
+    <circle cx="278" cy="324" r="4.5" fill="#000" stroke="none"/>
+    <line x1="278" y1="324" x2="192" y2="297" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="278" y1="324" x2="204" y2="382" marker-end="url(#arr_B_p16_F1)"/>
+
+    <!-- 점선 보조선 : X_b 끝점 → 직각 코너 → VC-NED 원점 -->
+    <line x1="95" y1="152" x2="95" y2="389" stroke-dasharray="7,6" stroke-width="1.6"/>
+    <line x1="95" y1="389" x2="272" y2="326" stroke-dasharray="7,6" stroke-width="1.6"/>
+    <path d="M95,378 L106,378 L106,389" stroke-width="1.4"/>
+    <line x1="121" y1="440" x2="118" y2="385" marker-end="url(#arr_B_p16_F1)" stroke-width="1.6"/>
+
+    <!-- ================= 패널 2 (우상) : ψ (yaw) 회전 ================= -->
+    <use xlink:href="#heli_B_p16_F1" href="#heli_B_p16_F1" transform="translate(590,16) scale(1.02)"/>
+
+    <line x1="801" y1="119" x2="644" y2="28" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="801" y1="119" x2="644" y2="72" marker-end="url(#arr_B_p16_F1)" stroke-dasharray="9,6"/>
+    <path d="M714.5,68.7 A100,100 0 0 0 705.2,90.2" stroke-width="1.3"/>
+    <circle cx="801" cy="119" r="3.5" fill="#000" stroke="none"/>
+
+    <line x1="712" y1="136" x2="636" y2="186" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="712" y1="136" x2="642" y2="232" marker-end="url(#arr_B_p16_F1)" stroke-dasharray="9,6"/>
+    <path d="M660.2,170 A62,62 0 0 0 675.5,186.1" stroke-width="1.3"/>
+    <circle cx="712" cy="136" r="3.5" fill="#000" stroke="none"/>
+
+    <line x1="801" y1="119" x2="801" y2="300" marker-end="url(#arr_B_p16_F1)"/>
+
+    <!-- ================= 패널 3 (우하) : θ (pitch) 회전 ================= -->
+    <use xlink:href="#heli_B_p16_F1" href="#heli_B_p16_F1" transform="translate(626,525) scale(1.02)"/>
+
+    <line x1="837" y1="628" x2="700" y2="533" marker-end="url(#arr_B_p16_F1)"/>
+    <circle cx="837" cy="628" r="3.5" fill="#000" stroke="none"/>
+
+    <line x1="748" y1="645" x2="694" y2="652" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="748" y1="645" x2="694" y2="700" marker-end="url(#arr_B_p16_F1)" stroke-dasharray="9,6"/>
+    <path d="M706.4,650.4 A42,42 0 0 0 718.5,675" stroke-width="1.3"/>
+    <circle cx="748" cy="645" r="3.5" fill="#000" stroke="none"/>
+
+    <line x1="837" y1="628" x2="837" y2="792" marker-end="url(#arr_B_p16_F1)" stroke-dasharray="9,6"/>
+    <line x1="837" y1="628" x2="795" y2="792" marker-end="url(#arr_B_p16_F1)"/>
+    <path d="M837,768 A140,140 0 0 1 802.4,763.7" stroke-width="1.3"/>
+
+    <!-- ================= 패널 4 (좌하) : φ (roll) 회전 ================= -->
+    <use xlink:href="#heli_B_p16_F1" href="#heli_B_p16_F1" transform="translate(67,525) scale(1.02)"/>
+
+    <line x1="278" y1="628" x2="198" y2="536" marker-end="url(#arr_B_p16_F1)" stroke-dasharray="9,6"/>
+    <line x1="278" y1="628" x2="144" y2="558" marker-end="url(#arr_B_p16_F1)"/>
+    <path d="M215.7,556.3 A95,95 0 0 0 193.8,584.1" stroke-width="1.3"/>
+    <circle cx="278" cy="628" r="3.5" fill="#000" stroke="none"/>
+
+    <line x1="189" y1="645" x2="140" y2="668" marker-end="url(#arr_B_p16_F1)"/>
+    <circle cx="189" cy="645" r="3.5" fill="#000" stroke="none"/>
+
+    <line x1="278" y1="628" x2="278" y2="796" marker-end="url(#arr_B_p16_F1)"/>
+    <line x1="278" y1="628" x2="248" y2="790" marker-end="url(#arr_B_p16_F1)" stroke-dasharray="9,6"/>
+    <path d="M278,768 A140,140 0 0 1 252.5,765.7" stroke-width="1.3"/>
+  </g>
+
+  <!-- ================= 패널 사이 굵은 전이 화살표 ================= -->
+  <g fill="#000">
+    <!-- 우상 ↔ 우하 -->
+    <rect x="792" y="368" width="13" height="58"/>
+    <path d="M783,426 L816,426 L799.5,455 Z"/>
+    <rect x="828" y="397" width="13" height="58"/>
+    <path d="M819,397 L852,397 L834.5,368 Z"/>
+    <!-- 우하 ↔ 좌하 -->
+    <rect x="500" y="664" width="58" height="13"/>
+    <path d="M500,655 L500,686 L472,670.5 Z"/>
+    <rect x="494" y="698" width="58" height="13"/>
+    <path d="M552,689 L552,720 L580,704.5 Z"/>
+  </g>
+
+  <!-- ================= 텍스트 라벨 ================= -->
+  <g fill="#000">
+
+    <!-- 패널 1 -->
+    <text x="106" y="70" text-anchor="end">Y<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="196" y="60">Y<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="88" y="162" text-anchor="end">X<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="174" y="196" text-anchor="end">X<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="248" y="292" text-anchor="end">Z<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="288" y="296">Z<tspan dy="4" font-size="11">nv</tspan></text>
+
+    <text x="100" y="277" font-size="14">(parallel to Y<tspan dy="4" font-size="11">n</tspan><tspan dy="-4" font-size="14">)</tspan></text>
+    <text x="185" y="303" text-anchor="end">Y<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="208" y="401" text-anchor="end">X<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="133" y="420" font-size="14">(parallel to X<tspan dy="4" font-size="11">n</tspan><tspan dy="-4" font-size="14">)</tspan></text>
+    <text x="32" y="459" font-size="14">(parallel to X<tspan dy="4" font-size="11">int1</tspan><tspan dy="-4" font-size="14">)</tspan></text>
+    <text x="288" y="396">Z<tspan dy="4" font-size="11">nv</tspan><tspan dy="-4" font-size="15"> (parallel to Z</tspan><tspan dy="4" font-size="11">n</tspan><tspan dy="-4" font-size="15">)</tspan></text>
+
+    <!-- 패널 2 : ψ -->
+    <text x="588" y="26">Y<tspan dy="4" font-size="11">int1</tspan></text>
+    <text x="636" y="76" text-anchor="end">Y<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="724" y="90" text-anchor="middle" font-style="italic">ψ</text>
+    <text x="628" y="192" text-anchor="end">X<tspan dy="4" font-size="11">int1</tspan></text>
+    <text x="632" y="250" text-anchor="end">X<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="681" y="172" text-anchor="middle" font-style="italic">ψ</text>
+    <text x="804" y="322" text-anchor="middle">Z<tspan dy="4" font-size="11">int1</tspan><tspan dy="-4" font-size="15">/Z</tspan><tspan dy="4" font-size="11">nv</tspan></text>
+
+    <!-- 패널 3 : θ -->
+    <text x="592" y="520">Y<tspan dy="4" font-size="11">int1</tspan><tspan dy="-4" font-size="15"> / Y</tspan><tspan dy="4" font-size="11">int2</tspan></text>
+    <text x="686" y="656" text-anchor="end">X<tspan dy="4" font-size="11">int2</tspan></text>
+    <text x="686" y="706" text-anchor="end">X<tspan dy="4" font-size="11">int1</tspan></text>
+    <text x="726" y="663" text-anchor="middle" font-style="italic">θ</text>
+    <text x="786" y="802" text-anchor="end">Z<tspan dy="4" font-size="11">int2</tspan></text>
+    <text x="848" y="802">Z<tspan dy="4" font-size="11">int1</tspan></text>
+    <text x="820" y="758" text-anchor="middle" font-style="italic">θ</text>
+
+    <!-- 패널 4 : φ -->
+    <text x="104" y="522">Y<tspan dy="4" font-size="11">int2</tspan></text>
+    <text x="132" y="566" text-anchor="end">Y<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="218" y="584" text-anchor="middle" font-style="italic">φ</text>
+    <text x="100" y="696" text-anchor="middle">X<tspan dy="4" font-size="11">b</tspan><tspan dy="-4" font-size="15">/X</tspan><tspan dy="4" font-size="11">int2</tspan></text>
+    <text x="242" y="802" text-anchor="end">Z<tspan dy="4" font-size="11">int2</tspan></text>
+    <text x="286" y="816">Z<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="264" y="758" text-anchor="middle" font-style="italic">φ</text>
+  </g>
+</svg>

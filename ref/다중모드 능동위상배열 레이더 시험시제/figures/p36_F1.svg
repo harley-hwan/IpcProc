@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1100 602" width="1100" height="602"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 30 공대지 탐색 수신시 좌표계 운용</title>
+
+  <defs>
+    <marker id="arr_B_p36_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrs_B_p36_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+
+    <!-- simplified fighter silhouette, nose at (0,0) pointing left -->
+    <g id="jet_B_p36_F1" stroke="#000" stroke-width="1.1" stroke-linejoin="round">
+      <path d="M56,-6 L92,-25 L103,-25 L84,-5 Z" fill="#e8e8e8"/>
+      <path d="M106,-5 L123,-17 L130,-16 L118,-4 Z" fill="#e8e8e8"/>
+      <path d="M98,-6 L113,-29 L121,-28 L112,-5 Z" fill="#e8e8e8"/>
+      <path d="M0,0 L20,-5 L60,-7 L108,-6 L122,0 L108,6 L60,8 L20,5 Z" fill="#d6d6d6"/>
+      <path d="M54,6 L94,28 L106,28 L84,7 Z" fill="#d6d6d6"/>
+      <path d="M106,6 L124,20 L131,19 L118,5 Z" fill="#d6d6d6"/>
+      <path d="M16,-4 L32,-8 L46,-7 L38,-3 Z" fill="#f2f2f2"/>
+    </g>
+
+    <!-- INU / NED style axis triad (origin 0,0) -->
+    <g id="axA_B_p36_F1" stroke="#000" stroke-width="1.3" fill="none">
+      <line x1="0" y1="0" x2="-24" y2="-34" marker-end="url(#arrs_B_p36_F1)"/>
+      <line x1="0" y1="0" x2="-78" y2="24"  marker-end="url(#arrs_B_p36_F1)"/>
+      <line x1="0" y1="0" x2="1"   y2="50"  marker-end="url(#arrs_B_p36_F1)"/>
+    </g>
+
+    <!-- Antenna frame: jet + Xa/Ya/Za triad, origin at nose -->
+    <g id="antfrm_B_p36_F1">
+      <use xlink:href="#jet_B_p36_F1" href="#jet_B_p36_F1" transform="scale(0.92)"/>
+      <g stroke="#000" stroke-width="1.3" fill="none">
+        <line x1="0" y1="0" x2="-6"  y2="-37" marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="-58" y2="13"  marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="-16" y2="19"  marker-end="url(#arrs_B_p36_F1)"/>
+      </g>
+      <g text-anchor="middle" fill="#000" stroke="#ffffff" stroke-width="3" paint-order="stroke">
+        <text x="-10" y="-51">Y<tspan dy="4" font-size="11">a</tspan></text>
+        <text x="-74" y="7">Z<tspan dy="4" font-size="11">a</tspan></text>
+        <text x="-10" y="39">X<tspan dy="4" font-size="11">a</tspan></text>
+      </g>
+    </g>
+
+    <!-- Drift stabilized frame: jet + Xw/Xs/Yw/Ys/Zs Zw + AZ/EL/beta, origin 0,0 -->
+    <g id="dsf_B_p36_F1">
+      <use xlink:href="#jet_B_p36_F1" href="#jet_B_p36_F1" transform="translate(-70,-2) scale(1.2)"/>
+      <g stroke="#000" stroke-width="1.3" fill="none">
+        <line x1="0" y1="0" x2="-92" y2="0"   marker-end="url(#arr_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="-86" y2="-17" marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="-62" y2="16"  marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="-86" y2="32"  marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="20"  y2="-42" marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="34"  y2="-34" marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="-10" y2="50"  marker-end="url(#arrs_B_p36_F1)"/>
+        <line x1="0" y1="0" x2="0"   y2="52"  marker-end="url(#arrs_B_p36_F1)"/>
+        <path d="M -55,-10.8 A 56,56 0 0 1 -56,0" stroke-width="1"/>
+      </g>
+      <g text-anchor="middle" fill="#000" stroke="#ffffff" stroke-width="3" paint-order="stroke">
+        <text x="-100" y="-27">X<tspan dy="4" font-size="11">s</tspan></text>
+        <text x="-106" y="5">X<tspan dy="4" font-size="11">w</tspan></text>
+        <text x="-67" y="-16" font-style="italic">β</text>
+        <text x="-36" y="-5">AZ</text>
+        <text x="-45" y="21">EL</text>
+        <text x="6" y="-48">Y<tspan dy="4" font-size="11">w</tspan></text>
+        <text x="47" y="-38">Y<tspan dy="4" font-size="11">s</tspan></text>
+        <text x="-8" y="70">Z<tspan dy="4" font-size="11">s</tspan><tspan dy="-4"> Z</tspan><tspan dy="4" font-size="11">w</tspan></text>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1100" height="602" fill="#ffffff"/>
+
+  <!-- ============ blocks ============ -->
+  <g fill="#d6d6d6" stroke="#000" stroke-width="1.6">
+    <rect x="207" y="87"  width="202" height="64" rx="3"/>
+    <rect x="443" y="87"  width="196" height="64" rx="3"/>
+    <rect x="667" y="87"  width="193" height="64" rx="3"/>
+    <rect x="28"  y="213" width="202" height="70" rx="3"/>
+    <rect x="207" y="384" width="202" height="64" rx="3"/>
+    <rect x="434" y="384" width="199" height="64" rx="3"/>
+    <rect x="661" y="384" width="199" height="64" rx="3"/>
+    <rect x="885" y="384" width="199" height="64" rx="3"/>
+  </g>
+
+  <!-- ============ block labels ============ -->
+  <g font-size="19" font-weight="bold" fill="#000">
+    <!-- 6 INU (P_inu) -->
+    <text x="262" y="128">INU (</text>
+    <text x="308" y="128" font-style="italic">P<tspan dy="5" font-size="12" font-style="normal">inu</tspan></text>
+    <text x="345" y="128">)</text>
+    <!-- 7 Drift Stable (P_w) -->
+    <text x="465" y="128">Drift Stable (</text>
+    <text x="584" y="128" font-style="italic">P<tspan dy="5" font-size="12" font-style="normal">w</tspan></text>
+    <text x="611" y="128">)</text>
+    <!-- 8 -->
+    <text x="763" y="128" text-anchor="middle">Drift Stable AZ-EL</text>
+    <!-- 5 NED (P_nv) -->
+    <text x="84" y="257">NED (</text>
+    <text x="136" y="257" font-style="italic">P<tspan dy="5" font-size="12" font-style="normal">nv</tspan></text>
+    <text x="168" y="257">)</text>
+    <!-- 4 INU (P_inu) -->
+    <text x="262" y="425">INU (</text>
+    <text x="308" y="425" font-style="italic">P<tspan dy="5" font-size="12" font-style="normal">inu</tspan></text>
+    <text x="345" y="425">)</text>
+    <!-- 3 Body (P_b) -->
+    <text x="488" y="425">Body (</text>
+    <text x="547" y="425" font-style="italic">P<tspan dy="5" font-size="12" font-style="normal">b</tspan></text>
+    <text x="572" y="425">)</text>
+    <!-- 2 Antenna( P_a ) -->
+    <text x="701" y="425">Antenna(</text>
+    <text x="787" y="425" font-style="italic">P<tspan dy="5" font-size="12" font-style="normal">a</tspan></text>
+    <text x="813" y="425">)</text>
+    <!-- 1 Antenna (θx, θy) -->
+    <text x="984" y="425" text-anchor="middle">Antenna (<tspan font-style="italic">θ</tspan><tspan dy="5" font-size="12">x</tspan><tspan dy="-5">, </tspan><tspan font-style="italic">θ</tspan><tspan dy="5" font-size="12">y</tspan><tspan dy="-5">)</tspan></text>
+  </g>
+
+  <!-- vector overbars on the P symbols -->
+  <g stroke="#000" stroke-width="1.4" fill="none">
+    <line x1="307" y1="108" x2="329" y2="108" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="583" y1="108" x2="601" y2="108" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="135" y1="237" x2="157" y2="237" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="307" y1="405" x2="329" y2="405" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="546" y1="405" x2="565" y2="405" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="786" y1="405" x2="805" y2="405" marker-end="url(#arrs_B_p36_F1)"/>
+  </g>
+
+  <!-- ============ numbered badges ============ -->
+  <g>
+    <g fill="#1a1a1a"><circle cx="222" cy="102" r="11"/><circle cx="458" cy="102" r="11"/><circle cx="682" cy="102" r="11"/><circle cx="43" cy="228" r="11"/><circle cx="222" cy="399" r="11"/><circle cx="449" cy="399" r="11"/><circle cx="676" cy="399" r="11"/><circle cx="900" cy="399" r="11"/></g>
+    <g fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">
+      <text x="222" y="107">6</text><text x="458" y="107">7</text><text x="682" y="107">8</text>
+      <text x="43" y="233">5</text>
+      <text x="222" y="404">4</text><text x="449" y="404">3</text><text x="676" y="404">2</text><text x="900" y="404">1</text>
+    </g>
+  </g>
+
+  <!-- ============ MFD display (simplified cockpit multi-function display) ============ -->
+  <g stroke="#000" stroke-width="1.4">
+    <rect x="890" y="55" width="185" height="130" rx="6" fill="#d6d6d6"/>
+    <rect x="908" y="76" width="149" height="80" fill="#e8e8e8"/>
+    <g fill="#d6d6d6">
+      <rect x="912" y="60" width="24" height="10"/><rect x="946" y="60" width="24" height="10"/>
+      <rect x="980" y="60" width="24" height="10"/><rect x="1014" y="60" width="24" height="10"/>
+      <rect x="912" y="162" width="24" height="10"/><rect x="946" y="162" width="24" height="10"/>
+      <rect x="980" y="162" width="24" height="10"/><rect x="1014" y="162" width="24" height="10"/>
+      <rect x="893" y="82" width="11" height="16"/><rect x="893" y="106" width="11" height="16"/><rect x="893" y="130" width="11" height="16"/>
+      <rect x="1061" y="82" width="11" height="16"/><rect x="1061" y="106" width="11" height="16"/><rect x="1061" y="130" width="11" height="16"/>
+    </g>
+    <g stroke-width="0.9" fill="none">
+      <line x1="982" y1="76" x2="982" y2="156"/>
+      <line x1="908" y1="103" x2="1057" y2="103"/>
+      <line x1="908" y1="130" x2="1057" y2="130"/>
+      <path d="M 930,156 A 52,52 0 0 1 1034,156"/>
+    </g>
+    <g fill="#000" stroke="none">
+      <rect x="948" y="94" width="7" height="7"/><rect x="1006" y="118" width="7" height="7"/><rect x="972" y="140" width="7" height="7"/>
+    </g>
+  </g>
+
+  <!-- ============ signal flow ============ -->
+  <g stroke="#000" stroke-width="2" fill="none">
+    <!-- top row, left to right -->
+    <line x1="409" y1="119" x2="441" y2="119" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="639" y1="119" x2="665" y2="119" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="860" y1="119" x2="888" y2="119" marker-end="url(#arr_B_p36_F1)"/>
+    <!-- bottom row, right to left -->
+    <line x1="885" y1="416" x2="862" y2="416" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="661" y1="416" x2="635" y2="416" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="434" y1="416" x2="411" y2="416" marker-end="url(#arr_B_p36_F1)"/>
+    <!-- 4 -> 5 -->
+    <path d="M 207,416 L 185,416 L 185,287" marker-end="url(#arr_B_p36_F1)"/>
+    <!-- 5 -> 6 -->
+    <path d="M 185,213 L 185,119 L 205,119" marker-end="url(#arr_B_p36_F1)"/>
+  </g>
+
+  <!-- ============ dashed annotation arrows ============ -->
+  <g stroke="#000" stroke-width="1.6" fill="none" stroke-dasharray="5 5">
+    <line x1="426" y1="62" x2="426" y2="112" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="653" y1="62" x2="653" y2="112" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="875" y1="34" x2="875" y2="112" marker-end="url(#arr_B_p36_F1)"/>
+    <line x1="421" y1="362" x2="421" y2="410" marker-end="url(#arr_B_p36_F1)"/>
+  </g>
+
+  <!-- ============ annotation texts ============ -->
+  <g fill="#000" font-weight="bold">
+    <text x="215" y="30">Body Stabilized Motion 모사 위해 항법시스템</text>
+    <text x="215" y="52">정보/공기역학 정보(0, 0, Yaw+Drift)적용</text>
+    <text x="620" y="52">3D Sphere → Cartesian 변환</text>
+    <text x="862" y="24">MFD Display</text>
+    <text x="293" y="332">실 자세 반영한</text>
+    <text x="293" y="354">항법시스템 정보(Roll, Pitch, Yaw+Drift) 적용</text>
+  </g>
+
+  <!-- ============ coordinate frames ============ -->
+
+  <!-- INU frame under block 6 -->
+  <use xlink:href="#axA_B_p36_F1" href="#axA_B_p36_F1" x="340" y="222"/>
+  <g text-anchor="middle" fill="#000">
+    <text x="310" y="178">Y<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="272" y="264">X<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="341" y="286">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  </g>
+
+  <!-- NED frame under block 5 -->
+  <use xlink:href="#axA_B_p36_F1" href="#axA_B_p36_F1" x="98" y="356"/>
+  <g text-anchor="middle" fill="#000">
+    <text x="68" y="312">Y<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="30" y="398">X<tspan dy="4" font-size="11">nv</tspan></text>
+    <text x="99" y="420">Z<tspan dy="4" font-size="11">nv</tspan></text>
+  </g>
+
+  <!-- INU frame under block 4 -->
+  <use xlink:href="#axA_B_p36_F1" href="#axA_B_p36_F1" x="325" y="522"/>
+  <g text-anchor="middle" fill="#000">
+    <text x="295" y="478">Y<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="257" y="564">X<tspan dy="4" font-size="11">inu</tspan></text>
+    <text x="326" y="586">Z<tspan dy="4" font-size="11">inu</tspan></text>
+  </g>
+
+  <!-- Body frame under block 3 -->
+  <use xlink:href="#jet_B_p36_F1" href="#jet_B_p36_F1" transform="translate(482,528) scale(0.85)"/>
+  <g stroke="#000" stroke-width="1.3" fill="none">
+    <line x1="548" y1="534" x2="564" y2="484" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="548" y1="534" x2="458" y2="538" marker-end="url(#arrs_B_p36_F1)"/>
+    <line x1="548" y1="534" x2="548" y2="572" marker-end="url(#arrs_B_p36_F1)"/>
+  </g>
+  <g text-anchor="middle" fill="#000" stroke="#ffffff" stroke-width="3" paint-order="stroke">
+    <text x="578" y="476">Y<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="444" y="524">X<tspan dy="4" font-size="11">b</tspan></text>
+    <text x="558" y="590">Z<tspan dy="4" font-size="11">b</tspan></text>
+  </g>
+
+  <!-- Antenna frames under blocks 2 and 1 -->
+  <use xlink:href="#antfrm_B_p36_F1" href="#antfrm_B_p36_F1" x="734" y="523"/>
+  <use xlink:href="#antfrm_B_p36_F1" href="#antfrm_B_p36_F1" x="958" y="523"/>
+
+  <!-- Drift stabilized frames under blocks 7 and 8 -->
+  <use xlink:href="#dsf_B_p36_F1" href="#dsf_B_p36_F1" x="560" y="220"/>
+  <use xlink:href="#dsf_B_p36_F1" href="#dsf_B_p36_F1" x="776" y="220"/>
+
+</svg>

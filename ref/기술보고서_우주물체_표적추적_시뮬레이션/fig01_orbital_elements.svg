@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 560" width="720" height="560"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 1. 천구 좌표계와 궤도의 6요소</title>
+  <defs>
+    <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="720" height="560" fill="#ffffff"/>
+
+  <!-- Plane of reference -->
+  <ellipse cx="350" cy="320" rx="235" ry="92" transform="rotate(-10 350 320)"
+           fill="#d6d6d6" stroke="#444" stroke-width="1.2"/>
+
+  <!-- Orbit -->
+  <ellipse cx="355" cy="255" rx="200" ry="120" transform="rotate(-35 355 255)"
+           fill="none" stroke="#000" stroke-width="2"/>
+
+  <!-- Reference direction axis -->
+  <line x1="330" y1="310" x2="655" y2="300" stroke="#000" stroke-width="1.4" marker-end="url(#ar1)"/>
+
+  <!-- Line to ascending node -->
+  <line x1="330" y1="310" x2="452" y2="389" stroke="#000" stroke-width="1.4"/>
+  <!-- Line to periapsis -->
+  <line x1="330" y1="310" x2="519" y2="140" stroke="#000" stroke-width="1.4"/>
+  <!-- Line to celestial body -->
+  <line x1="330" y1="310" x2="289" y2="161" stroke="#000" stroke-width="1.4"/>
+
+  <!-- Celestial body -->
+  <circle cx="289" cy="161" r="8" fill="#000"/>
+  <line x1="289" y1="153" x2="330" y2="123" stroke="#000" stroke-width="1"/>
+  <text x="336" y="120">Celestial body</text>
+
+  <!-- True anomaly arc -->
+  <path d="M300,204 A110,110 0 0 1 412,236" fill="none" stroke="#000" stroke-width="1.4" marker-end="url(#ar1)"/>
+  <text x="352" y="200" font-style="italic">ν</text>
+  <text x="196" y="215">True anomaly</text>
+
+  <!-- Argument of periapsis arc -->
+  <path d="M400,246 A95,95 0 0 1 411,362" fill="none" stroke="#000" stroke-width="1.4" marker-end="url(#ar1)"/>
+  <text x="392" y="292" font-style="italic">ω</text>
+  <text x="452" y="248">Argument of periapsis</text>
+
+  <!-- Longitude of ascending node arc -->
+  <path d="M390,308 A60,60 0 0 1 379,344" fill="none" stroke="#000" stroke-width="1.4" marker-end="url(#ar1)"/>
+  <text x="296" y="334" font-style="italic">Ω</text>
+  <path d="M318,330 A34,34 0 1 0 352,352" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#ar1)"/>
+  <text x="176" y="382">Longitude of ascending node</text>
+
+  <!-- Ascending node -->
+  <circle cx="452" cy="389" r="4" fill="#000"/>
+  <text x="432" y="428" font-size="17">☊</text>
+  <text x="452" y="432">Ascending node</text>
+
+  <!-- Inclination -->
+  <line x1="452" y1="389" x2="524" y2="352" stroke="#000" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <path d="M486,371 A42,42 0 0 0 494,352" fill="none" stroke="#000" stroke-width="1.3" marker-end="url(#ar1)"/>
+  <text x="498" y="352" font-style="italic">i</text>
+  <text x="508" y="400">Inclination</text>
+
+  <!-- Reference direction label -->
+  <text x="662" y="306" font-size="18">♈</text>
+  <text x="600" y="342">Reference</text>
+  <text x="600" y="362">direction</text>
+
+  <!-- Plane / orbit labels -->
+  <text x="120" y="410" transform="rotate(-10 120 410)">Plane of reference</text>
+  <text x="176" y="470" transform="rotate(-24 176 470)">Orbit</text>
+</svg>

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 486" width="1000" height="486"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>Vehicle-Carried NED 좌표계 (Platform) 정의</title>
+  <defs>
+    <marker id="arr_A_p04_F3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="486" fill="#ffffff"/>
+
+  <!-- ===== Local horizontal (tangent) plane ===== -->
+  <polygon points="120,244 998,231 930,394 26,394"
+           fill="#e8e8e8" stroke="#000" stroke-width="1.4"/>
+
+  <!-- ===== Simplified warship silhouette (bow to the right) ===== -->
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+    <!-- hull -->
+    <polygon points="234,144 377,164 561,232 721,314 689,330 561,320 401,284 280,255 234,240"
+             fill="#d6d6d6"/>
+    <!-- underside shading band -->
+    <polygon points="401,284 561,320 689,330 721,314 561,300 420,268"
+             fill="#b9b9b9" stroke="none"/>
+    <!-- aft deckhouse -->
+    <rect x="240" y="131" width="39" height="17" fill="#d6d6d6"/>
+    <!-- masts / sensor posts -->
+    <line x1="287" y1="148" x2="287" y2="111"/>
+    <line x1="279" y1="120" x2="295" y2="120"/>
+    <line x1="303" y1="151" x2="303" y2="119"/>
+    <line x1="319" y1="152" x2="319" y2="115"/>
+    <line x1="312" y1="126" x2="326" y2="126"/>
+    <line x1="332" y1="154" x2="332" y2="130"/>
+    <!-- bridge / superstructure -->
+    <polygon points="362,160 375,122 394,104 413,112 426,135 439,162" fill="#d6d6d6"/>
+    <!-- after superstructure block -->
+    <polygon points="439,162 449,144 481,157 489,186 462,180" fill="#d6d6d6"/>
+    <!-- forward deck edge -->
+    <line x1="489" y1="186" x2="561" y2="232" stroke-width="1.2"/>
+  </g>
+
+  <!-- ===== Vehicle-Carried NED axes at the mass point ===== -->
+  <g stroke="#000" stroke-width="2.6" fill="none" marker-end="url(#arr_A_p04_F3)">
+    <!-- x_Vc : North direction -->
+    <line x1="385" y1="240" x2="525" y2="38"/>
+    <!-- y_Vc : East direction -->
+    <line x1="385" y1="240" x2="715" y2="240"/>
+    <!-- z_Vc : Down direction -->
+    <line x1="385" y1="240" x2="385" y2="418"/>
+  </g>
+  <circle cx="385" cy="240" r="8" fill="#000"/>
+
+  <g font-size="21" font-style="italic" paint-order="stroke fill" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">
+    <text x="537" y="60" fill="#000" stroke-width="3.5">x<tspan dy="5" font-size="14">Vc</tspan></text>
+    <text x="648" y="212" fill="#000" stroke-width="3.5">y<tspan dy="5" font-size="14">Vc</tspan></text>
+    <text x="400" y="414" fill="#000" stroke-width="3.5">z<tspan dy="5" font-size="14">Vc</tspan></text>
+  </g>
+
+  <text x="243" y="234" font-size="18" font-weight="bold" fill="#000"
+        paint-order="stroke fill" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">Mass Point</text>
+
+  <!-- ===== Reference Local NED triad ===== -->
+  <g stroke="#000" stroke-width="2.4" fill="none" marker-end="url(#arr_A_p04_F3)">
+    <line x1="801" y1="337" x2="847" y2="257"/>
+    <line x1="801" y1="337" x2="936" y2="337"/>
+    <line x1="801" y1="337" x2="786" y2="446"/>
+  </g>
+
+  <g font-size="19" font-weight="bold" font-style="italic" fill="#000"
+     paint-order="stroke fill" stroke="#ffffff" stroke-width="4" stroke-linejoin="round">
+    <text x="855" y="266">North</text>
+    <text x="862" y="378">East</text>
+    <text x="800" y="436">Down</text>
+  </g>
+</svg>

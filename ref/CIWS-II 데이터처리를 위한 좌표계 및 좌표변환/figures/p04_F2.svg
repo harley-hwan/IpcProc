@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 508" width="1000" height="508"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>2.1.5. Vehicle-Carried ENU 좌표계 (Platform)</title>
+  <defs>
+    <marker id="arr_A_p04_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <clipPath id="clip_A_p04_F2">
+      <rect x="0" y="0" width="1000" height="508"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1000" height="508" fill="#ffffff"/>
+
+  <g clip-path="url(#clip_A_p04_F2)">
+    <!-- Local reference ground plane (ENU tangent plane) -->
+    <polygon points="25,462 212,324 1040,317 853,455"
+             fill="#f2f2f2" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/>
+
+    <!-- ===== Ship (platform) silhouette : bow to the right ===== -->
+    <!-- hull side -->
+    <polygon points="238,312 698,344 742,332 730,396 688,404 330,362 240,342"
+             fill="#d6d6d6" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- main deck -->
+    <polygon points="250,288 690,316 742,332 698,344 238,312"
+             fill="#e8e8e8" stroke="#000" stroke-width="1.8" stroke-linejoin="round"/>
+
+    <!-- forward low deckhouse -->
+    <polygon points="440,300 500,308 500,282 440,276" fill="#e8e8e8" stroke="#000" stroke-width="1.5"/>
+    <polygon points="440,276 500,282 510,274 450,268" fill="#f2f2f2" stroke="#000" stroke-width="1.5"/>
+
+    <!-- main superstructure block -->
+    <polygon points="270,306 450,318 450,272 270,260" fill="#e8e8e8" stroke="#000" stroke-width="1.8"/>
+    <polygon points="270,260 450,272 462,262 282,250" fill="#f2f2f2" stroke="#000" stroke-width="1.5"/>
+
+    <!-- bridge tower -->
+    <polygon points="352,266 430,272 430,238 352,232" fill="#d6d6d6" stroke="#000" stroke-width="1.5"/>
+    <polygon points="352,232 430,238 440,231 362,225" fill="#f2f2f2" stroke="#000" stroke-width="1.5"/>
+
+    <!-- radar dome / sensor mast group -->
+    <rect x="396" y="228" width="34" height="12" fill="#e8e8e8" stroke="#000" stroke-width="1.4"/>
+    <ellipse cx="413" cy="212" rx="24" ry="20" fill="#e8e8e8" stroke="#000" stroke-width="1.6"/>
+
+    <!-- thin masts / antennas -->
+    <line x1="288" y1="258" x2="288" y2="196" stroke="#000" stroke-width="3"/>
+    <line x1="302" y1="259" x2="302" y2="206" stroke="#000" stroke-width="3"/>
+    <line x1="316" y1="261" x2="316" y2="216" stroke="#000" stroke-width="3"/>
+    <line x1="330" y1="262" x2="330" y2="228" stroke="#000" stroke-width="3"/>
+    <line x1="278" y1="212" x2="298" y2="212" stroke="#000" stroke-width="2"/>
+
+    <!-- ===== Vehicle-Carried ENU axes at the mass point ===== -->
+    <line x1="384" y1="324" x2="381" y2="40" stroke="#000" stroke-width="3.6"
+          marker-end="url(#arr_A_p04_F2)"/>
+    <line x1="384" y1="324" x2="533" y2="112" stroke="#000" stroke-width="3.6"
+          marker-end="url(#arr_A_p04_F2)"/>
+    <line x1="384" y1="324" x2="736" y2="318" stroke="#000" stroke-width="3.6"
+          marker-end="url(#arr_A_p04_F2)"/>
+    <circle cx="384" cy="324" r="6" fill="#000"/>
+
+    <text x="330" y="66" font-size="26" font-style="italic" font-weight="bold" text-anchor="middle">z<tspan dy="7" font-size="16">VC</tspan></text>
+    <text x="560" y="150" font-size="26" font-style="italic" font-weight="bold" text-anchor="middle">y<tspan dy="7" font-size="16">VC</tspan></text>
+    <text x="678" y="300" font-size="26" font-style="italic" font-weight="bold" text-anchor="middle">x<tspan dy="7" font-size="16">VC</tspan></text>
+
+    <text x="350" y="396" font-size="21" font-weight="bold" text-anchor="middle">Mass Point</text>
+
+    <!-- ===== Local ENU reference triad on the ground plane ===== -->
+    <line x1="770" y1="415" x2="770" y2="334" stroke="#000" stroke-width="3"
+          marker-end="url(#arr_A_p04_F2)"/>
+    <line x1="770" y1="415" x2="828" y2="337" stroke="#000" stroke-width="3"
+          marker-end="url(#arr_A_p04_F2)"/>
+    <line x1="770" y1="415" x2="860" y2="415" stroke="#000" stroke-width="3"
+          marker-end="url(#arr_A_p04_F2)"/>
+
+    <text x="731" y="356" font-size="21" font-style="italic" font-weight="bold" text-anchor="middle">Up</text>
+    <text x="839" y="338" font-size="21" font-style="italic" font-weight="bold">North</text>
+    <text x="845" y="450" font-size="21" font-style="italic" font-weight="bold">East</text>
+  </g>
+</svg>

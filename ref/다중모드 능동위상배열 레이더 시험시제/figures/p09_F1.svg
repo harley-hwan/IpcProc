@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800" width="1000" height="800"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 7 Space Stable 좌표계</title>
+  <defs>
+    <marker id="arr_B_p9_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrS_B_p9_F1" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="800" fill="#ffffff"/>
+
+  <!-- ===== 항공기 실루엣 (기수 좌측) ===== -->
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+    <!-- 주익 -->
+    <path d="M505,312 L625,235 L695,235 L730,308 Z" fill="#e8e8e8"/>
+    <path d="M505,378 L625,455 L695,455 L730,382 Z" fill="#e8e8e8"/>
+    <!-- 수평 미익 -->
+    <path d="M785,315 L850,258 L895,258 L880,313 Z" fill="#e8e8e8"/>
+    <path d="M785,375 L850,432 L895,432 L880,377 Z" fill="#e8e8e8"/>
+    <!-- 동체 -->
+    <path d="M248,345 L292,330 L365,320 L470,314 L560,311 L700,309 L800,311 L878,317 L900,327
+             L900,363 L878,373 L800,379 L700,381 L560,379 L470,376 L365,370 L292,360 Z" fill="#d6d6d6"/>
+    <!-- 수직 미익 (쌍수직) -->
+    <path d="M762,300 L820,268 L852,270 L812,304 Z" fill="#d6d6d6"/>
+    <path d="M762,390 L820,422 L852,420 L812,386 Z" fill="#d6d6d6"/>
+    <!-- 공기흡입구 -->
+    <path d="M455,312 L515,312 L515,326 L455,326 Z" fill="#f2f2f2"/>
+    <path d="M455,364 L515,364 L515,378 L455,378 Z" fill="#f2f2f2"/>
+    <!-- 캐노피 -->
+    <ellipse cx="362" cy="345" rx="52" ry="15" fill="#f2f2f2"/>
+    <!-- 노즐 -->
+    <path d="M900,327 L900,363" fill="none"/>
+  </g>
+
+  <!-- ===== 좌표축 ===== -->
+  <g stroke="#000" stroke-width="2.4" fill="none">
+    <!-- X_s : 좌측 수평 -->
+    <line x1="655" y1="358" x2="132" y2="358" marker-end="url(#arr_B_p9_F1)"/>
+    <!-- Y_s : 우상향 -->
+    <line x1="655" y1="358" x2="855" y2="140" marker-end="url(#arr_B_p9_F1)"/>
+    <!-- Z_s , Z_nv : 하향 -->
+    <line x1="655" y1="358" x2="660" y2="684" marker-end="url(#arr_B_p9_F1)"/>
+  </g>
+
+  <g stroke="#000" stroke-width="2.2" fill="none" stroke-dasharray="9,7">
+    <!-- X_nv : 좌하향 (점선) -->
+    <line x1="655" y1="358" x2="224" y2="470" marker-end="url(#arr_B_p9_F1)"/>
+    <!-- Y_nv : 우상향 급경사 (점선) -->
+    <line x1="655" y1="358" x2="778" y2="110" marker-end="url(#arr_B_p9_F1)"/>
+  </g>
+
+  <!-- ===== Yaw 회전 호 ===== -->
+  <g stroke="#000" stroke-width="2" fill="none">
+    <!-- X_s <-> X_nv -->
+    <path d="M112,380 Q 152,442 214,474"
+          marker-start="url(#arrS_B_p9_F1)" marker-end="url(#arr_B_p9_F1)"/>
+    <!-- Y_nv -> Y_s -->
+    <path d="M788,104 Q 826,92 846,120" marker-end="url(#arr_B_p9_F1)"/>
+  </g>
+
+  <!-- ===== 라벨 ===== -->
+  <g fill="#000" font-size="30">
+    <!-- X_s -->
+    <text x="34" y="352">X<tspan dy="8" font-size="17">s</tspan></text>
+    <!-- X_nv -->
+    <text x="152" y="545">X<tspan dy="8" font-size="17">nv</tspan></text>
+    <!-- Y_nv -->
+    <text x="640" y="82">Y<tspan dy="8" font-size="17">nv</tspan></text>
+    <!-- Y_s -->
+    <text x="880" y="162">Y<tspan dy="8" font-size="17">s</tspan></text>
+    <!-- Z_s , Z_nv -->
+    <text x="596" y="768">Z<tspan dy="8" font-size="17">s</tspan><tspan dy="-8" font-size="30">,Z</tspan><tspan dy="8" font-size="17">nv</tspan></text>
+  </g>
+
+  <g fill="#000" font-size="21">
+    <text x="192" y="440">Yaw(ψ)</text>
+    <text x="812" y="62">Yaw(ψ)</text>
+  </g>
+</svg>

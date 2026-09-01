@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 703" width="900" height="703"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 15 F-16, C141 INU 좌표계</title>
+  <defs>
+    <marker id="arr_B_p19_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <pattern id="hatch_B_p19_F1" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="12" stroke="#000" stroke-width="2"/>
+    </pattern>
+  </defs>
+
+  <rect width="900" height="703" fill="#ffffff"/>
+
+  <!-- ===== 상단 쐐기 : -y_INU 기준선에서 Y_I 까지 회전각 alpha_INU ===== -->
+  <polygon points="567,331 334,129 408,101" fill="#f2f2f2"/>
+  <polygon points="567,331 334,129 408,101" fill="url(#hatch_B_p19_F1)"/>
+
+  <!-- ===== 하단 쐐기 : x_INU 기준선에서 X_I 까지 회전각 alpha_INU ===== -->
+  <polygon points="567,331 93,455 163,561" fill="#f2f2f2"/>
+  <polygon points="567,331 93,455 163,561" fill="url(#hatch_B_p19_F1)"/>
+
+  <!-- ===== INU 좌표축 ===== -->
+  <!-- Z_INU (위) -->
+  <line x1="567" y1="331" x2="567" y2="54" stroke="#000" stroke-width="3"
+        marker-end="url(#arr_B_p19_F1)"/>
+  <!-- Z_I (아래) -->
+  <line x1="567" y1="331" x2="567" y2="636" stroke="#000" stroke-width="3"
+        marker-end="url(#arr_B_p19_F1)"/>
+  <!-- y_INU (우하) -->
+  <line x1="567" y1="331" x2="812" y2="539" stroke="#000" stroke-width="3"
+        marker-end="url(#arr_B_p19_F1)"/>
+  <!-- -y_INU 방향 연장선 (점선) : 상단 쐐기의 기준변 -->
+  <line x1="567" y1="331" x2="334" y2="129" stroke="#000" stroke-width="3"
+        stroke-dasharray="14 8" marker-end="url(#arr_B_p19_F1)"/>
+  <!-- x_INU (좌하, 점선) : 하단 쐐기의 기준변 -->
+  <line x1="567" y1="331" x2="163" y2="561" stroke="#000" stroke-width="3"
+        stroke-dasharray="14 8" marker-end="url(#arr_B_p19_F1)"/>
+
+  <!-- ===== 기체(I) 좌표축 ===== -->
+  <!-- Y_I -->
+  <line x1="567" y1="331" x2="408" y2="101" stroke="#000" stroke-width="4"
+        marker-end="url(#arr_B_p19_F1)"/>
+  <!-- X_I -->
+  <line x1="567" y1="331" x2="93" y2="455" stroke="#000" stroke-width="4"
+        marker-end="url(#arr_B_p19_F1)"/>
+
+  <!-- 원점 -->
+  <circle cx="567" cy="331" r="8" fill="#ffffff" stroke="#000" stroke-width="3"/>
+
+  <!-- ===== 수직축(Z) 둘레의 회전 표시 ===== -->
+  <path d="M 592,581 A 30,13 0 1 1 549,584" fill="none" stroke="#000" stroke-width="4"
+        marker-end="url(#arr_B_p19_F1)"/>
+
+  <!-- ===== 라벨 ===== -->
+  <g font-weight="bold" font-size="28">
+    <text x="596" y="82">Z<tspan dy="8" font-size="19">INU</tspan></text>
+    <text x="546" y="686">Z<tspan dy="8" font-size="19">I</tspan></text>
+    <text x="784" y="576">y<tspan dy="8" font-size="19">INU</tspan></text>
+    <text x="207" y="614">x<tspan dy="8" font-size="19">INU</tspan></text>
+    <text x="60" y="404">X<tspan dy="8" font-size="19">I</tspan></text>
+    <text x="432" y="112">Y<tspan dy="8" font-size="19">I</tspan></text>
+    <text x="44" y="516">α<tspan dy="8" font-size="19">INU</tspan></text>
+    <text x="296" y="92">α<tspan dy="8" font-size="19">INU</tspan></text>
+  </g>
+</svg>

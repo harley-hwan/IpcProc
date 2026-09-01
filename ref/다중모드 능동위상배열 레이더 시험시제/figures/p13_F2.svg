@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 403" width="1080" height="403"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>Biconical 좌표계와 측정의 예 — (a) 안테나좌표계 (b) Biconicol 좌표계 (c) Biconical 좌표계 측정의 예</title>
+  <defs>
+    <marker id="arr_B_p13_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrS_B_p13_F2" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M10,0 L0,5 L10,10 z" fill="#000"/>
+    </marker>
+    <linearGradient id="cbar_B_p13_F2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#3a3a3a"/>
+      <stop offset="0.30" stop-color="#8a8a8a"/>
+      <stop offset="0.62" stop-color="#c2c2c2"/>
+      <stop offset="0.86" stop-color="#5a5a5a"/>
+      <stop offset="1"    stop-color="#f4f4f4"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="403" fill="#ffffff"/>
+
+  <!-- ================= (a) 안테나좌표계 ================= -->
+  <g stroke="#000" stroke-width="1.6" stroke-linejoin="round">
+    <!-- rear flange disc -->
+    <ellipse cx="208" cy="230" rx="58" ry="42" fill="#e8e8e8" transform="rotate(60.8 208 230)"/>
+    <!-- cylindrical body -->
+    <path d="M99.1,237.0 L179.8,179.4 L236.2,280.6 L144.9,319.0 Z" fill="#d6d6d6"/>
+    <!-- connector block on body -->
+    <path d="M170,222 L192,210 L206,218 L184,230 Z" fill="#f2f2f2"/>
+    <path d="M184,230 L206,218 L206,232 L184,244 Z" fill="#d6d6d6"/>
+    <path d="M170,222 L184,230 L184,244 L170,236 Z" fill="#bdbdbd"/>
+    <!-- small component blocks -->
+    <path d="M196,258 L212,250 L212,262 L196,270 Z" fill="#bdbdbd"/>
+    <path d="M180,272 L194,265 L194,277 L180,284 Z" fill="#bdbdbd"/>
+    <!-- front outer ring + radome face -->
+    <ellipse cx="122" cy="278" rx="47" ry="38" fill="#e8e8e8" transform="rotate(60.8 122 278)"/>
+    <ellipse cx="122" cy="278" rx="38" ry="30" fill="#c9c9c9" transform="rotate(60.8 122 278)"/>
+  </g>
+  <g stroke="#000" stroke-width="1.2" fill="none">
+    <path d="M122,278 L127,240"/>
+    <path d="M122,278 L90,299"/>
+    <path d="M122,278 L156,296"/>
+  </g>
+  <g stroke="#000" stroke-width="1.2" fill="#ffffff">
+    <circle cx="243" cy="220" r="6"/>
+    <circle cx="241" cy="256" r="6"/>
+    <circle cx="210" cy="180" r="5"/>
+    <circle cx="94" cy="255" r="4"/>
+    <circle cx="130" cy="316" r="4"/>
+  </g>
+  <!-- antenna axes -->
+  <g stroke="#000" stroke-width="2.4" fill="none">
+    <line x1="127" y1="282" x2="132" y2="168" marker-end="url(#arr_B_p13_F2)"/>
+    <line x1="127" y1="282" x2="38"  y2="305" marker-end="url(#arr_B_p13_F2)"/>
+    <line x1="127" y1="282" x2="215" y2="301" marker-end="url(#arr_B_p13_F2)"/>
+  </g>
+  <g font-size="17" font-weight="bold" fill="#000">
+    <text x="114" y="151">Y<tspan dy="4" font-size="12">a</tspan></text>
+    <text x="12"  y="290">Z<tspan dy="4" font-size="12">a</tspan></text>
+    <text x="190" y="336">X<tspan dy="4" font-size="12">a</tspan></text>
+  </g>
+  <text x="32" y="379" font-size="20" fill="#000">(a)</text>
+  <text x="102" y="379" font-size="20" fill="#000">안테나좌표계</text>
+
+  <!-- ================= (b) Biconicol 좌표계 ================= -->
+  <!-- antenna plane (Xa-Ya plane) -->
+  <path d="M494,82 L566,142 L566,240 L494,180 Z" fill="#f2f2f2" stroke="#000" stroke-width="1.4"/>
+
+  <!-- pyramid (biconical scan volume) : far base parallelogram -->
+  <g stroke="#000" stroke-width="1.4" fill="none" stroke-dasharray="7 5">
+    <path d="M396,170 L426,199 L396,233 Z"/>
+    <path d="M396,170 L396,233"/>
+    <path d="M426,199 L426,263"/>
+    <path d="M396,233 L426,263"/>
+    <!-- edges from phase center to base corners (hidden) -->
+    <line x1="535" y1="170" x2="426" y2="199"/>
+    <line x1="535" y1="170" x2="396" y2="233"/>
+  </g>
+  <!-- visible bold ray from phase center -->
+  <line x1="535" y1="170" x2="426" y2="263" stroke="#000" stroke-width="3"/>
+  <line x1="426" y1="263" x2="426" y2="199" stroke="#000" stroke-width="1.4"/>
+
+  <!-- axes -->
+  <g stroke="#000" stroke-width="2" fill="none">
+    <line x1="535" y1="170" x2="535" y2="50"  marker-end="url(#arr_B_p13_F2)"/>
+    <line x1="535" y1="170" x2="325" y2="168" marker-end="url(#arr_B_p13_F2)"/>
+    <line x1="535" y1="170" x2="631" y2="271" marker-end="url(#arr_B_p13_F2)"/>
+  </g>
+  <circle cx="535" cy="170" r="3" fill="#000"/>
+
+  <!-- angle arcs -->
+  <path d="M452,168 Q444,181 452,193" fill="none" stroke="#000" stroke-width="1.6"
+        marker-start="url(#arrS_B_p13_F2)" marker-end="url(#arr_B_p13_F2)"/>
+  <path d="M477,187 Q469,204 477,221" fill="none" stroke="#000" stroke-width="1.6"
+        marker-start="url(#arrS_B_p13_F2)" marker-end="url(#arr_B_p13_F2)"/>
+
+  <!-- leaders -->
+  <path d="M468,60 C492,64 500,78 517,96" fill="none" stroke="#000" stroke-width="1.4"
+        marker-end="url(#arr_B_p13_F2)"/>
+  <path d="M366,126 C374,150 404,152 440,166" fill="none" stroke="#000" stroke-width="1.4"
+        marker-end="url(#arr_B_p13_F2)"/>
+  <path d="M452,289 C444,262 462,244 470,226" fill="none" stroke="#000" stroke-width="1.4"
+        marker-end="url(#arr_B_p13_F2)"/>
+
+  <!-- (b) text -->
+  <g font-size="14" fill="#000">
+    <text x="393" y="55">Antenna plane</text>
+    <text x="310" y="120">Bearing(Azimuth) angle, θ<tspan dy="4" font-size="11">x</tspan></text>
+    <text x="373" y="300">Depression(Elevation) angle, θ<tspan dy="4" font-size="11">y</tspan></text>
+    <text x="574" y="160">Phase center</text>
+  </g>
+  <text x="543" y="180" font-size="17" fill="#000">O<tspan dy="4" font-size="12">A</tspan></text>
+  <g font-size="15" fill="#000">
+    <text x="524" y="38">Y<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="320" y="192">Z<tspan dy="4" font-size="11">a</tspan></text>
+    <text x="620" y="295">X<tspan dy="4" font-size="11">a</tspan></text>
+  </g>
+  <text x="392" y="379" font-size="20" fill="#000">(b)Biconicol 좌표계</text>
+
+  <!-- ================= (c) Biconical 좌표계 측정의 예 ================= -->
+  <text x="873" y="48" font-size="14" font-weight="bold" text-anchor="middle" fill="#000">2D Co-Pol Pattern (DFT)</text>
+
+  <!-- plot frame -->
+  <rect x="745" y="55" width="256" height="258" fill="#ffffff" stroke="#000" stroke-width="1.6"/>
+
+  <!-- pattern region -->
+  <path d="M747.8,184 L873,57.9 L998.2,184 L873,310.1 Z" fill="#d6d6d6" stroke="#5a5a5a" stroke-width="1.2"/>
+  <path d="M873,57.9 L873,310.1 M747.8,184 L998.2,184" stroke="#bdbdbd" stroke-width="1"/>
+  <circle cx="873" cy="184" r="4" fill="#3a3a3a" stroke="none"/>
+
+  <!-- dash-dot grid -->
+  <g stroke="#000" stroke-width="0.8" stroke-dasharray="6 3 1 3" fill="none">
+    <line x1="759.2" y1="55" x2="759.2" y2="313"/>
+    <line x1="787.7" y1="55" x2="787.7" y2="313"/>
+    <line x1="816.1" y1="55" x2="816.1" y2="313"/>
+    <line x1="844.6" y1="55" x2="844.6" y2="313"/>
+    <line x1="873"   y1="55" x2="873"   y2="313"/>
+    <line x1="901.4" y1="55" x2="901.4" y2="313"/>
+    <line x1="929.9" y1="55" x2="929.9" y2="313"/>
+    <line x1="958.3" y1="55" x2="958.3" y2="313"/>
+    <line x1="986.8" y1="55" x2="986.8" y2="313"/>
+    <line x1="745" y1="69.3"  x2="1001" y2="69.3"/>
+    <line x1="745" y1="98.0"  x2="1001" y2="98.0"/>
+    <line x1="745" y1="126.7" x2="1001" y2="126.7"/>
+    <line x1="745" y1="155.3" x2="1001" y2="155.3"/>
+    <line x1="745" y1="184"   x2="1001" y2="184"/>
+    <line x1="745" y1="212.7" x2="1001" y2="212.7"/>
+    <line x1="745" y1="241.3" x2="1001" y2="241.3"/>
+    <line x1="745" y1="270.0" x2="1001" y2="270.0"/>
+    <line x1="745" y1="298.7" x2="1001" y2="298.7"/>
+  </g>
+
+  <!-- tick marks -->
+  <g stroke="#000" stroke-width="1.2">
+    <line x1="759.2" y1="313" x2="759.2" y2="307"/>
+    <line x1="787.7" y1="313" x2="787.7" y2="307"/>
+    <line x1="816.1" y1="313" x2="816.1" y2="307"/>
+    <line x1="844.6" y1="313" x2="844.6" y2="307"/>
+    <line x1="873"   y1="313" x2="873"   y2="307"/>
+    <line x1="901.4" y1="313" x2="901.4" y2="307"/>
+    <line x1="929.9" y1="313" x2="929.9" y2="307"/>
+    <line x1="958.3" y1="313" x2="958.3" y2="307"/>
+    <line x1="986.8" y1="313" x2="986.8" y2="307"/>
+    <line x1="745" y1="69.3"  x2="751" y2="69.3"/>
+    <line x1="745" y1="98.0"  x2="751" y2="98.0"/>
+    <line x1="745" y1="126.7" x2="751" y2="126.7"/>
+    <line x1="745" y1="155.3" x2="751" y2="155.3"/>
+    <line x1="745" y1="184"   x2="751" y2="184"/>
+    <line x1="745" y1="212.7" x2="751" y2="212.7"/>
+    <line x1="745" y1="241.3" x2="751" y2="241.3"/>
+    <line x1="745" y1="270.0" x2="751" y2="270.0"/>
+    <line x1="745" y1="298.7" x2="751" y2="298.7"/>
+  </g>
+
+  <!-- x tick labels -->
+  <g font-size="11" font-weight="bold" text-anchor="middle" fill="#000">
+    <text x="759.2" y="328">-80</text>
+    <text x="787.7" y="328">-60</text>
+    <text x="816.1" y="328">-40</text>
+    <text x="844.6" y="328">-20</text>
+    <text x="873"   y="328">0</text>
+    <text x="901.4" y="328">20</text>
+    <text x="929.9" y="328">40</text>
+    <text x="958.3" y="328">60</text>
+    <text x="986.8" y="328">80</text>
+  </g>
+  <!-- y tick labels -->
+  <g font-size="11" font-weight="bold" text-anchor="end" fill="#000">
+    <text x="741" y="73.3">80</text>
+    <text x="741" y="102.0">60</text>
+    <text x="741" y="130.7">40</text>
+    <text x="741" y="159.3">20</text>
+    <text x="741" y="188">0</text>
+    <text x="741" y="216.7">-20</text>
+    <text x="741" y="245.3">-40</text>
+    <text x="741" y="274.0">-60</text>
+    <text x="741" y="302.7">-80</text>
+  </g>
+
+  <!-- axis titles -->
+  <text x="873" y="353" font-size="13" font-weight="bold" text-anchor="middle" fill="#000">sin<tspan dy="-5" font-size="11">-1</tspan><tspan dy="5" font-size="13">(kx/k0) (deg)</tspan></text>
+  <text x="712" y="184" font-size="13" font-weight="bold" text-anchor="middle" fill="#000"
+        transform="rotate(-90 712 184)">sin<tspan dy="-5" font-size="11">-1</tspan><tspan dy="5" font-size="13">(ky/k0) (deg)</tspan></text>
+
+  <!-- colour bar -->
+  <rect x="1012" y="55" width="20" height="258" fill="url(#cbar_B_p13_F2)" stroke="#000" stroke-width="1.4"/>
+  <g font-size="11" font-weight="bold" fill="#000">
+    <text x="1036" y="59">0</text>
+    <text x="1036" y="84.8">-10</text>
+    <text x="1036" y="110.6">-20</text>
+    <text x="1036" y="136.4">-30</text>
+    <text x="1036" y="162.2">-40</text>
+    <text x="1036" y="188.0">-50</text>
+    <text x="1036" y="213.8">-60</text>
+    <text x="1036" y="239.6">-70</text>
+    <text x="1036" y="265.4">-80</text>
+    <text x="1036" y="291.2">-90</text>
+    <text x="1036" y="317.0">-100</text>
+  </g>
+
+  <text x="721" y="381" font-size="20" fill="#000">(c)Biconical 좌표계 측정의 예</text>
+</svg>

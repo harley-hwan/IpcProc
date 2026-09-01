@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 502" width="1000" height="502"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 6 Body 좌표계</title>
+  <defs>
+    <marker id="arr_B_p08_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrs_B_p08_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="502" fill="#ffffff"/>
+
+  <!-- ================= aircraft (F-16 형상 단순화, 기수 좌측) ================= -->
+  <g stroke="#000" stroke-linejoin="round" stroke-linecap="round">
+
+    <!-- 원측(far side) 주익 및 장착물 : 동체 뒤에 그림 -->
+    <g fill="#f2f2f2" stroke-width="1.6">
+      <path d="M545,103 L742,74 L790,85 L642,121 Z"/>
+      <path d="M600,98 L613,93 L735,74 L752,75 L750,82 L735,86 L613,102 Z" fill="#e8e8e8"/>
+    </g>
+
+    <!-- 동체 -->
+    <path fill="#f2f2f2" stroke-width="2.1"
+          d="M153,144
+             C 195,131 250,115 300,105
+             L 306,103
+             L 322,84 L 341,76
+             C 380,67 421,73 448,96
+             L 485,104 L 597,124 L 687,142
+             L 896,24 L 959,31 L 893,147
+             L 905,160 L 921,168 L 923,198 L 900,206
+             L 800,200 L 700,192 L 600,184 L 500,177
+             L 460,176 L 441,181 L 428,175 L 420,160
+             L 350,152 L 250,147 L 153,146 Z"/>
+
+    <!-- 캐노피 -->
+    <path fill="#d6d6d6" stroke-width="1.8"
+          d="M322,84 L341,76 C 380,67 421,73 448,96 L 441,101 C 415,84 378,79 344,86 L 330,90 Z"/>
+    <path fill="none" stroke-width="1.6" d="M330,90 L441,101"/>
+
+    <!-- 동체 세부선 -->
+    <g fill="none" stroke-width="1.2">
+      <path d="M299,105 L299,148"/>
+      <path d="M420,160 C 412,166 412,175 421,179"/>
+      <path d="M687,142 L893,147"/>
+      <path d="M790,50 L946,55"/>
+      <path d="M905,160 L923,198"/>
+      <path d="M900,168 L921,172 M900,180 L922,183 M901,192 L922,194"/>
+    </g>
+    <g fill="#d6d6d6" stroke-width="1.1">
+      <rect x="279" y="136" width="13" height="7" rx="3.5"/>
+      <rect x="301" y="136" width="42" height="8" rx="4"/>
+    </g>
+
+    <!-- 근측(near side) 주익 -->
+    <path fill="#e8e8e8" stroke-width="2" d="M485,180 L935,258 L980,276 L645,220 Z"/>
+    <path fill="none" stroke-width="1.2" d="M600,205 L952,265"/>
+
+    <!-- 근측 수평미익 -->
+    <path fill="#f2f2f2" stroke-width="2" d="M855,204 L968,252 L988,268 L878,222 Z"/>
+
+    <!-- 파일런 및 장착 미사일 -->
+    <rect x="784" y="243" width="14" height="40" fill="#d6d6d6" stroke-width="1.4"/>
+    <path fill="#e8e8e8" stroke-width="1.8"
+          d="M700,282 L736,277 L856,288 L884,292 L884,299 L856,301 L736,292 Z"/>
+    <g fill="#d6d6d6" stroke-width="1.3">
+      <path d="M848,287 L873,277 L877,288 Z"/>
+      <path d="M850,299 L875,307 L877,296 Z"/>
+      <path d="M759,281 L774,273 L779,282 Z"/>
+      <path d="M763,290 L778,298 L781,289 Z"/>
+    </g>
+  </g>
+
+  <!-- ================= Body 좌표축 ================= -->
+  <g stroke="#000" fill="none" stroke-width="2.4" stroke-linecap="round">
+    <line x1="601" y1="179" x2="34" y2="134" marker-end="url(#arr_B_p08_F1)"/>
+    <line x1="601" y1="179" x2="486" y2="73" marker-end="url(#arr_B_p08_F1)"/>
+    <line x1="601" y1="179" x2="543" y2="452" marker-end="url(#arr_B_p08_F1)"/>
+  </g>
+
+  <!-- 단위벡터 -->
+  <g stroke="#000" fill="none" stroke-width="3.2" stroke-linecap="round">
+    <line x1="601" y1="179" x2="519" y2="173" marker-end="url(#arrs_B_p08_F1)"/>
+    <line x1="601" y1="179" x2="570" y2="150" marker-end="url(#arrs_B_p08_F1)"/>
+    <line x1="601" y1="179" x2="588" y2="239" marker-end="url(#arrs_B_p08_F1)"/>
+  </g>
+
+  <!-- 원점 -->
+  <circle cx="601" cy="179" r="5.5" fill="#000"/>
+
+  <!-- 축 라벨 -->
+  <g fill="#000" font-style="italic" font-size="20"
+     style="paint-order:stroke; stroke:#ffffff; stroke-width:4; stroke-linejoin:round">
+    <text x="20" y="106">x<tspan dy="6" font-size="13">B</tspan><tspan dy="-6"> </tspan></text>
+    <text x="484" y="49">y<tspan dy="6" font-size="13">B</tspan><tspan dy="-6"> </tspan></text>
+    <text x="525" y="487">z<tspan dy="6" font-size="13">B</tspan><tspan dy="-6"> </tspan></text>
+  </g>
+
+  <!-- 단위벡터 라벨 -->
+  <g fill="#000" font-style="italic" font-size="18"
+     style="paint-order:stroke; stroke:#ffffff; stroke-width:4; stroke-linejoin:round">
+    <text x="502" y="161">î<tspan dy="5" font-size="12">B</tspan><tspan dy="-5"> </tspan></text>
+    <text x="576" y="150">ĵ<tspan dy="5" font-size="12">B</tspan><tspan dy="-5"> </tspan></text>
+    <text x="604" y="264">k<tspan dy="5" font-size="12">B</tspan><tspan dy="-5"> </tspan></text>
+  </g>
+  <path d="M604,251 L609,245 L614,251" fill="none" stroke="#000" stroke-width="1.6"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

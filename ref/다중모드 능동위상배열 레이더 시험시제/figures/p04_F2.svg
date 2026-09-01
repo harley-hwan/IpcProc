@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 853" width="900" height="853"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 2 Longitude-latitude-altitude 정의 (ECEF 좌표계와 경도·위도)</title>
+  <defs>
+    <marker id="arr_B_p04_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="853" fill="#ffffff"/>
+
+  <g fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- Earth sphere outline -->
+    <circle cx="420" cy="430" r="345"/>
+
+    <!-- Equator (0 deg latitude) -->
+    <ellipse cx="420" cy="430" rx="345" ry="66"/>
+
+    <!-- Prime meridian great circle (0 deg longitude) -->
+    <path d="M 420.0,85.0 C 346.5,118.7 287.0,300.5 287.0,491.0 C 287.0,681.5 346.5,808.7 420.0,775.0 C 493.5,741.3 553.0,559.5 553.0,369.0 C 553.0,178.5 493.5,51.3 420.0,85.0 Z"/>
+
+    <!-- Z axis : solid above centre, dashed below, arrows at both ends -->
+    <line x1="420" y1="440" x2="420" y2="62" marker-end="url(#arr_B_p04_F2)"/>
+    <line x1="420" y1="443" x2="420" y2="798" stroke-dasharray="6,7" marker-end="url(#arr_B_p04_F2)"/>
+
+    <!-- Y axis (to the right, through equator) -->
+    <line x1="420" y1="430" x2="790" y2="430" marker-end="url(#arr_B_p04_F2)"/>
+
+    <!-- X axis (toward viewer, through prime meridian / equator crossing) -->
+    <line x1="420" y1="430" x2="263" y2="501" marker-end="url(#arr_B_p04_F2)"/>
+
+    <!-- component box from origin to the point -->
+    <g stroke-width="1.6">
+      <!-- bottom face, in the equatorial plane -->
+      <path d="M 420,430 L 641.5,430 L 573,462 L 351.5,462 Z"/>
+      <!-- top face -->
+      <path d="M 420,219 L 641.5,219 L 573,251 L 351.5,251 Z"/>
+      <!-- vertical edges -->
+      <line x1="641.5" y1="430" x2="641.5" y2="219"/>
+      <line x1="573" y1="462" x2="573" y2="251"/>
+      <line x1="351.5" y1="462" x2="351.5" y2="251"/>
+    </g>
+
+    <!-- r : origin to the point -->
+    <line x1="420" y1="430" x2="573" y2="251"/>
+    <!-- ground projection line, origin to p -->
+    <line x1="420" y1="430" x2="573" y2="462"/>
+
+    <!-- latitude angle arc (phi) between ground projection and r -->
+    <path d="M 503.2,447.4 A 85,85 0 0 0 475.2,365.4" stroke-width="1.4"/>
+    <!-- longitude angle arc (lambda) between X axis and ground projection -->
+    <path d="M 379.2,449.0 A 45,45 0 0 0 464.0,439.2" stroke-width="1.4"/>
+
+    <!-- leader lines -->
+    <path d="M 256,259 C 268,290 278,299 294,304" stroke-width="1.5" marker-end="url(#arr_B_p04_F2)"/>
+    <path d="M 612,532 C 638,532 636,508 629,494" stroke-width="1.5" marker-end="url(#arr_B_p04_F2)"/>
+  </g>
+
+  <!-- the point (x, y, z) marked with a star -->
+  <g stroke="#000" stroke-width="1.8" stroke-linecap="round">
+    <line x1="562" y1="251" x2="584" y2="251"/>
+    <line x1="573" y1="240" x2="573" y2="262"/>
+    <line x1="565" y1="243" x2="581" y2="259"/>
+    <line x1="581" y1="243" x2="565" y2="259"/>
+  </g>
+
+  <!-- ================= labels ================= -->
+  <g fill="#000">
+
+    <!-- axis names -->
+    <text x="429" y="52" font-size="20" font-style="italic">Z</text>
+    <text x="806" y="437" font-size="20" font-style="italic">Y</text>
+    <text x="234" y="530" font-size="20" font-style="italic">X</text>
+
+    <!-- pole and great-circle annotations -->
+    <text x="406" y="80" font-size="17" text-anchor="end">North Pole</text>
+
+    <text x="196" y="228" font-size="17">Prime Meridian</text>
+    <text x="200" y="251" font-size="17">(0° longitude)</text>
+
+    <text x="556" y="536" font-size="17">Equator</text>
+    <text x="548" y="560" font-size="17">(0° latitude)</text>
+
+    <!-- geometric quantities -->
+    <text x="411" y="275" font-size="18" font-style="italic" text-anchor="end">b</text>
+    <text x="513" y="312" font-size="18" font-style="italic" text-anchor="end">r</text>
+    <text x="606" y="412" font-size="18" font-style="italic" text-anchor="middle">a</text>
+    <text x="656" y="333" font-size="18" font-style="italic">z</text>
+    <text x="515" y="401" font-size="18" font-style="italic">φ</text>
+    <text x="434" y="457" font-size="18" font-style="italic" text-anchor="middle">λ</text>
+    <text x="332" y="452" font-size="18" font-style="italic" text-anchor="middle">d</text>
+    <text x="462" y="482" font-size="18" font-style="italic" text-anchor="middle">y</text>
+    <text x="546" y="449" font-size="18" font-style="italic" text-anchor="end">p</text>
+    <text x="617" y="460" font-size="18" font-style="italic" text-anchor="middle">x</text>
+
+    <!-- legend -->
+    <g font-size="17">
+      <text x="706" y="52" text-anchor="end" font-style="italic">φ</text>
+      <text x="716" y="52" text-anchor="middle">=</text>
+      <text x="730" y="52">latitude</text>
+
+      <text x="706" y="78" text-anchor="end" font-style="italic">λ</text>
+      <text x="716" y="78" text-anchor="middle">=</text>
+      <text x="730" y="78">longitude</text>
+
+      <text x="706" y="104" text-anchor="end" font-style="italic">a</text>
+      <text x="716" y="104" text-anchor="middle">=</text>
+      <text x="730" y="104">major axis</text>
+
+      <text x="706" y="130" text-anchor="end" font-style="italic">b</text>
+      <text x="716" y="130" text-anchor="middle">=</text>
+      <text x="730" y="130">minor axis</text>
+
+      <text x="706" y="156" text-anchor="end" font-style="italic">x, y, z</text>
+      <text x="716" y="156" text-anchor="middle">=</text>
+      <text x="730" y="156">ECEF position</text>
+    </g>
+  </g>
+</svg>

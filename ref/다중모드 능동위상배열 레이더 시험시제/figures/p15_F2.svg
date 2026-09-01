@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 397" width="1050" height="397"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 13 R_body_trans/body_trans_tilt과 Offset 이동</title>
+  <defs>
+    <marker id="arr_B_p15_F2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1050" height="397" fill="#ffffff"/>
+
+  <g stroke="#000" stroke-width="1.4" stroke-linejoin="round" fill="none">
+
+    <!-- ================= (a) 왼쪽 : 안테나 조립체 (원통형) ================= -->
+    <g>
+      <!-- 후방 플랜지 -->
+      <ellipse cx="243" cy="205" rx="30" ry="68" transform="rotate(-13 243 205)" fill="#e8e8e8"/>
+      <!-- 원통 몸체 -->
+      <path d="M93.8,165.9 L227.7,138.8 L258.3,271.2 L126.2,306.1 Z" fill="#e8e8e8"/>
+      <!-- 몸체 상부 구조물(커넥터 박스) -->
+      <path d="M152,178 L196,166 L216,178 L214,196 L170,208 L150,196 Z" fill="#d6d6d6"/>
+      <path d="M152,178 L170,190 L214,178" fill="none"/>
+      <path d="M170,190 L170,208" fill="none"/>
+      <!-- 측면 소형 부품 -->
+      <path d="M196,236 L232,226 L240,248 L204,258 Z" fill="#f2f2f2"/>
+      <!-- 전방 원형 면(안테나 개구면) -->
+      <ellipse cx="110" cy="236" rx="42" ry="72" transform="rotate(-13 110 236)" fill="#d6d6d6"/>
+      <ellipse cx="112" cy="238" rx="32" ry="58" transform="rotate(-13 112 238)" fill="#e8e8e8"/>
+      <!-- 플랜지 체결 홀 -->
+      <ellipse cx="250" cy="163" rx="7" ry="11" transform="rotate(-13 250 163)" fill="#ffffff"/>
+      <ellipse cx="256" cy="214" rx="7" ry="11" transform="rotate(-13 256 214)" fill="#ffffff"/>
+      <ellipse cx="86" cy="192" rx="5" ry="9" transform="rotate(-13 86 192)" fill="#ffffff"/>
+      <ellipse cx="93" cy="268" rx="5" ry="9" transform="rotate(-13 93 268)" fill="#ffffff"/>
+      <ellipse cx="152" cy="290" rx="6" ry="9" transform="rotate(-13 152 290)" fill="#ffffff"/>
+    </g>
+
+    <!-- (a) 좌표축 -->
+    <g stroke-width="1.8">
+      <line x1="105" y1="236" x2="33" y2="214" marker-end="url(#arr_B_p15_F2)"/>
+      <line x1="105" y1="236" x2="35" y2="238" marker-end="url(#arr_B_p15_F2)"/>
+      <line x1="105" y1="236" x2="100" y2="304" marker-end="url(#arr_B_p15_F2)"/>
+    </g>
+
+    <!-- ================= (a) 가운데 : AESA 안테나 / 짐벌 조립체 ================= -->
+    <g>
+      <!-- 지지 브래킷 플레이트 -->
+      <path d="M470,104 L664,92 L656,268 L450,272 Z" fill="#e8e8e8"/>
+      <!-- 내부 개구부 -->
+      <rect x="492" y="120" width="152" height="132" fill="#f2f2f2"/>
+      <!-- 내부 모듈들 -->
+      <rect x="537" y="130" width="54" height="34" fill="#d6d6d6"/>
+      <rect x="518" y="170" width="112" height="40" fill="#d6d6d6"/>
+      <rect x="515" y="214" width="57" height="34" fill="#d6d6d6"/>
+      <rect x="577" y="214" width="60" height="34" fill="#d6d6d6"/>
+      <!-- 배열면과 모듈부 연결 로드 -->
+      <path d="M486,190 L518,194 L518,200 L486,196 Z" fill="#e8e8e8"/>
+      <!-- 배열 안테나 슬래브(측면) -->
+      <path d="M430,140 L462,131 L468,131 L472,268 L466,270 L434,274 Z" fill="#d6d6d6"/>
+      <path d="M462,131 L466,270" fill="none"/>
+      <path d="M441,150 L444,262" fill="none" stroke-dasharray="5 4"/>
+      <!-- 하단 지지대 -->
+      <path d="M450,272 L470,262 L656,258 L656,268 Z" fill="#d6d6d6"/>
+    </g>
+
+    <!-- (a) 가운데 좌표축 -->
+    <g stroke-width="1.8">
+      <line x1="461" y1="141" x2="457" y2="102" marker-end="url(#arr_B_p15_F2)"/>
+      <line x1="444" y1="193" x2="378" y2="176" marker-end="url(#arr_B_p15_F2)"/>
+      <line x1="444" y1="193" x2="336" y2="198" marker-end="url(#arr_B_p15_F2)"/>
+    </g>
+
+    <!-- ================= 굵은 전이 화살표 ================= -->
+    <path d="M675,183 L708,183 L708,163 L731,198 L708,233 L708,213 L675,213 Z" fill="#d6d6d6" stroke-width="1.6"/>
+
+    <!-- ================= (b) 오른쪽 : 전투기 (기수 좌측 하방) ================= -->
+    <g>
+      <!-- 좌측 수직미익 -->
+      <path d="M830,100 L824,26 L840,22 L852,90 Z" fill="#d6d6d6"/>
+      <!-- 우측 수직미익 -->
+      <path d="M932,92 L938,26 L953,22 L955,78 Z" fill="#d6d6d6"/>
+      <!-- 좌측 수평미익(스태빌레이터) -->
+      <path d="M828,122 L772,98 L783,85 L845,104 Z" fill="#d6d6d6"/>
+      <!-- 우측 수평미익(스태빌레이터) -->
+      <path d="M924,122 L996,110 L991,97 L922,101 Z" fill="#d6d6d6"/>
+      <!-- 좌측 주익 -->
+      <path d="M828,196 L698,127 L707,114 L857,150 Z" fill="#e8e8e8"/>
+      <!-- 우측 주익 -->
+      <path d="M864,178 L1022,170 L1031,152 L898,136 Z" fill="#e8e8e8"/>
+      <!-- 동체 -->
+      <path d="M786,293 L805.8,235.6 L836.6,161.6 L865.3,108.9 L888.5,69 L911.5,81 L891.9,122.7 L865,176.4 L821.8,244 Z" fill="#d6d6d6"/>
+      <!-- 캐노피 -->
+      <ellipse cx="855" cy="150" rx="12" ry="22" transform="rotate(28 855 150)" fill="#f2f2f2"/>
+      <!-- 기수 레이돔 경계 -->
+      <path d="M800,248 L836,262" fill="none"/>
+      <!-- 엔진 배기부 -->
+      <path d="M888.5,69 L911.5,81" fill="none" stroke-width="2"/>
+      <!-- 좌측 주익 파일런 -->
+      <path d="M762,166 L757,178" fill="none"/>
+      <path d="M772,171 L767,183" fill="none"/>
+      <path d="M782,176 L777,188" fill="none"/>
+      <!-- 우측 주익 파일런 -->
+      <path d="M944,172 L949,184" fill="none"/>
+      <path d="M956,171 L961,183" fill="none"/>
+    </g>
+
+    <!-- (b) 좌표축 -->
+    <g stroke-width="1.8">
+      <line x1="845" y1="155" x2="704" y2="123" marker-end="url(#arr_B_p15_F2)"/>
+      <line x1="845" y1="155" x2="854" y2="272" marker-end="url(#arr_B_p15_F2)"/>
+      <line x1="845" y1="155" x2="801" y2="298" marker-end="url(#arr_B_p15_F2)"/>
+    </g>
+  </g>
+
+  <!-- ================= 텍스트 라벨 ================= -->
+  <g fill="#000" font-weight="bold" font-size="20" text-anchor="middle">
+    <!-- (a) 왼쪽 -->
+    <text x="30" y="200">Y<tspan dy="4" font-size="13">a</tspan></text>
+    <text x="32" y="272">X<tspan dy="4" font-size="13">a</tspan></text>
+    <text x="70" y="310">Z<tspan dy="4" font-size="13">a</tspan></text>
+    <!-- (a) 가운데 -->
+    <text x="470" y="88">Y<tspan dy="4" font-size="13">a</tspan></text>
+    <text x="356" y="160">Z<tspan dy="4" font-size="13">a</tspan></text>
+    <text x="304" y="203">X<tspan dy="4" font-size="13">b</tspan></text>
+    <!-- (b) 오른쪽 -->
+    <text x="706" y="108">Y<tspan dy="4" font-size="13">b</tspan></text>
+    <text x="884" y="278">Z<tspan dy="4" font-size="13">b</tspan></text>
+    <text x="770" y="308">X<tspan dy="4" font-size="13">b</tspan></text>
+  </g>
+
+  <g fill="#000" font-size="19" text-anchor="middle">
+    <text x="314" y="384">(a)</text>
+    <text x="878" y="378">(b)</text>
+  </g>
+</svg>

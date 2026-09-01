@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 768" width="900" height="768"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>ECEF (Earth-Centric, Earth-Fixed) 좌표계</title>
+  <defs>
+    <marker id="arr_A_p02_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="768" fill="#ffffff"/>
+
+  <!-- Earth sphere -->
+  <circle cx="430" cy="392" r="248" fill="#d6d6d6" stroke="#000" stroke-width="2"/>
+
+  <!-- great circles: equator and two meridians (dashed) -->
+  <ellipse cx="430" cy="392" rx="248" ry="78" transform="rotate(-24.3 430 392)"
+           fill="none" stroke="#000" stroke-width="2" stroke-dasharray="12 8"/>
+  <ellipse cx="430" cy="392" rx="248" ry="78" transform="rotate(63.5 430 392)"
+           fill="none" stroke="#000" stroke-width="2" stroke-dasharray="12 8"/>
+  <ellipse cx="430" cy="392" rx="248" ry="190" transform="rotate(63.5 430 392)"
+           fill="none" stroke="#000" stroke-width="2" stroke-dasharray="12 8"/>
+
+  <!-- z axis (up, slightly left) -->
+  <line x1="609" y1="754" x2="245" y2="19" stroke="#000" stroke-width="3"
+        marker-end="url(#arr_A_p02_F1)"/>
+  <!-- x axis (toward lower-left / viewer) -->
+  <line x1="633" y1="95" x2="197" y2="733" stroke="#000" stroke-width="3"
+        marker-end="url(#arr_A_p02_F1)"/>
+  <!-- y axis (toward upper-right) -->
+  <line x1="76" y1="551" x2="799" y2="226" stroke="#000" stroke-width="3"
+        marker-end="url(#arr_A_p02_F1)"/>
+
+  <!-- axis labels -->
+  <text x="272" y="52" font-size="28" font-style="italic" font-weight="bold" font-family="Georgia, 'Times New Roman', serif">z</text>
+  <text x="216" y="742" font-size="28" font-style="italic" font-weight="bold" font-family="Georgia, 'Times New Roman', serif">x</text>
+  <text x="808" y="268" font-size="28" font-style="italic" font-weight="bold" font-family="Georgia, 'Times New Roman', serif">y</text>
+
+  <!-- leader: prime meridian (longitude 0 deg) -->
+  <polyline points="317,172 317,88 428,88" fill="none" stroke="#000" stroke-width="2"
+            marker-end="url(#arr_A_p02_F1)"/>
+  <text x="442" y="96" font-size="21">경도 0<tspan dy="-6" font-size="15">°</tspan><tspan dy="6"> </tspan></text>
+
+  <!-- leader: equator (latitude 0 deg) -->
+  <polyline points="638,343 676,343 676,412 710,412" fill="none" stroke="#000" stroke-width="2"
+            marker-end="url(#arr_A_p02_F1)"/>
+  <text x="724" y="420" font-size="21">위도 0<tspan dy="-6" font-size="15">°</tspan><tspan dy="6"> </tspan></text>
+</svg>

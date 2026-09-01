@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" width="800" height="560"
+     font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <title>그림 11. 우주물체 모의 표적 궤적 결과</title>
+
+  <rect width="800" height="560" fill="#ffffff"/>
+
+  <!-- ================= 3D box ================= -->
+  <!-- left wall -->
+  <polygon points="80,90 330,150 330,440 80,380" fill="#cfcfcf" stroke="#555" stroke-width="1"/>
+  <!-- right wall -->
+  <polygon points="330,150 640,55 640,345 330,440" fill="#a6a6a6" stroke="#555" stroke-width="1"/>
+  <!-- floor -->
+  <polygon points="80,380 330,440 640,345 390,285" fill="#c6c6c6" stroke="#555" stroke-width="1"/>
+
+  <g stroke="#7a7a7a" stroke-width="0.8" fill="none">
+    <!-- left wall grid -->
+    <line x1="130" y1="102" x2="130" y2="392"/>
+    <line x1="180" y1="114" x2="180" y2="404"/>
+    <line x1="230" y1="126" x2="230" y2="416"/>
+    <line x1="280" y1="138" x2="280" y2="428"/>
+    <line x1="80" y1="148" x2="330" y2="208"/>
+    <line x1="80" y1="206" x2="330" y2="266"/>
+    <line x1="80" y1="264" x2="330" y2="324"/>
+    <line x1="80" y1="322" x2="330" y2="382"/>
+    <!-- right wall grid -->
+    <line x1="392" y1="131" x2="392" y2="421"/>
+    <line x1="454" y1="112" x2="454" y2="402"/>
+    <line x1="516" y1="93" x2="516" y2="383"/>
+    <line x1="578" y1="74" x2="578" y2="364"/>
+    <line x1="330" y1="208" x2="640" y2="113"/>
+    <line x1="330" y1="266" x2="640" y2="171"/>
+    <line x1="330" y1="324" x2="640" y2="229"/>
+    <line x1="330" y1="382" x2="640" y2="287"/>
+    <!-- floor grid -->
+    <line x1="130" y1="392" x2="440" y2="297"/>
+    <line x1="180" y1="404" x2="490" y2="309"/>
+    <line x1="230" y1="416" x2="540" y2="321"/>
+    <line x1="280" y1="428" x2="590" y2="333"/>
+    <line x1="142" y1="361" x2="392" y2="421"/>
+    <line x1="204" y1="342" x2="454" y2="402"/>
+    <line x1="266" y1="323" x2="516" y2="383"/>
+    <line x1="328" y1="304" x2="578" y2="364"/>
+  </g>
+
+  <!-- ================= trajectories ================= -->
+  <!-- ECEF (rotating frame): trace drifts with Earth rotation -->
+  <g fill="none" stroke="#1f4fd8" stroke-width="2">
+    <ellipse cx="352" cy="250" rx="122" ry="176" transform="rotate(-14 352 250)"/>
+    <ellipse cx="352" cy="250" rx="126" ry="176" transform="rotate(-27 352 250)"/>
+    <ellipse cx="352" cy="250" rx="130" ry="176" transform="rotate(-40 352 250)"/>
+  </g>
+  <!-- ECI (inertial frame): 3 revolutions overlap on a single trace -->
+  <ellipse cx="352" cy="250" rx="124" ry="176" transform="rotate(-27 352 250)"
+           fill="none" stroke="#d81f1f" stroke-width="2.2"/>
+
+  <!-- ================= legend ================= -->
+  <rect x="548" y="18" width="222" height="96" fill="#ffffff" stroke="#000" stroke-width="1.2"/>
+  <text x="659" y="42" text-anchor="middle">Target Trajectory</text>
+  <line x1="566" y1="66" x2="666" y2="66" stroke="#d81f1f" stroke-width="2.4"/>
+  <text x="682" y="71">ECI</text>
+  <line x1="566" y1="94" x2="666" y2="94" stroke="#1f4fd8" stroke-width="2.4"/>
+  <text x="682" y="99">ECEF</text>
+
+  <!-- ================= axis labels ================= -->
+  <text x="34" y="258" transform="rotate(-90 34 258)" text-anchor="middle">Y-axis(ECI)</text>
+  <text x="150" y="478" transform="rotate(13 150 478)">X-axis(ECI)</text>
+  <text x="430" y="500" transform="rotate(-17 430 500)">Z-axis(ECI)</text>
+
+  <!-- Y ticks (left wall) -->
+  <g font-size="10" text-anchor="end" fill="#000">
+    <text x="72" y="110" transform="rotate(-12 72 110)">8000000</text>
+    <text x="72" y="182" transform="rotate(-12 72 182)">4000000</text>
+    <text x="72" y="254" transform="rotate(-12 72 254)">0</text>
+    <text x="72" y="326" transform="rotate(-12 72 326)">-4000000</text>
+    <text x="72" y="386" transform="rotate(-12 72 386)">-8000000</text>
+  </g>
+
+  <!-- X ticks (front-left floor edge) -->
+  <g font-size="10" text-anchor="end" fill="#000">
+    <text x="122" y="412" transform="rotate(13 122 412)">-8000000</text>
+    <text x="188" y="428" transform="rotate(13 188 428)">-4000000</text>
+    <text x="254" y="444" transform="rotate(13 254 444)">0</text>
+    <text x="320" y="460" transform="rotate(13 320 460)">4000000</text>
+  </g>
+
+  <!-- Z ticks (front-right floor edge) -->
+  <g font-size="10" fill="#000">
+    <text x="352" y="470" transform="rotate(-17 352 470)">-4000000</text>
+    <text x="432" y="452" transform="rotate(-17 432 452)">-2000000</text>
+    <text x="512" y="428" transform="rotate(-17 512 428)">0</text>
+    <text x="586" y="406" transform="rotate(-17 586 406)">2000000</text>
+    <text x="660" y="384" transform="rotate(-17 660 384)">4000000</text>
+  </g>
+</svg>

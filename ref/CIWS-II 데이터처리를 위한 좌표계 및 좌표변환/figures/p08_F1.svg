@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 505" width="1100" height="505"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>ECEF to LLA 좌표계 변환 (위도·고도 반복 계산 순서도)</title>
+  <defs>
+    <marker id="arr_A_p08_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="505" fill="#ffffff"/>
+
+  <g stroke="#000" stroke-width="2.2" fill="#d6d6d6">
+    <!-- 1) 초기 위도/고도 설정 -->
+    <rect x="465" y="14" width="160" height="52"/>
+    <!-- 2) Rn 계산 -->
+    <rect x="465" y="100" width="160" height="45"/>
+    <!-- 3) 고도(h) 계산 -->
+    <rect x="465" y="190" width="160" height="45"/>
+    <!-- 4) 고도(h) 계산 -->
+    <rect x="465" y="288" width="160" height="45"/>
+    <!-- 값 저장 -->
+    <rect x="175" y="100" width="160" height="45"/>
+    <!-- 판단 마름모 -->
+    <path d="M255,260 L372,310 L255,360 L138,310 Z"/>
+  </g>
+  <ellipse cx="255" cy="445" rx="62" ry="28" fill="#ffffff" stroke="#000" stroke-width="2.2"/>
+
+  <!-- 블록 내 텍스트 -->
+  <g text-anchor="middle" fill="#000">
+    <text x="545" y="36">초기 위도(<tspan font-style="italic">θ</tspan>),</text>
+    <text x="545" y="56">고도(<tspan font-style="italic">h</tspan>) 설정</text>
+    <text x="545" y="128"><tspan font-style="italic">R</tspan><tspan dy="4" font-size="11">n</tspan><tspan dy="-4"> 계산</tspan></text>
+    <text x="545" y="218">고도(<tspan font-style="italic">h</tspan>) 계산</text>
+    <text x="545" y="316">고도(<tspan font-style="italic">h</tspan>) 계산</text>
+    <text x="255" y="128">값 저장</text>
+    <text x="255" y="452">End</text>
+    <text x="255" y="304" font-style="italic">|h − h<tspan dy="4" font-size="11">0</tspan><tspan dy="-4">| &lt; h</tspan><tspan dy="4" font-size="11">th</tspan></text>
+    <text x="255" y="330" font-style="italic">|θ − θ<tspan dy="4" font-size="11">0</tspan><tspan dy="-4">| &lt; θ</tspan><tspan dy="4" font-size="11">th</tspan></text>
+  </g>
+
+  <!-- 흐름 화살표 -->
+  <g stroke="#000" stroke-width="2" fill="none" marker-end="url(#arr_A_p08_F1)">
+    <line x1="545" y1="66" x2="545" y2="97"/>
+    <line x1="545" y1="145" x2="545" y2="187"/>
+    <line x1="545" y1="235" x2="545" y2="285"/>
+    <!-- 4번 블록 → 판단 마름모 (좌향) -->
+    <line x1="465" y1="310" x2="375" y2="310"/>
+    <!-- 마름모 No → 값 저장 (상향) -->
+    <line x1="255" y1="260" x2="255" y2="148"/>
+    <!-- 값 저장 → Rn 계산 (우향) -->
+    <line x1="335" y1="122" x2="462" y2="122"/>
+    <!-- 마름모 Yes → End -->
+    <line x1="255" y1="360" x2="255" y2="414"/>
+  </g>
+
+  <text x="268" y="212" fill="#000">No</text>
+  <text x="268" y="392" fill="#000">Yes</text>
+
+  <!-- 좌측 갱신값 -->
+  <text x="25" y="128" fill="#000" font-style="italic">θ<tspan dy="4" font-size="11">0</tspan><tspan dy="-4"> = θ, h</tspan><tspan dy="4" font-size="11">0</tspan><tspan dy="-4"> = h</tspan></text>
+
+  <!-- 초기값 -->
+  <text x="650" y="44" fill="#000" font-style="italic">θ<tspan dy="4" font-size="11">0</tspan><tspan dy="-4"> = 0, h</tspan><tspan dy="4" font-size="11">0</tspan><tspan dy="-4"> = 0</tspan></text>
+
+  <!-- 수식 1 : Rn -->
+  <g fill="#000" font-style="italic">
+    <text x="650" y="126">R<tspan dy="4" font-size="11">n</tspan><tspan dy="-4"> =</tspan></text>
+    <line x1="712" y1="120" x2="900" y2="120" stroke="#000" stroke-width="1.8"/>
+    <text x="806" y="112" text-anchor="middle">a</text>
+    <path d="M714,137 L719,143 L726,130 L900,130" fill="none" stroke="#000" stroke-width="1.6"/>
+    <text x="731" y="145">1 − e<tspan dy="-5" font-size="11">2</tspan><tspan dy="5">(sin(θ</tspan><tspan dy="4" font-size="11">0</tspan><tspan dy="-4">))</tspan><tspan dy="-5" font-size="11">2</tspan></text>
+  </g>
+
+  <!-- 수식 2 : h -->
+  <g fill="#000" font-style="italic">
+    <text x="650" y="218">h =</text>
+    <line x1="692" y1="212" x2="892" y2="212" stroke="#000" stroke-width="1.8"/>
+    <path d="M694,201 L699,207 L706,190 L892,190" fill="none" stroke="#000" stroke-width="1.6"/>
+    <text x="710" y="205">X<tspan dy="-5" font-size="11">2</tspan><tspan dy="9" font-size="11">ECEF</tspan><tspan dy="-4"> + Y</tspan><tspan dy="-5" font-size="11">2</tspan><tspan dy="9" font-size="11">ECEF</tspan></text>
+    <text x="792" y="234" text-anchor="middle">cos(θ<tspan dy="4" font-size="11">0</tspan><tspan dy="-4">)</tspan></text>
+    <text x="900" y="218">− R<tspan dy="4" font-size="11">n</tspan></text>
+  </g>
+
+  <!-- 수식 3 : θ -->
+  <g fill="#000" font-style="italic">
+    <text x="600" y="318">θ = tan<tspan dy="-6" font-size="11">−1</tspan></text>
+    <path d="M690,266 C676,290 676,334 690,358" fill="none" stroke="#000" stroke-width="1.8"/>
+    <line x1="700" y1="312" x2="862" y2="312" stroke="#000" stroke-width="1.8"/>
+    <text x="781" y="303" text-anchor="middle">Z<tspan dy="4" font-size="11">ECEF</tspan></text>
+    <path d="M702,327 L707,333 L714,318 L862,318" fill="none" stroke="#000" stroke-width="1.6"/>
+    <text x="718" y="333">X<tspan dy="-5" font-size="11">2</tspan><tspan dy="9" font-size="11">ECEF</tspan><tspan dy="-4"> + Y</tspan><tspan dy="-5" font-size="11">2</tspan><tspan dy="9" font-size="11">ECEF</tspan></text>
+    <line x1="870" y1="312" x2="1055" y2="312" stroke="#000" stroke-width="1.8"/>
+    <text x="962" y="303" text-anchor="middle">R<tspan dy="4" font-size="11">n</tspan><tspan dy="-4"> + h</tspan></text>
+    <text x="962" y="333" text-anchor="middle">R<tspan dy="4" font-size="11">n</tspan><tspan dy="-4">(1 − e</tspan><tspan dy="-5" font-size="11">2</tspan><tspan dy="5">) + h</tspan></text>
+    <path d="M1063,266 C1077,290 1077,334 1063,358" fill="none" stroke="#000" stroke-width="1.8"/>
+  </g>
+</svg>

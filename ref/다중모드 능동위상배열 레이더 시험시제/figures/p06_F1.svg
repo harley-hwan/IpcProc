@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 877" width="1000" height="877"
+     font-family="Helvetica, Arial, 'Malgun Gothic', sans-serif" font-size="15">
+  <title>그림 4 Local NED, Vehicle-carried NED, Body 좌표계 정의</title>
+  <defs>
+    <marker id="arr_B_p06_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrs_B_p06_F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="877" fill="#ffffff"/>
+
+  <!-- ============ 헬기 (단순 벡터 실루엣) ============ -->
+  <!-- 주로터 회전면 -->
+  <ellipse cx="486" cy="182" rx="338" ry="110" fill="#e8e8e8" stroke="#d6d6d6" stroke-width="1.5"/>
+
+  <!-- 로터 블레이드 -->
+  <line x1="168" y1="258" x2="804" y2="106" stroke="#555555" stroke-width="6" stroke-linecap="round"/>
+  <line x1="404" y1="100" x2="568" y2="264" stroke="#555555" stroke-width="6" stroke-linecap="round"/>
+  <!-- 로터 허브 / 마스트 -->
+  <circle cx="486" cy="182" r="9" fill="#d6d6d6" stroke="#555555" stroke-width="2"/>
+  <line x1="486" y1="182" x2="486" y2="208" stroke="#555555" stroke-width="7"/>
+
+  <!-- 테일 붐 (기수는 좌하, 꼬리는 우상) -->
+  <polygon points="500,244 514,224 708,98 698,118" fill="#d6d6d6" stroke="#555555" stroke-width="1.5"/>
+  <!-- 수직 미익 -->
+  <polygon points="692,114 712,58 726,62 708,120" fill="#d6d6d6" stroke="#555555" stroke-width="1.5"/>
+  <!-- 테일 로터 -->
+  <line x1="702" y1="46" x2="726" y2="136" stroke="#555555" stroke-width="4" stroke-linecap="round"/>
+  <line x1="694" y1="96" x2="742" y2="80" stroke="#555555" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- 동체 (기수 = 좌하단) -->
+  <polygon points="474,198 508,208 516,272 504,332 468,382 430,404 398,400 386,372 398,320 424,250 448,208"
+           fill="#d6d6d6" stroke="#555555" stroke-width="2"/>
+  <!-- 탑재 장비 포드 -->
+  <rect x="392" y="392" width="72" height="46" rx="6" fill="#f2f2f2" stroke="#555555" stroke-width="1.5"/>
+  <rect x="474" y="352" width="46" height="72" rx="6" fill="#f2f2f2" stroke="#555555" stroke-width="1.5"/>
+
+  <!-- 스키드 (착륙 장치) -->
+  <line x1="418" y1="404" x2="396" y2="456" stroke="#555555" stroke-width="3"/>
+  <line x1="462" y1="392" x2="492" y2="450" stroke="#555555" stroke-width="3"/>
+  <line x1="368" y1="452" x2="470" y2="470" stroke="#555555" stroke-width="4" stroke-linecap="round"/>
+  <line x1="480" y1="440" x2="576" y2="458" stroke="#555555" stroke-width="4" stroke-linecap="round"/>
+  <line x1="506" y1="424" x2="532" y2="446" stroke="#555555" stroke-width="3"/>
+
+  <!-- ============ Body / Vehicle-carried NED 좌표축 ============ -->
+  <!-- X_nv : 우상 -->
+  <line x1="482" y1="326" x2="643" y2="52" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <!-- Y_nv : 우 -->
+  <line x1="482" y1="326" x2="846" y2="322" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <!-- Z_nv / Z_b : 하 -->
+  <line x1="482" y1="326" x2="482" y2="598" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <!-- Y_b : 좌상 -->
+  <line x1="482" y1="326" x2="95" y2="176" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <!-- X_b : 좌하 -->
+  <line x1="482" y1="326" x2="248" y2="546" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+
+  <!-- 원점 표시 및 지시선 -->
+  <circle cx="482" cy="326" r="4.5" fill="#000000"/>
+  <line x1="576" y1="366" x2="500" y2="332" stroke="#000000" stroke-width="3" marker-end="url(#arr_B_p06_F1)"/>
+
+  <!-- 축 라벨 -->
+  <text x="584" y="44" font-size="24">X<tspan dy="6" font-size="15">nv</tspan></text>
+  <text x="862" y="330" font-size="24">Y<tspan dy="6" font-size="15">nv</tspan></text>
+  <text x="392" y="646" font-size="24">Z<tspan dy="6" font-size="15">nv</tspan><tspan dy="-6" font-size="24">/Z</tspan><tspan dy="6" font-size="15">b</tspan></text>
+  <text x="44" y="166" font-size="24">Y<tspan dy="6" font-size="15">b</tspan></text>
+  <text x="196" y="588" font-size="24">X<tspan dy="6" font-size="15">b</tspan></text>
+  <text x="582" y="382" font-size="24">O<tspan dy="6" font-size="15">b</tspan><tspan dy="-6" font-size="24">/O</tspan><tspan dy="6" font-size="15">nv</tspan></text>
+
+  <!-- ============ 속도 성분 u, v, w ============ -->
+  <!-- v : Y_b 방향 -->
+  <line x1="278" y1="220" x2="222" y2="203" stroke="#000000" stroke-width="2.5" marker-end="url(#arrs_B_p06_F1)"/>
+  <text x="242" y="196" font-size="21" font-style="italic">v</text>
+  <!-- u : X_b 방향 -->
+  <line x1="322" y1="424" x2="308" y2="470" stroke="#000000" stroke-width="2.5" marker-end="url(#arrs_B_p06_F1)"/>
+  <text x="296" y="428" font-size="21" font-style="italic">u</text>
+  <!-- w : Z_b 방향 -->
+  <line x1="464" y1="494" x2="464" y2="540" stroke="#000000" stroke-width="2.5" marker-end="url(#arrs_B_p06_F1)"/>
+  <text x="440" y="518" font-size="21" font-style="italic">w</text>
+
+  <!-- ============ 각속도 p, q, r (축 회전) ============ -->
+  <!-- q : Y_b 축 둘레 -->
+  <path d="M 186,168 A 14,14 0 1 0 172,190" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrs_B_p06_F1)"/>
+  <text x="164" y="160" font-size="21" font-style="italic">q</text>
+  <!-- p : X_b 축 둘레 -->
+  <path d="M 282,502 A 14,14 0 1 0 300,516" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrs_B_p06_F1)"/>
+  <text x="296" y="530" font-size="21" font-style="italic">p</text>
+  <!-- r : Z_b 축 둘레 -->
+  <path d="M 502,556 A 14,14 0 1 0 488,578" fill="none" stroke="#000000" stroke-width="2" marker-end="url(#arrs_B_p06_F1)"/>
+  <text x="508" y="580" font-size="21" font-style="italic">r</text>
+
+  <!-- ============ 범례 ============ -->
+  <text x="648" y="494" font-size="19">b: Body</text>
+  <text x="648" y="526" font-size="19">nv: Vehicle-carried NED</text>
+  <text x="648" y="558" font-size="19">n: Local NED</text>
+
+  <!-- ============ Local NED 지면 평면 ============ -->
+  <polygon points="146,668 876,671 804,787 74,787" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+
+  <!-- Local NED 좌표축 -->
+  <line x1="575" y1="746" x2="611" y2="684" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <line x1="575" y1="746" x2="716" y2="746" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <line x1="575" y1="746" x2="575" y2="822" stroke="#000000" stroke-width="2" marker-end="url(#arr_B_p06_F1)"/>
+  <circle cx="575" cy="746" r="4.5" fill="#000000"/>
+
+  <text x="592" y="668" font-size="24">X<tspan dy="6" font-size="15">n</tspan></text>
+  <text x="728" y="754" font-size="24">Y<tspan dy="6" font-size="15">n</tspan></text>
+  <text x="558" y="856" font-size="24">Z<tspan dy="6" font-size="15">n</tspan></text>
+  <text x="566" y="754" font-size="24" text-anchor="end">O<tspan dy="6" font-size="15">n</tspan></text>
+</svg>
