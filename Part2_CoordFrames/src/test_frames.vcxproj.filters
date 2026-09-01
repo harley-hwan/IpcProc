@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일"><UniqueIdentifier>{bc3d83d5-0be9-4d84-aa2a-92d6e3aef1f7}</UniqueIdentifier></Filter>
+    <Filter Include="헤더 파일"><UniqueIdentifier>{3cd9f167-4883-41ee-9be6-04b6788c0d81}</UniqueIdentifier></Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="coord_frames.c"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="test_frames.c"><Filter>소스 파일</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="coord_frames.h"><Filter>헤더 파일</Filter></ClInclude>
+  </ItemGroup>
+</Project>
