@@ -1,420 +1,485 @@
-﻿/*==============================================================================
- *  coord_frames.c  —  레이다 좌표계 변환 구현
- *============================================================================*/
+﻿//
+// @file	coord_frames.c
+// @brief	좌표계 변환 구현.
+//			각도를 되찾을 때 asin/acos 대신 atan2 를 씀. 반올림으로 인자가 1 을 살짝 넘으면
+//			asin 은 NaN 이 나오고, ±1 부근에서 정밀도도 떨어져서 clamp 가 필요해짐.
+//			atan2 는 정의역 제한이 없어서 그냥 쓸 수 있음.
+// @author	hwan
+// @date	2026.09.02.
+//
 #include "coord_frames.h"
 #include <math.h>
 #include <string.h>
 
-/*----------------------------------------------------------------------------
- *  내부 헬퍼
- *--------------------------------------------------------------------------*/
-
-/*  [ asin / acos 를 쓰지 않는 이유 ]
- *
- *  각도를 되찾을 때 흔히 asin(z/R) 를 쓰지만 두 가지 문제가 있다.
- *    (1) 반올림으로 인자가 1.0000000000000002 가 되면 NaN 이 나오고,
- *        NaN 은 아무 경고 없이 뒤 계산 전체로 번진다. (clamp 필요)
- *    (2) 인자가 ±1 에 가까우면 asin 의 기울기가 무한대로 발산해
- *        정밀도가 급격히 떨어진다.
- *  이 구현은 대신 atan2(분자, 분모) 형태를 쓴다. 정의역 제한이 없고
- *  전 구간에서 조건수가 좋아 clamp 자체가 필요 없다.
- */
-
-/*============================================================================
- *  1. 벡터·행렬 기본 연산
- *==========================================================================*/
-cf_vec3_t cf_vec_add(cf_vec3_t a, cf_vec3_t b)
+ST_CfVec3 f_CfVecAdd(const ST_CfVec3 stA, const ST_CfVec3 stB)
 {
-    cf_vec3_t r = { a.x + b.x, a.y + b.y, a.z + b.z };
-    return r;
+    ST_CfVec3 stR;
+
+    stR.dX = stA.dX + stB.dX;
+    stR.dY = stA.dY + stB.dY;
+    stR.dZ = stA.dZ + stB.dZ;
+    return stR;
 }
 
-cf_vec3_t cf_vec_sub(cf_vec3_t a, cf_vec3_t b)
+ST_CfVec3 f_CfVecSub(const ST_CfVec3 stA, const ST_CfVec3 stB)
 {
-    cf_vec3_t r = { a.x - b.x, a.y - b.y, a.z - b.z };
-    return r;
+    ST_CfVec3 stR;
+
+    stR.dX = stA.dX - stB.dX;
+    stR.dY = stA.dY - stB.dY;
+    stR.dZ = stA.dZ - stB.dZ;
+    return stR;
 }
 
-double cf_vec_norm(cf_vec3_t a)
+FLOAT64 f_CfVecNorm(const ST_CfVec3 stA)
 {
-    return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    return sqrt(stA.dX * stA.dX + stA.dY * stA.dY + stA.dZ * stA.dZ);
 }
 
-/*  기본 회전행렬 — 각 축 둘레의 우수(right-handed) 회전
- *
- *          [ 1   0    0 ]        [  c  0  s ]        [ c -s  0 ]
- *  Rx(a) = [ 0   c   -s ]  Ry(b)=[  0  1  0 ]  Rz(g)=[ s  c  0 ]
- *          [ 0   s    c ]        [ -s  0  c ]        [ 0  0  1 ]
- */
-cf_mat3_t cf_rot_x(double a)
+// 각 축 둘레의 우수(right-handed) 회전
+ST_CfMat3 f_CfRotX(const FLOAT64 dAngle_rad)
 {
-    const double c = cos(a), s = sin(a);
-    cf_mat3_t R = { { {1.0, 0.0, 0.0},
-                      {0.0,   c,  -s},
-                      {0.0,   s,   c} } };
-    return R;
+    const FLOAT64 dC = cos(dAngle_rad);
+    const FLOAT64 dS = sin(dAngle_rad);
+    ST_CfMat3     stR = { { {1.0, 0.0, 0.0},
+                            {0.0,  dC, -dS},
+                            {0.0,  dS,  dC} } };
+    return stR;
 }
 
-cf_mat3_t cf_rot_y(double a)
+ST_CfMat3 f_CfRotY(const FLOAT64 dAngle_rad)
 {
-    const double c = cos(a), s = sin(a);
-    cf_mat3_t R = { { {  c, 0.0,   s},
-                      {0.0, 1.0, 0.0},
-                      { -s, 0.0,   c} } };
-    return R;
+    const FLOAT64 dC = cos(dAngle_rad);
+    const FLOAT64 dS = sin(dAngle_rad);
+    ST_CfMat3     stR = { { { dC, 0.0,  dS},
+                            {0.0, 1.0, 0.0},
+                            {-dS, 0.0,  dC} } };
+    return stR;
 }
 
-cf_mat3_t cf_rot_z(double a)
+ST_CfMat3 f_CfRotZ(const FLOAT64 dAngle_rad)
 {
-    const double c = cos(a), s = sin(a);
-    cf_mat3_t R = { { {  c,  -s, 0.0},
-                      {  s,   c, 0.0},
-                      {0.0, 0.0, 1.0} } };
-    return R;
+    const FLOAT64 dC = cos(dAngle_rad);
+    const FLOAT64 dS = sin(dAngle_rad);
+    ST_CfMat3     stR = { { { dC, -dS, 0.0},
+                            { dS,  dC, 0.0},
+                            {0.0, 0.0, 1.0} } };
+    return stR;
 }
 
-cf_mat3_t cf_mat_mul(cf_mat3_t A, cf_mat3_t B)
+ST_CfMat3 f_CfMatMul(const ST_CfMat3 stA, const ST_CfMat3 stB)
 {
-    cf_mat3_t R;
-    int i, j, k;
-    for (i = 0; i < 3; ++i) {
-        for (j = 0; j < 3; ++j) {
-            double s = 0.0;
-            for (k = 0; k < 3; ++k) s += A.m[i][k] * B.m[k][j];
-            R.m[i][j] = s;
-        }
-    }
-    return R;
-}
+    ST_CfMat3 stR;
+    INT32     i;
+    INT32     j;
+    INT32     k;
 
-cf_vec3_t cf_mat_apply(cf_mat3_t A, cf_vec3_t v)
-{
-    cf_vec3_t r;
-    r.x = A.m[0][0]*v.x + A.m[0][1]*v.y + A.m[0][2]*v.z;
-    r.y = A.m[1][0]*v.x + A.m[1][1]*v.y + A.m[1][2]*v.z;
-    r.z = A.m[2][0]*v.x + A.m[2][1]*v.y + A.m[2][2]*v.z;
-    return r;
-}
-
-cf_mat3_t cf_mat_trans(cf_mat3_t A)
-{
-    cf_mat3_t R;
-    int i, j;
     for (i = 0; i < 3; ++i)
-        for (j = 0; j < 3; ++j) R.m[i][j] = A.m[j][i];
-    return R;
-}
-
-double cf_mat_det(cf_mat3_t A)
-{
-    return A.m[0][0] * (A.m[1][1]*A.m[2][2] - A.m[1][2]*A.m[2][1])
-         - A.m[0][1] * (A.m[1][0]*A.m[2][2] - A.m[1][2]*A.m[2][0])
-         + A.m[0][2] * (A.m[1][0]*A.m[2][1] - A.m[1][1]*A.m[2][0]);
-}
-
-double cf_mat_orthonormality_error(cf_mat3_t A)
-{
-    cf_mat3_t P = cf_mat_mul(cf_mat_trans(A), A);
-    double worst = 0.0;
-    int i, j;
-    for (i = 0; i < 3; ++i) {
-        for (j = 0; j < 3; ++j) {
-            const double expect = (i == j) ? 1.0 : 0.0;
-            const double e = fabs(P.m[i][j] - expect);
-            if (e > worst) worst = e;
+    {
+        for (j = 0; j < 3; ++j)
+        {
+            FLOAT64 dSum = 0.0;
+            for (k = 0; k < 3; ++k)
+            {
+                dSum += stA.daM[i][k] * stB.daM[k][j];
+            }
+            stR.daM[i][j] = dSum;
         }
     }
-    return worst;
+    return stR;
 }
 
-/*============================================================================
- *  1단계  안테나 극좌표  <->  안테나 직교좌표  <->  UV(방향코사인)
- *--------------------------------------------------------------------------
- *  안테나 프레임:  x = 보어사이트,  y = 오른쪽,  z = 아래
- *
- *      x = R * cos(El) * cos(Az)
- *      y = R * cos(El) * sin(Az)
- *      z = -R * sin(El)            <- z 가 '아래'이므로 위로 향하면 음수
- *==========================================================================*/
-cf_vec3_t cf_antcart_from_polar(cf_polar_t p)
+ST_CfVec3 f_CfMatApply(const ST_CfMat3 stA, const ST_CfVec3 stV)
 {
-    const double ce = cos(p.el_rad), se = sin(p.el_rad);
-    cf_vec3_t r;
-    r.x =  p.range_m * ce * cos(p.az_rad);
-    r.y =  p.range_m * ce * sin(p.az_rad);
-    r.z = -p.range_m * se;
-    return r;
+    ST_CfVec3 stR;
+
+    stR.dX = stA.daM[0][0] * stV.dX + stA.daM[0][1] * stV.dY + stA.daM[0][2] * stV.dZ;
+    stR.dY = stA.daM[1][0] * stV.dX + stA.daM[1][1] * stV.dY + stA.daM[1][2] * stV.dZ;
+    stR.dZ = stA.daM[2][0] * stV.dX + stA.daM[2][1] * stV.dY + stA.daM[2][2] * stV.dZ;
+    return stR;
 }
 
-cf_polar_t cf_polar_from_antcart(cf_vec3_t p)
+ST_CfMat3 f_CfMatTrans(const ST_CfMat3 stA)
 {
-    cf_polar_t out;
-    out.range_m = cf_vec_norm(p);
-    if (out.range_m < 1e-12) {          /* 원점: 방향이 정의되지 않는다 */
-        out.az_rad = 0.0;
-        out.el_rad = 0.0;
-        return out;
+    ST_CfMat3 stR;
+    INT32     i;
+    INT32     j;
+
+    for (i = 0; i < 3; ++i)
+    {
+        for (j = 0; j < 3; ++j)
+        {
+            stR.daM[i][j] = stA.daM[j][i];
+        }
     }
-    out.az_rad = atan2(p.y, p.x);                    /* 사분면 보존 */
-    /*  El 은 asin(-z/R) 로도 구할 수 있지만, |El| 이 90도에 가까우면
-     *  asin 의 기울기가 무한대로 발산해 정밀도가 급격히 떨어진다.
-     *  atan2 형태는 전 구간에서 조건수가 좋다.                          */
-    out.el_rad = atan2(-p.z, sqrt(p.x * p.x + p.y * p.y));
-    return out;
+    return stR;
 }
 
-cf_dircos_t cf_dircos_from_polar(cf_polar_t p)
+FLOAT64 f_CfMatDet(const ST_CfMat3 stA)
 {
-    const double ce = cos(p.el_rad);
-    cf_dircos_t d;
-    d.u = ce * sin(p.az_rad);   /* 면 가로(오른쪽) 성분 */
-    d.v = sin(p.el_rad);        /* 면 세로(위)     성분 */
-    d.w = ce * cos(p.az_rad);   /* 보어사이트 성분      */
-    return d;
+    return stA.daM[0][0] * (stA.daM[1][1] * stA.daM[2][2] - stA.daM[1][2] * stA.daM[2][1])
+         - stA.daM[0][1] * (stA.daM[1][0] * stA.daM[2][2] - stA.daM[1][2] * stA.daM[2][0])
+         + stA.daM[0][2] * (stA.daM[1][0] * stA.daM[2][1] - stA.daM[1][1] * stA.daM[2][0]);
 }
 
-cf_polar_t cf_polar_from_dircos(cf_dircos_t d, double range_m)
+// |A^T*A - I| 의 최대 절대값. 0 에 가까울수록 정상적인 회전행렬
+FLOAT64 f_CfMatOrthoError(const ST_CfMat3 stA)
 {
-    cf_polar_t p;
-    p.range_m = range_m;
-    p.az_rad  = atan2(d.u, d.w);
-    p.el_rad  = atan2(d.v, sqrt(d.u * d.u + d.w * d.w));   /* asin 보다 안정 */
-    return p;
-}
+    ST_CfMat3 stP = f_CfMatMul(f_CfMatTrans(stA), stA);
+    FLOAT64   dWorst = 0.0;
+    INT32     i;
+    INT32     j;
 
-/*============================================================================
- *  2단계  안테나  <->  동체(Body)
- *--------------------------------------------------------------------------
- *  고정형 안테나이므로 회전행렬은 설치 도면이 정하는 '상수'다.
- *      C_body_from_ant = Rz(설치방위) * Ry(백틸트)
- *  그리고 원점이 다르므로 레버암(무게중심 -> 안테나)을 더한다.
- *==========================================================================*/
-cf_mat3_t cf_dcm_body_from_antenna(const cf_mount_t *mount)
-{
-    if (mount == NULL) {                       /* 방어: 단위행렬 반환 */
-        cf_mat3_t I = { { {1,0,0},{0,1,0},{0,0,1} } };
-        return I;
+    for (i = 0; i < 3; ++i)
+    {
+        for (j = 0; j < 3; ++j)
+        {
+            const FLOAT64 dExpect = (i == j) ? 1.0 : 0.0;
+            const FLOAT64 dErr    = fabs(stP.daM[i][j] - dExpect);
+            if (dErr > dWorst)
+            {
+                dWorst = dErr;
+            }
+        }
     }
-    return cf_mat_mul(cf_rot_z(mount->yaw_rad), cf_rot_y(mount->pitch_rad));
+    return dWorst;
 }
 
-cf_vec3_t cf_body_from_antenna(const cf_mount_t *mount, cf_vec3_t p_ant)
+//
+// @brief	안테나 극좌표 -> 안테나 직교좌표.
+//			x = 보어사이트, y = 오른쪽, z = 아래라서 위로 향하면 z 가 음수
+// @param	stPolar		거리 / 방위각 / 고각
+// @return	안테나 직교 위치 [m]
+//
+ST_CfVec3 f_CfAntCartFromPolar(const ST_CfPolar stPolar)
 {
-    cf_vec3_t rotated = cf_mat_apply(cf_dcm_body_from_antenna(mount), p_ant);
-    if (mount == NULL) return rotated;
-    return cf_vec_add(rotated, mount->lever_arm_b);       /* + 레버암 */
+    const FLOAT64 dCe = cos(stPolar.dEl_rad);
+    ST_CfVec3     stR;
+
+    stR.dX =  stPolar.dRange_m * dCe * cos(stPolar.dAz_rad);
+    stR.dY =  stPolar.dRange_m * dCe * sin(stPolar.dAz_rad);
+    stR.dZ = -stPolar.dRange_m * sin(stPolar.dEl_rad);
+    return stR;
 }
 
-cf_vec3_t cf_antenna_from_body(const cf_mount_t *mount, cf_vec3_t p_body)
+ST_CfPolar f_CfPolarFromAntCart(const ST_CfVec3 stPos)
 {
-    cf_vec3_t shifted = p_body;
-    if (mount != NULL) shifted = cf_vec_sub(p_body, mount->lever_arm_b); /* - 레버암 */
-    return cf_mat_apply(cf_mat_trans(cf_dcm_body_from_antenna(mount)), shifted);
-}
+    ST_CfPolar stOut;
 
-/*============================================================================
- *  3단계  동체  <->  로컬(NED)
- *--------------------------------------------------------------------------
- *  C_ned_from_body = Rz(yaw) * Ry(pitch) * Rx(roll)     (3-2-1 오일러)
- *==========================================================================*/
-cf_mat3_t cf_dcm_ned_from_body(const cf_attitude_t *att)
-{
-    if (att == NULL) {
-        cf_mat3_t I = { { {1,0,0},{0,1,0},{0,0,1} } };
-        return I;
-    }
-    return cf_mat_mul(cf_mat_mul(cf_rot_z(att->yaw_rad),
-                                 cf_rot_y(att->pitch_rad)),
-                      cf_rot_x(att->roll_rad));
-}
-
-cf_vec3_t cf_ned_from_body(const cf_attitude_t *att, cf_vec3_t p_body)
-{
-    return cf_mat_apply(cf_dcm_ned_from_body(att), p_body);
-}
-
-cf_vec3_t cf_body_from_ned(const cf_attitude_t *att, cf_vec3_t p_ned)
-{
-    return cf_mat_apply(cf_mat_trans(cf_dcm_ned_from_body(att)), p_ned);
-}
-
-/*============================================================================
- *  4단계  로컬 <-> ECEF,  LLA <-> ECEF
- *==========================================================================*/
-cf_mat3_t cf_dcm_ned_from_ecef(double lat_rad, double lon_rad)
-{
-    const double sp = sin(lat_rad), cp = cos(lat_rad);
-    const double sl = sin(lon_rad), cl = cos(lon_rad);
-    cf_mat3_t R = { { { -sp*cl, -sp*sl,  cp },
-                      {   -sl ,    cl ,  0.0},
-                      { -cp*cl, -cp*sl, -sp } } };
-    return R;
-}
-
-cf_vec3_t cf_ecef_from_geodetic(cf_geodetic_t g)
-{
-    const double sp = sin(g.lat_rad), cp = cos(g.lat_rad);
-    const double sl = sin(g.lon_rad), cl = cos(g.lon_rad);
-    /* N: 묘유선 곡률반경 — 그 위도에서 지구가 얼마나 '뚱뚱한가' */
-    const double N  = CF_WGS84_A / sqrt(1.0 - CF_WGS84_E2 * sp * sp);
-    cf_vec3_t p;
-    p.x = (N + g.alt_m) * cp * cl;
-    p.y = (N + g.alt_m) * cp * sl;
-    p.z = (N * (1.0 - CF_WGS84_E2) + g.alt_m) * sp;   /* (1-e^2) 누락 주의 */
-    return p;
-}
-
-/*  ECEF -> LLA : Bowring 폐형식(1회 반복)
- *  지상~수십 km 고도에서 오차 1e-5 m 미만. 반복문이 필요 없다.        */
-cf_status_t cf_geodetic_from_ecef(cf_vec3_t p, cf_geodetic_t *out)
-{
-    double rho, theta, st, ct, sp, N, h;
-    int    iter;
-
-    if (out == NULL) return CF_ERR_NULL;
-
-    rho = sqrt(p.x * p.x + p.y * p.y);          /* 자전축까지의 거리 */
-
-    if (rho < 1e-9) {                            /* 극점 특이점 처리 */
-        out->lat_rad = (p.z < 0.0) ? -CF_PI/2.0 : CF_PI/2.0;
-        out->lon_rad = 0.0;                      /* 극에서 경도는 정의되지 않음 */
-        out->alt_m   = fabs(p.z) - CF_WGS84_B;
-        return CF_OK;
+    stOut.dRange_m = f_CfVecNorm(stPos);
+    if (stOut.dRange_m < 1e-12)     // 원점에서는 방향이 정의되지 않음
+    {
+        stOut.dAz_rad = 0.0;
+        stOut.dEl_rad = 0.0;
+        return stOut;
     }
 
-    out->lon_rad = atan2(p.y, p.x);
+    stOut.dAz_rad = atan2(stPos.dY, stPos.dX);
+    stOut.dEl_rad = atan2(-stPos.dZ, sqrt(stPos.dX * stPos.dX + stPos.dY * stPos.dY));
+    return stOut;
+}
 
-    /*  (1) Bowring 폐형식으로 초기 위도를 구한다. 지상~40 km 에서는
-     *      이 한 줄만으로도 오차가 1e-5 m 미만이다.                       */
-    theta = atan2(p.z * CF_WGS84_A, rho * CF_WGS84_B);   /* 보조 규약위도 */
-    st = sin(theta); ct = cos(theta);
-    out->lat_rad = atan2(p.z   + CF_WGS84_EP2 * CF_WGS84_B * st * st * st,
-                         rho   - CF_WGS84_E2  * CF_WGS84_A * ct * ct * ct);
+ST_CfDirCos f_CfDirCosFromPolar(const ST_CfPolar stPolar)
+{
+    const FLOAT64 dCe = cos(stPolar.dEl_rad);
+    ST_CfDirCos   stD;
 
-    /*  (2) Hirvonen 고정점 반복으로 다듬는다. 고고도(수백 km) 표적에서도
-     *      기계정밀도까지 수렴한다. 2회면 충분하다.                       */
-    for (iter = 0; iter < CF_ECEF2LLA_REFINE; ++iter) {
-        sp = sin(out->lat_rad);
-        N  = CF_WGS84_A / sqrt(1.0 - CF_WGS84_E2 * sp * sp);
-        h  = rho * cos(out->lat_rad) + (p.z + CF_WGS84_E2 * N * sp) * sp - N;
-        out->lat_rad = atan2(p.z, rho * (1.0 - CF_WGS84_E2 * N / (N + h)));
+    stD.dU = dCe * sin(stPolar.dAz_rad);
+    stD.dV = sin(stPolar.dEl_rad);
+    stD.dW = dCe * cos(stPolar.dAz_rad);
+    return stD;
+}
+
+ST_CfPolar f_CfPolarFromDirCos(const ST_CfDirCos stDirCos, const FLOAT64 dRange_m)
+{
+    ST_CfPolar stP;
+
+    stP.dRange_m = dRange_m;
+    stP.dAz_rad  = atan2(stDirCos.dU, stDirCos.dW);
+    stP.dEl_rad  = atan2(stDirCos.dV, sqrt(stDirCos.dU * stDirCos.dU + stDirCos.dW * stDirCos.dW));
+    return stP;
+}
+
+// 고정형 안테나라 회전행렬은 설치 도면이 정하는 상수. Rz(설치방위) * Ry(백틸트)
+ST_CfMat3 f_CfDcmBodyFromAnt(const ST_CfMount *stpMount)
+{
+    if (stpMount == NULL)
+    {
+        ST_CfMat3 stI = { { {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} } };
+        return stI;
+    }
+    return f_CfMatMul(f_CfRotZ(stpMount->dYaw_rad), f_CfRotY(stpMount->dPitch_rad));
+}
+
+// 회전만으로는 부족하고 원점이 다르니 레버암을 더해줘야 함
+ST_CfVec3 f_CfBodyFromAnt(const ST_CfMount *stpMount, const ST_CfVec3 stAntPos)
+{
+    ST_CfVec3 stRotated = f_CfMatApply(f_CfDcmBodyFromAnt(stpMount), stAntPos);
+
+    if (stpMount == NULL)
+    {
+        return stRotated;
+    }
+    return f_CfVecAdd(stRotated, stpMount->stLeverArm_b);
+}
+
+ST_CfVec3 f_CfAntFromBody(const ST_CfMount *stpMount, const ST_CfVec3 stBodyPos)
+{
+    ST_CfVec3 stShifted = stBodyPos;
+
+    if (stpMount != NULL)
+    {
+        stShifted = f_CfVecSub(stBodyPos, stpMount->stLeverArm_b);
+    }
+    return f_CfMatApply(f_CfMatTrans(f_CfDcmBodyFromAnt(stpMount)), stShifted);
+}
+
+// 3-2-1 오일러. Rz(yaw) * Ry(pitch) * Rx(roll)
+ST_CfMat3 f_CfDcmNedFromBody(const ST_CfAttitude *stpAtt)
+{
+    if (stpAtt == NULL)
+    {
+        ST_CfMat3 stI = { { {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0} } };
+        return stI;
+    }
+    return f_CfMatMul(f_CfMatMul(f_CfRotZ(stpAtt->dYaw_rad),
+                                 f_CfRotY(stpAtt->dPitch_rad)),
+                      f_CfRotX(stpAtt->dRoll_rad));
+}
+
+ST_CfVec3 f_CfNedFromBody(const ST_CfAttitude *stpAtt, const ST_CfVec3 stBodyPos)
+{
+    return f_CfMatApply(f_CfDcmNedFromBody(stpAtt), stBodyPos);
+}
+
+ST_CfVec3 f_CfBodyFromNed(const ST_CfAttitude *stpAtt, const ST_CfVec3 stNedPos)
+{
+    return f_CfMatApply(f_CfMatTrans(f_CfDcmNedFromBody(stpAtt)), stNedPos);
+}
+
+ST_CfMat3 f_CfDcmNedFromEcef(const FLOAT64 dLat_rad, const FLOAT64 dLon_rad)
+{
+    const FLOAT64 dSp = sin(dLat_rad);
+    const FLOAT64 dCp = cos(dLat_rad);
+    const FLOAT64 dSl = sin(dLon_rad);
+    const FLOAT64 dCl = cos(dLon_rad);
+    ST_CfMat3     stR = { { {-dSp * dCl, -dSp * dSl,  dCp},
+                            {      -dSl,        dCl,  0.0},
+                            {-dCp * dCl, -dCp * dSl, -dSp} } };
+    return stR;
+}
+
+ST_CfVec3 f_CfEcefFromGeodetic(const ST_CfGeodetic stGeo)
+{
+    const FLOAT64 dSp = sin(stGeo.dLat_rad);
+    const FLOAT64 dCp = cos(stGeo.dLat_rad);
+    const FLOAT64 dSl = sin(stGeo.dLon_rad);
+    const FLOAT64 dCl = cos(stGeo.dLon_rad);
+    const FLOAT64 dN  = CF_WGS84_A / sqrt(1.0 - CF_WGS84_E2 * dSp * dSp);   // 묘유선 곡률반경
+    ST_CfVec3     stP;
+
+    stP.dX = (dN + stGeo.dAlt_m) * dCp * dCl;
+    stP.dY = (dN + stGeo.dAlt_m) * dCp * dSl;
+    stP.dZ = (dN * (1.0 - CF_WGS84_E2) + stGeo.dAlt_m) * dSp;   // (1-e^2) 빠뜨리기 쉬움
+    return stP;
+}
+
+//
+// @brief	ECEF -> LLA. Bowring 폐형식으로 초기 위도를 잡고 Hirvonen 반복으로 다듬음
+// @param	stEcefPos	ECEF 위치 [m]
+// @param	stpOut		측지 좌표 결과
+// @return	enum_CfStatus_Ok / enum_CfStatus_Null
+//
+INT32 f_CfGeodeticFromEcef(const ST_CfVec3 stEcefPos, ST_CfGeodetic *stpOut)
+{
+    FLOAT64 dRho;
+    FLOAT64 dTheta;
+    FLOAT64 dSt;
+    FLOAT64 dCt;
+    FLOAT64 dSp;
+    FLOAT64 dN;
+    FLOAT64 dH;
+    INT32   iIter;
+
+    if (stpOut == NULL)
+    {
+        return enum_CfStatus_Null;
     }
 
-    sp = sin(out->lat_rad);
-    N  = CF_WGS84_A / sqrt(1.0 - CF_WGS84_E2 * sp * sp);
+    dRho = sqrt(stEcefPos.dX * stEcefPos.dX + stEcefPos.dY * stEcefPos.dY);
 
-    /*  h = rho/cos(lat) - N  대신 아래 항등식을 쓴다.
-     *  1/cos(lat) 이 없으므로 고위도·극점에서도 안전하다.
-     *      rho*cos(lat) + (z + e^2*N*sin(lat))*sin(lat) = N + h            */
-    out->alt_m = rho * cos(out->lat_rad)
-               + (p.z + CF_WGS84_E2 * N * sp) * sp
-               - N;
-    return CF_OK;
+    if (dRho < 1e-9)    // 극점. 여기선 경도가 정의되지 않음
+    {
+        stpOut->dLat_rad = (stEcefPos.dZ < 0.0) ? -CF_PI / 2.0 : CF_PI / 2.0;
+        stpOut->dLon_rad = 0.0;
+        stpOut->dAlt_m   = fabs(stEcefPos.dZ) - CF_WGS84_B;
+        return enum_CfStatus_Ok;
+    }
+
+    stpOut->dLon_rad = atan2(stEcefPos.dY, stEcefPos.dX);
+
+    dTheta = atan2(stEcefPos.dZ * CF_WGS84_A, dRho * CF_WGS84_B);   // 보조 규약위도
+    dSt = sin(dTheta);
+    dCt = cos(dTheta);
+    stpOut->dLat_rad = atan2(stEcefPos.dZ + CF_WGS84_EP2 * CF_WGS84_B * dSt * dSt * dSt,
+                             dRho         - CF_WGS84_E2  * CF_WGS84_A * dCt * dCt * dCt);
+
+    for (iIter = 0; iIter < CF_ECEF2LLA_REFINE; ++iIter)
+    {
+        dSp = sin(stpOut->dLat_rad);
+        dN  = CF_WGS84_A / sqrt(1.0 - CF_WGS84_E2 * dSp * dSp);
+        dH  = dRho * cos(stpOut->dLat_rad) + (stEcefPos.dZ + CF_WGS84_E2 * dN * dSp) * dSp - dN;
+        stpOut->dLat_rad = atan2(stEcefPos.dZ, dRho * (1.0 - CF_WGS84_E2 * dN / (dN + dH)));
+    }
+
+    dSp = sin(stpOut->dLat_rad);
+    dN  = CF_WGS84_A / sqrt(1.0 - CF_WGS84_E2 * dSp * dSp);
+
+    // h = rho/cos(lat) - N 대신 아래 항등식. 1/cos(lat) 이 없어서 극점에서도 안전함
+    stpOut->dAlt_m = dRho * cos(stpOut->dLat_rad)
+                   + (stEcefPos.dZ + CF_WGS84_E2 * dN * dSp) * dSp
+                   - dN;
+    return enum_CfStatus_Ok;
 }
 
-cf_vec3_t cf_ecef_from_ned(cf_geodetic_t origin, cf_vec3_t p_ned)
+ST_CfVec3 f_CfEcefFromNed(const ST_CfGeodetic stOrigin, const ST_CfVec3 stNedPos)
 {
-    cf_mat3_t C_ecef_from_ned =
-        cf_mat_trans(cf_dcm_ned_from_ecef(origin.lat_rad, origin.lon_rad));
-    return cf_vec_add(cf_ecef_from_geodetic(origin),
-                      cf_mat_apply(C_ecef_from_ned, p_ned));
+    ST_CfMat3 stCEcefFromNed =
+        f_CfMatTrans(f_CfDcmNedFromEcef(stOrigin.dLat_rad, stOrigin.dLon_rad));
+
+    return f_CfVecAdd(f_CfEcefFromGeodetic(stOrigin),
+                      f_CfMatApply(stCEcefFromNed, stNedPos));
 }
 
-cf_vec3_t cf_ned_from_ecef(cf_geodetic_t origin, cf_vec3_t p_ecef)
+ST_CfVec3 f_CfNedFromEcef(const ST_CfGeodetic stOrigin, const ST_CfVec3 stEcefPos)
 {
-    cf_vec3_t d = cf_vec_sub(p_ecef, cf_ecef_from_geodetic(origin));
-    return cf_mat_apply(cf_dcm_ned_from_ecef(origin.lat_rad, origin.lon_rad), d);
+    ST_CfVec3 stDiff = f_CfVecSub(stEcefPos, f_CfEcefFromGeodetic(stOrigin));
+
+    return f_CfMatApply(f_CfDcmNedFromEcef(stOrigin.dLat_rad, stOrigin.dLon_rad), stDiff);
 }
 
-/*============================================================================
- *  참고: ECEF <-> ECI  (지구 자전만 고려한 간이 변환)
- *--------------------------------------------------------------------------
- *  이 설계(함선 표적 위치 산출)에는 쓰이지 않지만, 1.5 절 내용을
- *  코드로 확인할 수 있도록 포함한다. 세차·장동·극운동은 생략했다.
- *==========================================================================*/
-double cf_gmst_rad(double jd_ut1)
+// 세차/장동/극운동은 뺀 간이 계산. 설계에는 안 쓰이고 1.5 절 확인용
+FLOAT64 f_CfGmstRad(const FLOAT64 dJulianDateUt1)
 {
-    const double d = jd_ut1 - 2451545.0;         /* J2000.0 로부터의 일수 */
-    const double T = d / 36525.0;                /* 율리우스 세기         */
-    double deg = 280.46061837 + 360.98564736629 * d
-               + 0.000387933 * T * T - (T * T * T) / 38710000.0;
-    deg = fmod(deg, 360.0);
-    if (deg < 0.0) deg += 360.0;
-    return CF_DEG2RAD(deg);
+    const FLOAT64 dD = dJulianDateUt1 - 2451545.0;  // J2000.0 부터의 일수
+    const FLOAT64 dT = dD / 36525.0;                // 율리우스 세기
+    FLOAT64       dDeg;
+
+    dDeg = 280.46061837 + 360.98564736629 * dD
+         + 0.000387933 * dT * dT - (dT * dT * dT) / 38710000.0;
+    dDeg = fmod(dDeg, 360.0);
+    if (dDeg < 0.0)
+    {
+        dDeg += 360.0;
+    }
+    return CF_DEG2RAD(dDeg);
 }
 
-cf_vec3_t cf_eci_from_ecef(cf_vec3_t p_ecef, double gmst_rad)
+ST_CfVec3 f_CfEciFromEcef(const ST_CfVec3 stEcefPos, const FLOAT64 dGmst_rad)
 {
-    return cf_mat_apply(cf_rot_z(gmst_rad), p_ecef);
+    return f_CfMatApply(f_CfRotZ(dGmst_rad), stEcefPos);
 }
 
-cf_vec3_t cf_ecef_from_eci(cf_vec3_t p_eci, double gmst_rad)
+ST_CfVec3 f_CfEcefFromEci(const ST_CfVec3 stEciPos, const FLOAT64 dGmst_rad)
 {
-    return cf_mat_apply(cf_mat_trans(cf_rot_z(gmst_rad)), p_eci);
+    return f_CfMatApply(f_CfMatTrans(f_CfRotZ(dGmst_rad)), stEciPos);
 }
 
-/*============================================================================
- *  전체 체인
- *==========================================================================*/
-cf_status_t cf_forward_chain(cf_polar_t           meas,
-                             const cf_mount_t    *mount,
-                             const cf_attitude_t *att,
-                             cf_geodetic_t        platform,
-                             cf_geodetic_t       *target_out,
-                             cf_chain_t          *chain_out)
+//
+// @brief	신호처리 측정값 -> 표적 LLA. 안테나부터 LLA 까지 한 번에 넘김
+// @param	stMeas			안테나 극좌표 측정값
+// @param	stpMount		안테나 설치 정보
+// @param	stpAtt			플랫폼 자세
+// @param	stPlatform		플랫폼 위치 (LLA)
+// @param	stpTargetOut	표적 LLA 결과
+// @param	stpChainOut		단계별 중간값. 필요 없으면 NULL
+// @return	enum_CfStatus_Ok / enum_CfStatus_Null / enum_CfStatus_Domain
+//
+INT32 f_CfForwardChain(const ST_CfPolar stMeas, const ST_CfMount *stpMount,
+                       const ST_CfAttitude *stpAtt, const ST_CfGeodetic stPlatform,
+                       ST_CfGeodetic *stpTargetOut, ST_CfChain *stpChainOut)
 {
-    cf_chain_t c;
-    cf_status_t st;
+    ST_CfChain stChain;
+    INT32      iStatus;
 
-    if (mount == NULL || att == NULL || target_out == NULL) return CF_ERR_NULL;
-    if (meas.range_m <= 0.0)                                return CF_ERR_DOMAIN;
+    if ((stpMount == NULL) || (stpAtt == NULL) || (stpTargetOut == NULL))
+    {
+        return enum_CfStatus_Null;
+    }
+    if (stMeas.dRange_m <= 0.0)
+    {
+        return enum_CfStatus_Domain;
+    }
 
-    memset(&c, 0, sizeof(c));
+    (VOID)memset(&stChain, 0, sizeof(stChain));
 
-    /* 1단계 — 안테나 극좌표 -> 직교(+UV) */
-    c.dircos           = cf_dircos_from_polar(meas);
-    c.p_antenna        = cf_antcart_from_polar(meas);
+    // 1단계 극좌표 -> 직교(+UV)
+    stChain.stDirCos        = f_CfDirCosFromPolar(stMeas);
+    stChain.stAntPos        = f_CfAntCartFromPolar(stMeas);
 
-    /* 2단계 — 안테나 -> 동체 (회전 + 레버암) */
-    c.C_body_from_ant  = cf_dcm_body_from_antenna(mount);
-    c.p_body           = cf_body_from_antenna(mount, c.p_antenna);
+    // 2단계 안테나 -> 동체 (회전 + 레버암)
+    stChain.stCBodyFromAnt  = f_CfDcmBodyFromAnt(stpMount);
+    stChain.stBodyPos       = f_CfBodyFromAnt(stpMount, stChain.stAntPos);
 
-    /* 3단계 — 동체 -> 로컬 NED (자세 회전) */
-    c.C_ned_from_body  = cf_dcm_ned_from_body(att);
-    c.p_ned            = cf_ned_from_body(att, c.p_body);
+    // 3단계 동체 -> 로컬 NED (자세 회전)
+    stChain.stCNedFromBody  = f_CfDcmNedFromBody(stpAtt);
+    stChain.stNedPos        = f_CfNedFromBody(stpAtt, stChain.stBodyPos);
 
-    /* 4단계 — 로컬 -> ECEF */
-    c.p_ecef_platform  = cf_ecef_from_geodetic(platform);
-    c.p_ecef_target    = cf_ecef_from_ned(platform, c.p_ned);
+    // 4단계 로컬 -> ECEF
+    stChain.stEcefPlatform  = f_CfEcefFromGeodetic(stPlatform);
+    stChain.stEcefTarget    = f_CfEcefFromNed(stPlatform, stChain.stNedPos);
 
-    /* 5단계 — ECEF -> LLA */
-    st = cf_geodetic_from_ecef(c.p_ecef_target, &c.target);
-    if (st != CF_OK) return st;
+    // 5단계 ECEF -> LLA
+    iStatus = f_CfGeodeticFromEcef(stChain.stEcefTarget, &stChain.stTarget);
+    if (iStatus != enum_CfStatus_Ok)
+    {
+        return iStatus;
+    }
 
-    c.ground_range_m   = sqrt(c.p_ned.x * c.p_ned.x + c.p_ned.y * c.p_ned.y);
-    c.true_bearing_rad = atan2(c.p_ned.y, c.p_ned.x);
-    if (c.true_bearing_rad < 0.0) c.true_bearing_rad += 2.0 * CF_PI;
+    stChain.dGroundRange_m   = sqrt(stChain.stNedPos.dX * stChain.stNedPos.dX
+                                  + stChain.stNedPos.dY * stChain.stNedPos.dY);
+    stChain.dTrueBearing_rad = atan2(stChain.stNedPos.dY, stChain.stNedPos.dX);
+    if (stChain.dTrueBearing_rad < 0.0)
+    {
+        stChain.dTrueBearing_rad += 2.0 * CF_PI;
+    }
 
-    *target_out = c.target;
-    if (chain_out != NULL) *chain_out = c;
-    return CF_OK;
+    *stpTargetOut = stChain.stTarget;
+    if (stpChainOut != NULL)
+    {
+        *stpChainOut = stChain;
+    }
+    return enum_CfStatus_Ok;
 }
 
-cf_status_t cf_inverse_chain(cf_geodetic_t        target,
-                             const cf_mount_t    *mount,
-                             const cf_attitude_t *att,
-                             cf_geodetic_t        platform,
-                             cf_polar_t          *meas_out)
+//
+// @brief	표적 LLA -> 안테나 극좌표. 정변환을 거꾸로 타면서 회전은 전치를 씀
+// @param	stTarget	표적 LLA
+// @param	stpMount	안테나 설치 정보
+// @param	stpAtt		플랫폼 자세
+// @param	stPlatform	플랫폼 위치 (LLA)
+// @param	stpMeasOut	안테나 극좌표 결과
+// @return	enum_CfStatus_Ok / enum_CfStatus_Null
+//
+INT32 f_CfInverseChain(const ST_CfGeodetic stTarget, const ST_CfMount *stpMount,
+                       const ST_CfAttitude *stpAtt, const ST_CfGeodetic stPlatform,
+                       ST_CfPolar *stpMeasOut)
 {
-    cf_vec3_t p_ecef, p_ned, p_body, p_ant;
+    ST_CfVec3 stEcefPos;
+    ST_CfVec3 stNedPos;
+    ST_CfVec3 stBodyPos;
+    ST_CfVec3 stAntPos;
 
-    if (mount == NULL || att == NULL || meas_out == NULL) return CF_ERR_NULL;
+    if ((stpMount == NULL) || (stpAtt == NULL) || (stpMeasOut == NULL))
+    {
+        return enum_CfStatus_Null;
+    }
 
-    p_ecef = cf_ecef_from_geodetic(target);         /* LLA  -> ECEF   */
-    p_ned  = cf_ned_from_ecef(platform, p_ecef);    /* ECEF -> 로컬   */
-    p_body = cf_body_from_ned(att, p_ned);          /* 로컬 -> 동체   (전치) */
-    p_ant  = cf_antenna_from_body(mount, p_body);   /* 동체 -> 안테나 (전치 + 레버암 빼기) */
+    stEcefPos = f_CfEcefFromGeodetic(stTarget);
+    stNedPos  = f_CfNedFromEcef(stPlatform, stEcefPos);
+    stBodyPos = f_CfBodyFromNed(stpAtt, stNedPos);
+    stAntPos  = f_CfAntFromBody(stpMount, stBodyPos);
 
-    *meas_out = cf_polar_from_antcart(p_ant);       /* 직교 -> 극좌표 */
-    return CF_OK;
+    *stpMeasOut = f_CfPolarFromAntCart(stAntPos);
+    return enum_CfStatus_Ok;
 }

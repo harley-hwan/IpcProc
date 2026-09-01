@@ -1,377 +1,444 @@
-﻿/*==============================================================================
- *  test_frames.c  —  coord_frames 단위 시험
- *------------------------------------------------------------------------------
- *  좌표변환 코드의 버그는 대부분 "컴파일도 되고 값도 그럴듯해 보이는" 종류다.
- *  아래 시험들은 각각 특정 유형의 버그를 겨냥한다.
- *
- *    T1 행렬 성질      det=+1, 직교성       → 회전행렬 구성 오류
- *    T2 극↔직교 왕복                        → sin/cos 자리바꿈, z 부호
- *    T3 UV↔극 왕복                          → 방향코사인 정의 오류
- *    T4 LLA↔ECEF 왕복                       → (1−e²) 누락, Bowring 오타
- *    T5 전체 체인 왕복                       → 단계 연결·레버암 부호
- *    T6 기지값(예제 기대값)                    → 전체 구현 정합성
- *    T7 특이점                               → NaN/Inf, 0 나눗셈
- *    T8 비대칭 자세                          → 전치 방향 뒤바뀜
- *    T9 부호 민감도                          → 부호를 바꿔도 결과가 같은 실수
- *============================================================================*/
-#include "coord_frames.h"
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-
-/*  Windows 콘솔은 기본 코드페이지가 UTF-8 이 아니라서(한국어 Windows 는 CP949)
- *  UTF-8 로 저장된 한글 문자열이 그대로 출력되면 깨진다.
- *  실행 직후 한 번만 콘솔 출력 코드페이지를 UTF-8 로 바꿔 준다.
- *  다른 OS 에서는 아무 일도 하지 않는다.                                    */
+﻿//
+// @file	test_frames.c
+// @brief	coord_frames 단위 시험. 좌표변환 버그는 대부분 컴파일도 되고 값도 그럴듯한 종류라
+//			각 시험이 노리는 버그를 하나씩 정해 뒀음.
+//			T1 행렬 성질 / T2 극↔직교 / T3 UV↔극 / T4 LLA↔ECEF / T5 전체 체인 /
+//			T6 기지값 / T7 특이점 / T8 전치 방향 / T9 부호 민감도
+// @author	hwan
+// @date	2026.09.02.
+//
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
 #endif
 
-static void console_use_utf8(void)
+#include "coord_frames.h"
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+
+static INT32 s_nPass = 0;
+static INT32 s_nFail = 0;
+
+// 한국어 Windows 콘솔은 CP949 라서 UTF-8 한글이 그대로 나가면 깨짐. 시작할 때 한 번만 바꿔줌
+static VOID f_ConsoleUseUtf8(VOID)
 {
 #ifdef _WIN32
-    SetConsoleOutputCP(CP_UTF8);
+    (VOID)SetConsoleOutputCP(CP_UTF8);
 #endif
 }
 
-static int g_pass = 0, g_fail = 0;
-
-static void check(const char *name, int ok, double measured, double tol)
+static VOID f_Check(const CHAR *cpName, const INT32 iOk, const FLOAT64 dMeasured, const FLOAT64 dTol)
 {
-    if (ok) { ++g_pass; printf("  [ OK ] %-46s %9.2e (허용 %.0e)\n", name, measured, tol); }
-    else    { ++g_fail; printf("  [FAIL] %-46s %9.2e (허용 %.0e)\n", name, measured, tol); }
+    if (iOk != 0)
+    {
+        ++s_nPass;
+        printf("  [ OK ] %-46s %9.2e (허용 %.0e)\n", cpName, dMeasured, dTol);
+    }
+    else
+    {
+        ++s_nFail;
+        printf("  [FAIL] %-46s %9.2e (허용 %.0e)\n", cpName, dMeasured, dTol);
+    }
 }
 
-static void check_le(const char *name, double measured, double tol)
+static VOID f_CheckLe(const CHAR *cpName, const FLOAT64 dMeasured, const FLOAT64 dTol)
 {
-    check(name, (measured <= tol) && !isnan(measured), measured, tol);
+    f_Check(cpName, (dMeasured <= dTol) && !isnan(dMeasured), dMeasured, dTol);
 }
 
-/* 재현 가능한 난수 (표준 rand 로 충분) */
-static double urand(double lo, double hi)
+// 재현 가능해야 해서 srand 고정하고 표준 rand 만 씀
+static FLOAT64 f_URand(const FLOAT64 dLo, const FLOAT64 dHi)
 {
-    return lo + (hi - lo) * ((double)rand() / (double)RAND_MAX);
+    return dLo + (dHi - dLo) * ((FLOAT64)rand() / (FLOAT64)RAND_MAX);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t1_matrix_properties(void)
+static VOID f_T1MatrixProperties(VOID)
 {
-    double worst_det = 0.0, worst_orth = 0.0;
-    int i;
+    FLOAT64 dWorstDet  = 0.0;
+    FLOAT64 dWorstOrth = 0.0;
+    INT32   i;
+
     printf("\nT1  회전행렬 성질 (det = +1, 직교)\n");
-    for (i = 0; i < 2000; ++i) {
-        cf_attitude_t a;
-        cf_mount_t    m;
-        cf_mat3_t     C;
-        double        lat, lon;
+    for (i = 0; i < 2000; ++i)
+    {
+        ST_CfAttitude stAtt;
+        ST_CfMount    stMount;
+        ST_CfMat3     stC;
+        FLOAT64       dLat;
+        FLOAT64       dLon;
 
-        a.roll_rad  = urand(-CF_PI, CF_PI);
-        a.pitch_rad = urand(-CF_PI/2.0, CF_PI/2.0);
-        a.yaw_rad   = urand(-CF_PI, CF_PI);
-        C = cf_dcm_ned_from_body(&a);
-        worst_det  = fmax(worst_det,  fabs(cf_mat_det(C) - 1.0));
-        worst_orth = fmax(worst_orth, cf_mat_orthonormality_error(C));
+        stAtt.dRoll_rad  = f_URand(-CF_PI, CF_PI);
+        stAtt.dPitch_rad = f_URand(-CF_PI / 2.0, CF_PI / 2.0);
+        stAtt.dYaw_rad   = f_URand(-CF_PI, CF_PI);
+        stC = f_CfDcmNedFromBody(&stAtt);
+        dWorstDet  = fmax(dWorstDet,  fabs(f_CfMatDet(stC) - 1.0));
+        dWorstOrth = fmax(dWorstOrth, f_CfMatOrthoError(stC));
 
-        m.yaw_rad = urand(-CF_PI, CF_PI);
-        m.pitch_rad = urand(-CF_PI/2.0, CF_PI/2.0);
-        m.lever_arm_b.x = m.lever_arm_b.y = m.lever_arm_b.z = 0.0;
-        C = cf_dcm_body_from_antenna(&m);
-        worst_det  = fmax(worst_det,  fabs(cf_mat_det(C) - 1.0));
-        worst_orth = fmax(worst_orth, cf_mat_orthonormality_error(C));
+        stMount.dYaw_rad   = f_URand(-CF_PI, CF_PI);
+        stMount.dPitch_rad = f_URand(-CF_PI / 2.0, CF_PI / 2.0);
+        stMount.stLeverArm_b.dX = 0.0;
+        stMount.stLeverArm_b.dY = 0.0;
+        stMount.stLeverArm_b.dZ = 0.0;
+        stC = f_CfDcmBodyFromAnt(&stMount);
+        dWorstDet  = fmax(dWorstDet,  fabs(f_CfMatDet(stC) - 1.0));
+        dWorstOrth = fmax(dWorstOrth, f_CfMatOrthoError(stC));
 
-        lat = urand(-CF_PI/2.0, CF_PI/2.0);
-        lon = urand(-CF_PI, CF_PI);
-        C = cf_dcm_ned_from_ecef(lat, lon);
-        worst_det  = fmax(worst_det,  fabs(cf_mat_det(C) - 1.0));
-        worst_orth = fmax(worst_orth, cf_mat_orthonormality_error(C));
+        dLat = f_URand(-CF_PI / 2.0, CF_PI / 2.0);
+        dLon = f_URand(-CF_PI, CF_PI);
+        stC = f_CfDcmNedFromEcef(dLat, dLon);
+        dWorstDet  = fmax(dWorstDet,  fabs(f_CfMatDet(stC) - 1.0));
+        dWorstOrth = fmax(dWorstOrth, f_CfMatOrthoError(stC));
     }
-    check_le("|det − 1| 최대", worst_det, 1e-12);
-    check_le("|AᵀA − I| 최대", worst_orth, 1e-12);
+    f_CheckLe("|det − 1| 최대", dWorstDet, 1e-12);
+    f_CheckLe("|AᵀA − I| 최대", dWorstOrth, 1e-12);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t2_polar_cart_roundtrip(void)
+static VOID f_T2PolarCartRoundtrip(VOID)
 {
-    double worst_r = 0.0, worst_a = 0.0, worst_e = 0.0;
-    int i;
+    FLOAT64 dWorstR = 0.0;
+    FLOAT64 dWorstA = 0.0;
+    FLOAT64 dWorstE = 0.0;
+    INT32   i;
+
     printf("\nT2  안테나 극좌표 ↔ 직교좌표 왕복\n");
-    for (i = 0; i < 100000; ++i) {
-        cf_polar_t p, q;
-        p.range_m = urand(1.0, 500000.0);
-        p.az_rad  = urand(-CF_PI + 1e-6, CF_PI - 1e-6);
-        p.el_rad  = urand(-CF_PI/2.0 + 1e-6, CF_PI/2.0 - 1e-6);
-        q = cf_polar_from_antcart(cf_antcart_from_polar(p));
-        worst_r = fmax(worst_r, fabs(q.range_m - p.range_m));
-        worst_a = fmax(worst_a, fabs(q.az_rad  - p.az_rad));
-        worst_e = fmax(worst_e, fabs(q.el_rad  - p.el_rad));
+    for (i = 0; i < 100000; ++i)
+    {
+        ST_CfPolar stP;
+        ST_CfPolar stQ;
+
+        stP.dRange_m = f_URand(1.0, 500000.0);
+        stP.dAz_rad  = f_URand(-CF_PI + 1e-6, CF_PI - 1e-6);
+        stP.dEl_rad  = f_URand(-CF_PI / 2.0 + 1e-6, CF_PI / 2.0 - 1e-6);
+        stQ = f_CfPolarFromAntCart(f_CfAntCartFromPolar(stP));
+        dWorstR = fmax(dWorstR, fabs(stQ.dRange_m - stP.dRange_m));
+        dWorstA = fmax(dWorstA, fabs(stQ.dAz_rad  - stP.dAz_rad));
+        dWorstE = fmax(dWorstE, fabs(stQ.dEl_rad  - stP.dEl_rad));
     }
-    check_le("거리 오차 [m]",   worst_r, 1e-6);
-    check_le("방위각 오차 [rad]", worst_a, 1e-12);
-    check_le("고각 오차 [rad]",   worst_e, 1e-13);
+    f_CheckLe("거리 오차 [m]",   dWorstR, 1e-6);
+    f_CheckLe("방위각 오차 [rad]", dWorstA, 1e-12);
+    f_CheckLe("고각 오차 [rad]",   dWorstE, 1e-13);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t3_uv_roundtrip(void)
+static VOID f_T3UvRoundtrip(VOID)
 {
-    double worst_a = 0.0, worst_e = 0.0, worst_n = 0.0;
-    int i;
+    FLOAT64 dWorstA = 0.0;
+    FLOAT64 dWorstE = 0.0;
+    FLOAT64 dWorstN = 0.0;
+    INT32   i;
+
     printf("\nT3  UV(방향코사인) ↔ 극좌표 왕복\n");
-    for (i = 0; i < 100000; ++i) {
-        cf_polar_t  p, q;
-        cf_dircos_t d;
-        double      n;
-        /* 보어사이트 반구 안에서만 정의 (|Az| < 90°) */
-        p.range_m = 1.0;
-        p.az_rad  = urand(-CF_PI/2.0 + 1e-6, CF_PI/2.0 - 1e-6);
-        p.el_rad  = urand(-CF_PI/2.0 + 1e-6, CF_PI/2.0 - 1e-6);
-        d = cf_dircos_from_polar(p);
-        n = sqrt(d.u*d.u + d.v*d.v + d.w*d.w);
-        worst_n = fmax(worst_n, fabs(n - 1.0));
-        q = cf_polar_from_dircos(d, p.range_m);
-        worst_a = fmax(worst_a, fabs(q.az_rad - p.az_rad));
-        worst_e = fmax(worst_e, fabs(q.el_rad - p.el_rad));
+    for (i = 0; i < 100000; ++i)
+    {
+        ST_CfPolar  stP;
+        ST_CfPolar  stQ;
+        ST_CfDirCos stD;
+        FLOAT64     dNorm;
+
+        // 보어사이트 반구 안에서만 정의됨 (|Az| < 90도)
+        stP.dRange_m = 1.0;
+        stP.dAz_rad  = f_URand(-CF_PI / 2.0 + 1e-6, CF_PI / 2.0 - 1e-6);
+        stP.dEl_rad  = f_URand(-CF_PI / 2.0 + 1e-6, CF_PI / 2.0 - 1e-6);
+        stD = f_CfDirCosFromPolar(stP);
+        dNorm = sqrt(stD.dU * stD.dU + stD.dV * stD.dV + stD.dW * stD.dW);
+        dWorstN = fmax(dWorstN, fabs(dNorm - 1.0));
+        stQ = f_CfPolarFromDirCos(stD, stP.dRange_m);
+        dWorstA = fmax(dWorstA, fabs(stQ.dAz_rad - stP.dAz_rad));
+        dWorstE = fmax(dWorstE, fabs(stQ.dEl_rad - stP.dEl_rad));
     }
-    check_le("‖(u,v,w)‖ − 1",     worst_n, 1e-14);
-    check_le("방위각 오차 [rad]", worst_a, 1e-13);
-    check_le("고각 오차 [rad]",   worst_e, 1e-13);
+    f_CheckLe("‖(u,v,w)‖ − 1",     dWorstN, 1e-14);
+    f_CheckLe("방위각 오차 [rad]", dWorstA, 1e-13);
+    f_CheckLe("고각 오차 [rad]",   dWorstE, 1e-13);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t4_lla_ecef_roundtrip(void)
+static VOID f_T4LlaEcefRoundtrip(VOID)
 {
-    double worst_h = 0.0, worst_pos = 0.0;
-    int i;
+    FLOAT64 dWorstH   = 0.0;
+    FLOAT64 dWorstPos = 0.0;
+    INT32   i;
+
     printf("\nT4  LLA ↔ ECEF 왕복 (Bowring)\n");
-    for (i = 0; i < 200000; ++i) {
-        cf_geodetic_t g, back;
-        cf_vec3_t     p, p2;
-        g.lat_rad = urand(CF_DEG2RAD(-89.5), CF_DEG2RAD(89.5));
-        g.lon_rad = urand(-CF_PI, CF_PI);
-        g.alt_m   = urand(-500.0, 40000.0);
-        p = cf_ecef_from_geodetic(g);
-        if (cf_geodetic_from_ecef(p, &back) != CF_OK) { ++g_fail; return; }
-        worst_h = fmax(worst_h, fabs(back.alt_m - g.alt_m));
-        p2 = cf_ecef_from_geodetic(back);           /* 위치 오차로 환산 */
-        worst_pos = fmax(worst_pos, cf_vec_norm(cf_vec_sub(p2, p)));
+    for (i = 0; i < 200000; ++i)
+    {
+        ST_CfGeodetic stG;
+        ST_CfGeodetic stBack;
+        ST_CfVec3     stP;
+        ST_CfVec3     stP2;
+
+        stG.dLat_rad = f_URand(CF_DEG2RAD(-89.5), CF_DEG2RAD(89.5));
+        stG.dLon_rad = f_URand(-CF_PI, CF_PI);
+        stG.dAlt_m   = f_URand(-500.0, 40000.0);
+        stP = f_CfEcefFromGeodetic(stG);
+        if (f_CfGeodeticFromEcef(stP, &stBack) != enum_CfStatus_Ok)
+        {
+            ++s_nFail;
+            return;
+        }
+        dWorstH = fmax(dWorstH, fabs(stBack.dAlt_m - stG.dAlt_m));
+        stP2 = f_CfEcefFromGeodetic(stBack);        // 위치 오차로 환산
+        dWorstPos = fmax(dWorstPos, f_CfVecNorm(f_CfVecSub(stP2, stP)));
     }
-    check_le("고도 오차 [m]",     worst_h,   1e-6);
-    check_le("위치 왕복 오차 [m]", worst_pos, 1e-6);
+    f_CheckLe("고도 오차 [m]",     dWorstH,   1e-6);
+    f_CheckLe("위치 왕복 오차 [m]", dWorstPos, 1e-6);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t5_full_chain_roundtrip(void)
+static VOID f_T5FullChainRoundtrip(VOID)
 {
-    double worst_r = 0.0, worst_a = 0.0, worst_e = 0.0;
-    int i;
+    FLOAT64 dWorstR = 0.0;
+    FLOAT64 dWorstA = 0.0;
+    FLOAT64 dWorstE = 0.0;
+    INT32   i;
+
     printf("\nT5  전체 체인 왕복 (측정값 → LLA → 측정값)\n");
-    for (i = 0; i < 20000; ++i) {
-        cf_polar_t    meas, back;
-        cf_mount_t    mount;
-        cf_attitude_t att;
-        cf_geodetic_t plat, tgt;
+    for (i = 0; i < 20000; ++i)
+    {
+        ST_CfPolar    stMeas;
+        ST_CfPolar    stBack;
+        ST_CfMount    stMount;
+        ST_CfAttitude stAtt;
+        ST_CfGeodetic stPlat;
+        ST_CfGeodetic stTgt;
 
-        meas.range_m = urand(100.0, 300000.0);
-        meas.az_rad  = urand(CF_DEG2RAD(-80.0), CF_DEG2RAD(80.0));
-        meas.el_rad  = urand(CF_DEG2RAD(-60.0), CF_DEG2RAD(60.0));
+        stMeas.dRange_m = f_URand(100.0, 300000.0);
+        stMeas.dAz_rad  = f_URand(CF_DEG2RAD(-80.0), CF_DEG2RAD(80.0));
+        stMeas.dEl_rad  = f_URand(CF_DEG2RAD(-60.0), CF_DEG2RAD(60.0));
 
-        mount.yaw_rad       = urand(-CF_PI, CF_PI);
-        mount.pitch_rad     = urand(CF_DEG2RAD(-30.0), CF_DEG2RAD(30.0));
-        mount.lever_arm_b.x = urand(-60.0, 60.0);
-        mount.lever_arm_b.y = urand(-20.0, 20.0);
-        mount.lever_arm_b.z = urand(-40.0, 10.0);
+        stMount.dYaw_rad        = f_URand(-CF_PI, CF_PI);
+        stMount.dPitch_rad      = f_URand(CF_DEG2RAD(-30.0), CF_DEG2RAD(30.0));
+        stMount.stLeverArm_b.dX = f_URand(-60.0, 60.0);
+        stMount.stLeverArm_b.dY = f_URand(-20.0, 20.0);
+        stMount.stLeverArm_b.dZ = f_URand(-40.0, 10.0);
 
-        att.roll_rad  = urand(CF_DEG2RAD(-40.0), CF_DEG2RAD(40.0));
-        att.pitch_rad = urand(CF_DEG2RAD(-20.0), CF_DEG2RAD(20.0));
-        att.yaw_rad   = urand(-CF_PI, CF_PI);
+        stAtt.dRoll_rad  = f_URand(CF_DEG2RAD(-40.0), CF_DEG2RAD(40.0));
+        stAtt.dPitch_rad = f_URand(CF_DEG2RAD(-20.0), CF_DEG2RAD(20.0));
+        stAtt.dYaw_rad   = f_URand(-CF_PI, CF_PI);
 
-        plat.lat_rad = urand(CF_DEG2RAD(-70.0), CF_DEG2RAD(70.0));
-        plat.lon_rad = urand(-CF_PI, CF_PI);
-        plat.alt_m   = urand(0.0, 50.0);
+        stPlat.dLat_rad = f_URand(CF_DEG2RAD(-70.0), CF_DEG2RAD(70.0));
+        stPlat.dLon_rad = f_URand(-CF_PI, CF_PI);
+        stPlat.dAlt_m   = f_URand(0.0, 50.0);
 
-        if (cf_forward_chain(meas, &mount, &att, plat, &tgt, NULL) != CF_OK) { ++g_fail; return; }
-        if (cf_inverse_chain(tgt, &mount, &att, plat, &back)       != CF_OK) { ++g_fail; return; }
+        if (f_CfForwardChain(stMeas, &stMount, &stAtt, stPlat, &stTgt, NULL) != enum_CfStatus_Ok)
+        {
+            ++s_nFail;
+            return;
+        }
+        if (f_CfInverseChain(stTgt, &stMount, &stAtt, stPlat, &stBack) != enum_CfStatus_Ok)
+        {
+            ++s_nFail;
+            return;
+        }
 
-        worst_r = fmax(worst_r, fabs(back.range_m - meas.range_m));
-        worst_a = fmax(worst_a, fabs(back.az_rad  - meas.az_rad));
-        worst_e = fmax(worst_e, fabs(back.el_rad  - meas.el_rad));
+        dWorstR = fmax(dWorstR, fabs(stBack.dRange_m - stMeas.dRange_m));
+        dWorstA = fmax(dWorstA, fabs(stBack.dAz_rad  - stMeas.dAz_rad));
+        dWorstE = fmax(dWorstE, fabs(stBack.dEl_rad  - stMeas.dEl_rad));
     }
-    /*  [ 허용치를 이렇게 잡은 근거 ]
-     *  ECEF 좌표는 6.4e6 m 규모다. double 의 상대정밀도가 약 2.2e-16 이므로
-     *  이 크기에서 표현 가능한 최소 간격이 약 1.4e-9 m 이고, 체인이 여러 번
-     *  더하고 빼는 동안 그 몇 배(대략 1e-8 m)가 쌓인다.
-     *  각도 오차는 그 위치 오차를 거리로 나눈 값이므로, 본 시험의 최단
-     *  거리 100 m 를 기준으로  1e-8 m / 100 m = 1e-10 rad 이 한계다.
-     *  즉 아래 값은 알고리즘 오차가 아니라 배정밀도 자체의 바닥이다.       */
-    check_le("거리 오차 [m]",     worst_r, 1e-6);
-    check_le("방위각 오차 [rad]", worst_a, 1e-10);
-    check_le("고각 오차 [rad]",   worst_e, 1e-10);
+    // 아래 허용치는 알고리즘 오차가 아니라 배정밀도 바닥값.
+    // ECEF 가 6.4e6 m 규모라 표현 간격이 1.4e-9 m 이고, 체인을 돌면서 1e-8 m 쯤 쌓임.
+    // 각도는 그걸 최단거리 100 m 로 나눈 1e-10 rad 이 한계
+    f_CheckLe("거리 오차 [m]",     dWorstR, 1e-6);
+    f_CheckLe("방위각 오차 [rad]", dWorstA, 1e-10);
+    f_CheckLe("고각 오차 [rad]",   dWorstE, 1e-10);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t6_known_answer(void)
+static VOID f_T6KnownAnswer(VOID)
 {
-    /* 예제 입력값에 대한 기대값 (독립 구현(NumPy)으로 교차 검증) */
-    const cf_polar_t    meas  = { 20000.0, CF_DEG2RAD(30.0), CF_DEG2RAD(0.0) };
-    const cf_geodetic_t plat  = { CF_DEG2RAD(36.408), CF_DEG2RAD(127.307), 0.0 };
-    const cf_attitude_t att   = { 0.0, 0.0, CF_DEG2RAD(45.0) };
-    const cf_mount_t    mount = { CF_DEG2RAD(90.0), 0.0, { -30.0, 0.0, -10.0 } };
+    // 예제 입력값에 대한 기대값. NumPy 독립 구현으로 교차 검증한 값임
+    const ST_CfPolar    stMeas  = { 20000.0, CF_DEG2RAD(30.0), CF_DEG2RAD(0.0) };
+    const ST_CfGeodetic stPlat  = { CF_DEG2RAD(36.408), CF_DEG2RAD(127.307), 0.0 };
+    const ST_CfAttitude stAtt   = { 0.0, 0.0, CF_DEG2RAD(45.0) };
+    const ST_CfMount    stMount = { CF_DEG2RAD(90.0), 0.0, { -30.0, 0.0, -10.0 } };
 
-    const double EXP_LAT = 36.233700252;   /* deg */
-    const double EXP_LON = 127.364344961;  /* deg */
-    const double EXP_ALT = 41.4952;        /* m   */
+    const FLOAT64 dExpLat = 36.233700252;   // deg
+    const FLOAT64 dExpLon = 127.364344961;  // deg
+    const FLOAT64 dExpAlt = 41.4952;        // m
 
-    cf_geodetic_t tgt;
-    cf_chain_t    ch;
-    cf_polar_t    back;
+    ST_CfGeodetic stTgt;
+    ST_CfChain    stChain;
+    ST_CfPolar    stBack;
 
     printf("\nT6  기지값 — 예제 입력값\n");
-    if (cf_forward_chain(meas, &mount, &att, plat, &tgt, &ch) != CF_OK) { ++g_fail; return; }
-    if (cf_inverse_chain(tgt, &mount, &att, plat, &back)      != CF_OK) { ++g_fail; return; }
+    if (f_CfForwardChain(stMeas, &stMount, &stAtt, stPlat, &stTgt, &stChain) != enum_CfStatus_Ok)
+    {
+        ++s_nFail;
+        return;
+    }
+    if (f_CfInverseChain(stTgt, &stMount, &stAtt, stPlat, &stBack) != enum_CfStatus_Ok)
+    {
+        ++s_nFail;
+        return;
+    }
 
-    check_le("표적 위도 오차 [deg]", fabs(CF_RAD2DEG(tgt.lat_rad) - EXP_LAT), 1e-8);
-    check_le("표적 경도 오차 [deg]", fabs(CF_RAD2DEG(tgt.lon_rad) - EXP_LON), 1e-8);
-    check_le("표적 고도 오차 [m]",   fabs(tgt.alt_m - EXP_ALT),               1e-3);
-    check_le("역변환 거리 오차 [m]", fabs(back.range_m - 20000.0),            1e-6);
-    check_le("역변환 방위 오차 [deg]", fabs(CF_RAD2DEG(back.az_rad) - 30.0),  1e-9);
-    check_le("역변환 고각 오차 [deg]", fabs(CF_RAD2DEG(back.el_rad) -  0.0),  1e-9);
+    f_CheckLe("표적 위도 오차 [deg]", fabs(CF_RAD2DEG(stTgt.dLat_rad) - dExpLat), 1e-8);
+    f_CheckLe("표적 경도 오차 [deg]", fabs(CF_RAD2DEG(stTgt.dLon_rad) - dExpLon), 1e-8);
+    f_CheckLe("표적 고도 오차 [m]",   fabs(stTgt.dAlt_m - dExpAlt),               1e-3);
+    f_CheckLe("역변환 거리 오차 [m]", fabs(stBack.dRange_m - 20000.0),            1e-6);
+    f_CheckLe("역변환 방위 오차 [deg]", fabs(CF_RAD2DEG(stBack.dAz_rad) - 30.0),  1e-9);
+    f_CheckLe("역변환 고각 오차 [deg]", fabs(CF_RAD2DEG(stBack.dEl_rad) -  0.0),  1e-9);
 
-    /* 중간값도 확인 — 단계별 서술과 문서가 일치하는지 */
-    check_le("p_ant.x 기대 +17320.5081", fabs(ch.p_antenna.x - 17320.5080757), 1e-6);
-    check_le("p_body.x 기대 −10030.0000", fabs(ch.p_body.x  - (-10030.0)),     1e-6);
-    check_le("p_ned.N  기대 −19339.7297", fabs(ch.p_ned.x   - (-19339.72971)), 1e-4);
-    check_le("진북방위 기대 165.074374°",
-             fabs(CF_RAD2DEG(ch.true_bearing_rad) - 165.074374), 1e-5);
+    // 중간값도 확인. 단계별 서술과 문서가 맞는지 보는 용도
+    f_CheckLe("p_ant.x 기대 +17320.5081", fabs(stChain.stAntPos.dX - 17320.5080757), 1e-6);
+    f_CheckLe("p_body.x 기대 −10030.0000", fabs(stChain.stBodyPos.dX - (-10030.0)),  1e-6);
+    f_CheckLe("p_ned.N  기대 −19339.7297", fabs(stChain.stNedPos.dX - (-19339.72971)), 1e-4);
+    f_CheckLe("진북방위 기대 165.074374°",
+              fabs(CF_RAD2DEG(stChain.dTrueBearing_rad) - 165.074374), 1e-5);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t7_singularities(void)
+static VOID f_T7Singularities(VOID)
 {
-    cf_geodetic_t g, back;
-    cf_vec3_t     p;
-    cf_polar_t    pol, q;
-    double worst = 0.0;
-    int i;
-    const double lats[4] = { 90.0, -90.0, 89.99999, 0.0 };
+    const FLOAT64 daLats[4] = { 90.0, -90.0, 89.99999, 0.0 };
+    ST_CfGeodetic stG;
+    ST_CfGeodetic stBack;
+    ST_CfVec3     stP;
+    ST_CfPolar    stPol;
+    ST_CfPolar    stQ;
+    FLOAT64       dWorst = 0.0;
+    INT32         i;
 
     printf("\nT7  특이점 처리 (NaN / Inf 없음)\n");
 
-    for (i = 0; i < 4; ++i) {                    /* 극점 부근 */
-        g.lat_rad = CF_DEG2RAD(lats[i]);
-        g.lon_rad = CF_DEG2RAD(123.0);
-        g.alt_m   = 100.0;
-        p = cf_ecef_from_geodetic(g);
-        if (cf_geodetic_from_ecef(p, &back) != CF_OK) { ++g_fail; return; }
-        if (isnan(back.lat_rad) || isnan(back.alt_m)) { ++g_fail; return; }
-        worst = fmax(worst, fabs(back.alt_m - g.alt_m));
-    }
-    check_le("극점 부근 고도 오차 [m]", worst, 1e-4);
-
-    /* 보어사이트 정면 / 천정 / 천저 */
-    worst = 0.0;
+    for (i = 0; i < 4; ++i)     // 극점 부근
     {
-        const double els[3] = { 0.0, 90.0, -90.0 };
-        for (i = 0; i < 3; ++i) {
-            pol.range_m = 1000.0;
-            pol.az_rad  = 0.0;
-            pol.el_rad  = CF_DEG2RAD(els[i]);
-            q = cf_polar_from_antcart(cf_antcart_from_polar(pol));
-            if (isnan(q.az_rad) || isnan(q.el_rad)) { ++g_fail; return; }
-            worst = fmax(worst, fabs(q.el_rad - pol.el_rad));
+        stG.dLat_rad = CF_DEG2RAD(daLats[i]);
+        stG.dLon_rad = CF_DEG2RAD(123.0);
+        stG.dAlt_m   = 100.0;
+        stP = f_CfEcefFromGeodetic(stG);
+        if (f_CfGeodeticFromEcef(stP, &stBack) != enum_CfStatus_Ok)
+        {
+            ++s_nFail;
+            return;
+        }
+        if (isnan(stBack.dLat_rad) || isnan(stBack.dAlt_m))
+        {
+            ++s_nFail;
+            return;
+        }
+        dWorst = fmax(dWorst, fabs(stBack.dAlt_m - stG.dAlt_m));
+    }
+    f_CheckLe("극점 부근 고도 오차 [m]", dWorst, 1e-4);
+
+    // 보어사이트 정면 / 천정 / 천저
+    dWorst = 0.0;
+    {
+        const FLOAT64 daEls[3] = { 0.0, 90.0, -90.0 };
+        for (i = 0; i < 3; ++i)
+        {
+            stPol.dRange_m = 1000.0;
+            stPol.dAz_rad  = 0.0;
+            stPol.dEl_rad  = CF_DEG2RAD(daEls[i]);
+            stQ = f_CfPolarFromAntCart(f_CfAntCartFromPolar(stPol));
+            if (isnan(stQ.dAz_rad) || isnan(stQ.dEl_rad))
+            {
+                ++s_nFail;
+                return;
+            }
+            dWorst = fmax(dWorst, fabs(stQ.dEl_rad - stPol.dEl_rad));
         }
     }
-    check_le("El = 0/±90° 왕복 오차 [rad]", worst, 1e-12);
+    f_CheckLe("El = 0/±90° 왕복 오차 [rad]", dWorst, 1e-12);
 
-    /* 거리 0 — 방향이 정의되지 않아도 NaN 이 나오면 안 된다 */
+    // 거리 0. 방향이 정의되지 않아도 NaN 은 나오면 안 됨
     {
-        cf_vec3_t zero = { 0.0, 0.0, 0.0 };
-        q = cf_polar_from_antcart(zero);
-        check("거리 0 에서 NaN 없음",
-              (!isnan(q.range_m) && !isnan(q.az_rad) && !isnan(q.el_rad)), 0.0, 0.0);
+        ST_CfVec3 stZero = { 0.0, 0.0, 0.0 };
+        stQ = f_CfPolarFromAntCart(stZero);
+        f_Check("거리 0 에서 NaN 없음",
+                (!isnan(stQ.dRange_m) && !isnan(stQ.dAz_rad) && !isnan(stQ.dEl_rad)), 0.0, 0.0);
     }
 
-    /* 경도 ±180 경계 */
+    // 경도 ±180 경계
     {
-        cf_geodetic_t a = { CF_DEG2RAD(10.0), CF_DEG2RAD(179.999999), 0.0 };
-        cf_geodetic_t b2;
-        if (cf_geodetic_from_ecef(cf_ecef_from_geodetic(a), &b2) != CF_OK) { ++g_fail; return; }
-        check_le("경도 ±180° 경계 오차 [deg]",
-                 fabs(CF_RAD2DEG(b2.lon_rad) - 179.999999), 1e-9);
+        ST_CfGeodetic stA = { CF_DEG2RAD(10.0), CF_DEG2RAD(179.999999), 0.0 };
+        ST_CfGeodetic stB;
+        if (f_CfGeodeticFromEcef(f_CfEcefFromGeodetic(stA), &stB) != enum_CfStatus_Ok)
+        {
+            ++s_nFail;
+            return;
+        }
+        f_CheckLe("경도 ±180° 경계 오차 [deg]",
+                  fabs(CF_RAD2DEG(stB.dLon_rad) - 179.999999), 1e-9);
     }
 }
 
-/*--------------------------------------------------------------------------*/
-static void t8_asymmetric_attitude(void)
+// 전치 방향이 뒤바뀐 버그는 대칭적인 자세에서는 안 드러나서 roll/pitch/yaw 를 전부 다르게 둠
+static VOID f_T8AsymmetricAttitude(VOID)
 {
-    /*  전치 방향이 뒤바뀐 버그는 대칭적인 자세에서는 드러나지 않는다.
-     *  roll·pitch·yaw 를 전부 다른 값으로 두고, C 와 Cᵀ 가 실제로
-     *  다른 결과를 주는지, 그리고 C·Cᵀ 가 항등인지 확인한다.            */
-    const cf_attitude_t att = { CF_DEG2RAD(17.0), CF_DEG2RAD(-9.0), CF_DEG2RAD(123.0) };
-    const cf_vec3_t     v   = { 1234.5, -678.9, 246.8 };
-    cf_vec3_t fwd, rt;
-    double diff, ident;
+    const ST_CfAttitude stAtt = { CF_DEG2RAD(17.0), CF_DEG2RAD(-9.0), CF_DEG2RAD(123.0) };
+    const ST_CfVec3     stV   = { 1234.5, -678.9, 246.8 };
+    ST_CfVec3 stFwd;
+    ST_CfVec3 stRt;
+    FLOAT64   dDiff;
+    FLOAT64   dIdent;
 
     printf("\nT8  비대칭 자세 — 전치 방향 검출\n");
-    fwd = cf_ned_from_body(&att, v);
-    rt  = cf_body_from_ned(&att, fwd);
+    stFwd = f_CfNedFromBody(&stAtt, stV);
+    stRt  = f_CfBodyFromNed(&stAtt, stFwd);
 
-    ident = cf_vec_norm(cf_vec_sub(rt, v));
-    check_le("C 적용 후 Cᵀ 적용 = 원본 [m]", ident, 1e-9);
+    dIdent = f_CfVecNorm(f_CfVecSub(stRt, stV));
+    f_CheckLe("C 적용 후 Cᵀ 적용 = 원본 [m]", dIdent, 1e-9);
 
-    /* 정방향과 역방향 결과가 '달라야' 정상이다 (같으면 전치가 무의미) */
-    diff = cf_vec_norm(cf_vec_sub(fwd, cf_body_from_ned(&att, v)));
-    check("정변환 ≠ 역변환 (구분됨)", diff > 1.0, diff, 1.0);
+    // 정방향과 역방향이 달라야 정상. 같으면 전치가 아무 일도 안 하고 있는 것
+    dDiff = f_CfVecNorm(f_CfVecSub(stFwd, f_CfBodyFromNed(&stAtt, stV)));
+    f_Check("정변환 ≠ 역변환 (구분됨)", dDiff > 1.0, dDiff, 1.0);
 }
 
-/*--------------------------------------------------------------------------*/
-static void t9_sign_sensitivity(void)
+// 부호를 뒤집으면 결과도 달라져야 함. 같다면 그 항이 계산에 안 쓰이고 있다는 뜻
+static VOID f_T9SignSensitivity(VOID)
 {
-    /*  부호를 뒤집었을 때 결과가 '반드시 달라져야' 한다.
-     *  같다면 그 항이 실제로는 계산에 쓰이지 않고 있다는 뜻이다.        */
-    const cf_polar_t    meas  = { 20000.0, CF_DEG2RAD(30.0), CF_DEG2RAD(12.0) };
-    const cf_geodetic_t plat  = { CF_DEG2RAD(36.408), CF_DEG2RAD(127.307), 0.0 };
-    cf_attitude_t att   = { CF_DEG2RAD(10.0), CF_DEG2RAD(5.0), CF_DEG2RAD(45.0) };
-    cf_mount_t    mount = { CF_DEG2RAD(90.0), 0.0, { -30.0, 0.0, -10.0 } };
-    cf_geodetic_t base, flipped;
+    const ST_CfPolar    stMeas  = { 20000.0, CF_DEG2RAD(30.0), CF_DEG2RAD(12.0) };
+    const ST_CfGeodetic stPlat  = { CF_DEG2RAD(36.408), CF_DEG2RAD(127.307), 0.0 };
+    ST_CfAttitude stAtt   = { CF_DEG2RAD(10.0), CF_DEG2RAD(5.0), CF_DEG2RAD(45.0) };
+    ST_CfMount    stMount = { CF_DEG2RAD(90.0), 0.0, { -30.0, 0.0, -10.0 } };
+    ST_CfGeodetic stBase;
+    ST_CfGeodetic stFlipped;
 
     printf("\nT9  부호 민감도\n");
-    if (cf_forward_chain(meas, &mount, &att, plat, &base, NULL) != CF_OK) { ++g_fail; return; }
+    if (f_CfForwardChain(stMeas, &stMount, &stAtt, stPlat, &stBase, NULL) != enum_CfStatus_Ok)
+    {
+        ++s_nFail;
+        return;
+    }
 
-    att.roll_rad = -att.roll_rad;                 /* roll 부호 반전 */
-    if (cf_forward_chain(meas, &mount, &att, plat, &flipped, NULL) != CF_OK) { ++g_fail; return; }
-    check("roll 부호 반전 → 결과 변함",
-          fabs(flipped.alt_m - base.alt_m) > 1.0,
-          fabs(flipped.alt_m - base.alt_m), 1.0);
-    att.roll_rad = -att.roll_rad;
+    stAtt.dRoll_rad = -stAtt.dRoll_rad;
+    if (f_CfForwardChain(stMeas, &stMount, &stAtt, stPlat, &stFlipped, NULL) != enum_CfStatus_Ok)
+    {
+        ++s_nFail;
+        return;
+    }
+    f_Check("roll 부호 반전 → 결과 변함",
+            fabs(stFlipped.dAlt_m - stBase.dAlt_m) > 1.0,
+            fabs(stFlipped.dAlt_m - stBase.dAlt_m), 1.0);
+    stAtt.dRoll_rad = -stAtt.dRoll_rad;
 
-    mount.lever_arm_b.z = -mount.lever_arm_b.z;   /* 레버암 z 부호 반전 */
-    if (cf_forward_chain(meas, &mount, &att, plat, &flipped, NULL) != CF_OK) { ++g_fail; return; }
-    check("레버암 z 부호 반전 → 결과 변함",
-          fabs(flipped.alt_m - base.alt_m) > 1.0,
-          fabs(flipped.alt_m - base.alt_m), 1.0);
+    stMount.stLeverArm_b.dZ = -stMount.stLeverArm_b.dZ;
+    if (f_CfForwardChain(stMeas, &stMount, &stAtt, stPlat, &stFlipped, NULL) != enum_CfStatus_Ok)
+    {
+        ++s_nFail;
+        return;
+    }
+    f_Check("레버암 z 부호 반전 → 결과 변함",
+            fabs(stFlipped.dAlt_m - stBase.dAlt_m) > 1.0,
+            fabs(stFlipped.dAlt_m - stBase.dAlt_m), 1.0);
 }
 
-/*--------------------------------------------------------------------------*/
-int main(void)
+INT32 main(VOID)
 {
-    console_use_utf8();
+    f_ConsoleUseUtf8();
     srand(20260901u);
     printf("════════════════════════════════════════════════════════════════════\n");
     printf(" coord_frames 단위 시험\n");
     printf("════════════════════════════════════════════════════════════════════\n");
 
-    t1_matrix_properties();
-    t2_polar_cart_roundtrip();
-    t3_uv_roundtrip();
-    t4_lla_ecef_roundtrip();
-    t5_full_chain_roundtrip();
-    t6_known_answer();
-    t7_singularities();
-    t8_asymmetric_attitude();
-    t9_sign_sensitivity();
+    f_T1MatrixProperties();
+    f_T2PolarCartRoundtrip();
+    f_T3UvRoundtrip();
+    f_T4LlaEcefRoundtrip();
+    f_T5FullChainRoundtrip();
+    f_T6KnownAnswer();
+    f_T7Singularities();
+    f_T8AsymmetricAttitude();
+    f_T9SignSensitivity();
 
     printf("\n════════════════════════════════════════════════════════════════════\n");
-    printf(" 결과 : 통과 %d / 실패 %d\n", g_pass, g_fail);
+    printf(" 결과 : 통과 %d / 실패 %d\n", s_nPass, s_nFail);
     printf("════════════════════════════════════════════════════════════════════\n");
-    return (g_fail == 0) ? 0 : 1;
+    return (s_nFail == 0) ? 0 : 1;
 }
