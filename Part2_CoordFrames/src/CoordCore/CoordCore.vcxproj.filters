@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일"><UniqueIdentifier>{2c7e8f41-9b3a-4d6c-8e15-7a0f3b9d2c64}</UniqueIdentifier></Filter>
+    <Filter Include="헤더 파일"><UniqueIdentifier>{5d1a6c93-4e7b-4f28-9a3d-1b8c2e6f4a07}</UniqueIdentifier></Filter>
+    <Filter Include="참고 소스코드"><UniqueIdentifier>{8b4f2d17-6a9e-4c31-b5d8-3e7a1c9f6b52}</UniqueIdentifier></Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="coord_frames.c"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="matrixCalcLib.c"><Filter>참고 소스코드</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="coord_frames.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="matrixCalcLib.h"><Filter>참고 소스코드</Filter></ClInclude>
+  </ItemGroup>
+</Project>
