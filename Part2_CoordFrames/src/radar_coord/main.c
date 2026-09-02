@@ -5,7 +5,6 @@
 //			플랫폼: 36.408 N, 127.307 E, 고도 0 m, 자세각 (r, y, p) = (0, 45, 0) deg
 //			안테나: 선수 기준 시계방향 90 deg, 무게중심에서 30 m 뒤, 10 m 위
 //			출력  : 표적 위/경/고도, 표적 안테나 기준 R / Az / El
-//			"test" 인자를 주면 예제 대신 시험 12항목을 돌림 (test_frames.c)
 // @author	hwan
 // @date	2026.09.02.
 //
@@ -13,10 +12,8 @@
 #include <windows.h>    // 한글 콘솔 출력용. coord_frames.h 보다 먼저 include 해야 함
 #endif
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
 #include "coord_frames.h"
-#include "test_frames.h"
 
 static VOID f_PrintVec(const CHAR *cpLabel, const ST_Vec3 stV)
 {
@@ -24,7 +21,7 @@ static VOID f_PrintVec(const CHAR *cpLabel, const ST_Vec3 stV)
     printf("      %16.4f %16.4f %16.4f  [m]\n", stV.dX, stV.dY, stV.dZ);
 }
 
-INT32 main(INT32 argc, CHAR **argv)
+INT32 main(VOID)
 {
     // 과제 조건. 안테나 설치 위치는 동체 기준이라 30 m 뒤 = x -30, 10 m 위 = z -10
     ST_Polar    stMeas  = { 20000.0, DEG2RAD(30.0), DEG2RAD(0.0) };
@@ -42,11 +39,6 @@ INT32 main(INT32 argc, CHAR **argv)
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
-
-    if ((argc > 1) && (strcmp(argv[1], "test") == 0))
-    {
-        return f_RunTests();
-    }
 
     printf("[입력]\n");
     printf("  측정값       R = %.1f m, Az = %.3f deg, El = %.3f deg\n",

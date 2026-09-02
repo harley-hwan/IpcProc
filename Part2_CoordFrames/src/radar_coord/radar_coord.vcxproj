@@ -93,10 +93,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
-    <ClCompile Include="test_frames.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="test_frames.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CoordCore\CoordCore.vcxproj">
