@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
 from matplotlib import patheffects as pe
-from matplotlib.patches import Arc, Circle, FancyArrowPatch, Polygon
+from matplotlib.patches import Arc, Circle, FancyArrowPatch, Polygon, Wedge
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.normpath(os.path.join(HERE, "..", "..", "참고 자료", "figures"))
@@ -46,12 +46,21 @@ HULL = "#E2EAF7"        # 선체 채움
 DECK = "#C7D6EE"        # 갑판 구조물 채움
 ORANGE = "#C2521C"      # 표적 · 측정값
 WATER = "#9FBADF"       # 물결
+
+# 어두운 배경 슬라이드(2장)용. 배경 #12223E 위에 얹는다
+DK_TEXT = "#FFFFFF"     # 굵은 글자
+DK_MUTE = "#8FA6CC"     # 설명 글자 (카드 라벨과 같은 색)
+DK_GRID = "#5A79AC"     # 격자 · 거리 링
+DK_BLUE = "#9CC0F0"     # 안테나 · 배
+DK_ORANGE = "#F0894C"   # 표적 · 측정값
 DPI = 170
 
 
 # ---------------------------------------------------------------- 캔버스 도구
-def canvas(px_w, px_h):
-    fig = plt.figure(figsize=(px_w / DPI, px_h / DPI), dpi=DPI, facecolor="white")
+def canvas(px_w, px_h, bg="white"):
+    """bg=None 이면 배경을 비운다 (어두운 슬라이드에 얹을 때)"""
+    fig = plt.figure(figsize=(px_w / DPI, px_h / DPI), dpi=DPI,
+                     facecolor=("none" if bg is None else bg))
     lay = fig.add_axes([0, 0, 1, 1], zorder=10)     # 글자 전용 층 (그림 좌표 0~1)
     lay.set_xlim(0, 1)
     lay.set_ylim(0, 1)
@@ -220,13 +229,125 @@ def antenna_face(ax, c, deg, half=3.4, thick=1.5, z=8, color=BLUE):
     poly(ax, pts, fc=color, ec=color, lw=1.0, z=z)
 
 
-def save(fig, name):
+def blip(ax, c, r=1.5, color=None, z=5):
+    """표적 점. 가운데 점에 흐린 후광을 둘러 어두운 배경에서도 눈에 띄게 한다"""
+    color = color or DK_ORANGE
+    ax.add_patch(Circle(c, r * 2.0, facecolor=color, edgecolor="none", alpha=0.30, zorder=z))
+    ax.add_patch(Circle(c, r, facecolor=color, edgecolor="none", zorder=z + 1))
+
+
+def save(fig, name, bg="white"):
+    """bg=None 이면 배경 없이(투명하게) 저장한다"""
     if not os.path.isdir(OUT_DIR):
         sys.exit("figures 폴더를 못 찾음: %s" % OUT_DIR)
     path = os.path.join(OUT_DIR, name)
-    fig.savefig(path, dpi=DPI, facecolor="white")
+    if bg is None:
+        fig.savefig(path, dpi=DPI, transparent=True)
+    else:
+        fig.savefig(path, dpi=DPI, facecolor=bg)
     plt.close(fig)
     print("생성: %s" % path)
+
+
+# ============================================== 2장 : 레이다 화면 vs 전시기 화면
+SHIP_LLA = (127.307, 36.408)        # 과제 조건의 함선 위치
+TGT_LLA = (127.3643, 36.2337)       # 같은 표적을 위경도로 옮긴 값 (31장 최종 출력)
+
+
+def draw_intro():
+    """같은 표적을 레이다는 부채꼴 화면 위 한 점으로, 전시기는 지도 위 한 점으로 찍는다.
+
+    2장은 배경이 어두운 슬라이드라 배경을 비우고 밝은 색으로 그린다.
+    왼쪽은 안테나 정면을 기준으로 잰 거리와 각도, 오른쪽은 지구를 기준으로 잰 위경도다.
+    지도는 가로세로가 실제 거리 비율과 맞도록 경도 범위를 상자 모양에서 역산해 정한다.
+    """
+    W, H = 1955, 320
+    fig, lay = canvas(W, H, bg=None)
+
+    box = (0.012, 0.040, 0.415, 0.930)
+    ar = (box[3] * H) / (box[2] * W)
+    TOP = 100.0 * ar
+    axA = stage(fig, list(box), (0, 100), (0, TOP))
+    axB = stage(fig, [0.573, box[1], box[2], box[3]], (0, 100), (0, TOP))
+
+    # ------------------------------------------------ 왼쪽 : 레이다가 보는 것
+    O = (30.0, TOP * 0.82)
+    R_OUT, R_IN, AZ = 44.0, 22.0, 30.0
+    axA.add_patch(Wedge(O, R_OUT, -34, 6, facecolor=DK_BLUE, edgecolor="none",
+                        alpha=0.14, zorder=1))
+    for r, lab in ((R_IN, "10 km"), (R_OUT, "20 km")):
+        axA.add_patch(Arc(O, 2 * r, 2 * r, theta1=-34, theta2=6, color=DK_GRID,
+                          lw=1.0, zorder=2))
+        text(axA, O[0] + r, O[1] + 1.6, lab, size=9, color=DK_GRID, ha="center",
+             va="bottom")
+    line(axA, O, at(O, R_OUT + 6.0, 0.0), color=DK_GRID, lw=1.0, dashes=(5, 4), z=2)
+    text(axA, O[0] + R_OUT + 7.5, O[1], "안테나 정면", size=10, color=DK_MUTE, va="center")
+
+    tgt = at(O, R_OUT, -AZ)
+    arrow(axA, O, tgt, color=DK_ORANGE, lw=2.2, head=11, z=5)
+    blip(axA, tgt)
+    text(axA, tgt[0] + 3.6, tgt[1], "표적", size=11, color=DK_TEXT, bold=True, va="center")
+    arcdeg(axA, O, 13.0, -AZ, 0.0, color=DK_ORANGE, lw=1.5)
+    text(axA, *at(O, 18.5, -AZ / 2), s="30°", size=11, color=DK_ORANGE, bold=True,
+         ha="center", va="center")
+    text(axA, *at(O, R_OUT * 0.56, -AZ + 9.0), s="20 km", size=11, color=DK_ORANGE,
+         bold=True, ha="center", va="center")
+
+    antenna_face(axA, O, 0.0, half=3.0, thick=1.6, color=DK_BLUE)
+    text(axA, O[0] - 4.5, O[1], "안테나", size=10, color=DK_BLUE, bold=True,
+         ha="right", va="center")
+
+    # ------------------------------------------------ 오른쪽 : 전시기가 보여주는 것
+    X0, X1 = 18.0, 82.0
+    Y0, Y1 = 0.11 * TOP, 0.89 * TOP
+    LAT0, LAT1, LON_MID = 36.12, 36.48, 127.35
+    lat_km = (LAT1 - LAT0) * 111.13
+    lon_deg = (lat_km * (X1 - X0) / (Y1 - Y0)) / (111.32 * math.cos(math.radians(36.3)))
+    LON0, LON1 = LON_MID - lon_deg / 2, LON_MID + lon_deg / 2
+
+    def M(lon, lat):
+        return (X0 + (lon - LON0) / (LON1 - LON0) * (X1 - X0),
+                Y0 + (lat - LAT0) / (LAT1 - LAT0) * (Y1 - Y0))
+
+    poly(axB, [(X0, Y0), (X1, Y0), (X1, Y1), (X0, Y1)], fc="#1B2E50", ec=DK_GRID,
+         lw=1.2, z=1)
+    ship, tb = M(*SHIP_LLA), M(*TGT_LLA)
+    step = 0.2                                                 # 경도 눈금 간격
+    for k in range(int(math.ceil(LON0 / step)), int(math.floor(LON1 / step)) + 1):
+        lon = round(k * step, 2)
+        line(axB, M(lon, LAT0), M(lon, LAT1), color=DK_GRID, lw=0.8, z=2)
+        if abs(M(lon, LAT0)[0] - tb[0]) > 13.0:                # 표적 눈금과 겹치면 생략
+            text(axB, M(lon, LAT0)[0], Y0 - 2.4, "%.1f°E" % lon, size=8.5,
+                 color=DK_GRID, ha="center", va="top")
+    for lat in (36.2, 36.3, 36.4):
+        line(axB, M(LON0, lat), M(LON1, lat), color=DK_GRID, lw=0.8, z=2)
+        if abs(M(LON0, lat)[1] - tb[1]) > 4.0:
+            text(axB, X0 - 2.0, M(LON0, lat)[1], "%.1f°N" % lat, size=8.5,
+                 color=DK_GRID, ha="right", va="center")
+
+    line(axB, ship, tb, color=DK_MUTE, lw=1.0, dashes=(3, 3), z=3)
+    line(axB, tb, (X0, tb[1]), color=DK_ORANGE, lw=1.0, dashes=(4, 3), z=3)
+    line(axB, tb, (tb[0], Y0), color=DK_ORANGE, lw=1.0, dashes=(4, 3), z=3)
+
+    ca, sa = math.cos(math.radians(-45.0)), math.sin(math.radians(-45.0))   # 함수 45°
+    hull = [(0.0, 3.0), (1.6, -0.4), (1.2, -2.5), (-1.2, -2.5), (-1.6, -0.4)]
+    poly(axB, [(ship[0] + u * ca - v * sa, ship[1] + u * sa + v * ca)
+               for u, v in hull], fc=DK_BLUE, ec=DK_BLUE, lw=1.0, z=5)
+    text(axB, ship[0] - 3.6, ship[1] + 1.4, "우리 배", size=10, color=DK_BLUE, bold=True,
+         ha="right", va="center")
+
+    blip(axB, tb)
+    text(axB, tb[0] + 3.6, tb[1] + 1.2, "표적", size=11, color=DK_TEXT, bold=True,
+         ha="left", va="bottom")
+    text(axB, X0 - 2.0, tb[1], "36.2337°N", size=10, color=DK_ORANGE, bold=True,
+         ha="right", va="center")
+    text(axB, tb[0], Y0 - 2.4, "127.3643°E", size=10, color=DK_ORANGE, bold=True,
+         ha="center", va="top")
+
+    # ------------------------------------------------ 사이 화살표
+    arrow(lay, (0.462, 0.50), (0.538, 0.50), color=DK_MUTE, lw=2.4, head=16, z=5)
+
+    save(fig, "fig15_scope_vs_chart.png", bg=None)
 
 
 # ============================================================== 10장 : 극좌표
@@ -422,8 +543,10 @@ def draw_rotate():
 
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if what not in ("all", "polar", "rotate"):
-        sys.exit("사용법: python make_figures.py [all|polar|rotate]")
+    if what not in ("all", "intro", "polar", "rotate"):
+        sys.exit("사용법: python make_figures.py [all|intro|polar|rotate]")
+    if what in ("all", "intro"):
+        draw_intro()
     if what in ("all", "polar"):
         draw_polar()
     if what in ("all", "rotate"):
