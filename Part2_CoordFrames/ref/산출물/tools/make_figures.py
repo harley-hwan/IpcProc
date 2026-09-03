@@ -45,6 +45,7 @@ BLUE = "#2B57A6"        # 축 · 선체 외곽선
 HULL = "#E2EAF7"        # 선체 채움
 DECK = "#C7D6EE"        # 갑판 구조물 채움
 ORANGE = "#C2521C"      # 표적 · 측정값
+GREEN = "#2F855A"       # 진북 · NED 계열
 WATER = "#9FBADF"       # 물결
 
 # 어두운 배경 슬라이드(2장)용. 배경 #12223E 위에 얹는다
@@ -157,11 +158,16 @@ def ship_top(ax, x_stern, y_axis, length, z=3, wake=True, ang=0.0):
     return P
 
 
-def ship_side(ax, x0, y_water, length, z=3, flip=False):
-    """옆에서 본 배. flip=False 면 선수가 오른쪽, True 면 왼쪽. 흘수선은 y = y_water"""
+def ship_side(ax, x0, y_water, length, z=3, flip=False, ang=0.0):
+    """옆에서 본 배. flip=False 면 선수가 오른쪽, True 면 왼쪽. 흘수선은 y = y_water.
+    ang 은 배 한가운데를 축으로 한 기울기(도). 선수가 들리는 쪽이 +"""
+    ca, sa = math.cos(math.radians(ang)), math.sin(math.radians(ang))
+    px, py = x0 + 0.5 * length, y_water
+
     def P(u, v):
         uu = (1.0 - u) if flip else u
-        return (x0 + uu * length, y_water + v * length)
+        dx, dy = x0 + uu * length - px, v * length
+        return (px + dx * ca - dy * sa, py + dx * sa + dy * ca)
 
     poly(ax, [P(u, v) for u, v in HULL_SIDE], fc=HULL, ec=BLUE, lw=1.7, z=z)
     poly(ax, [P(0.16, 0.041), P(0.16, 0.104), P(0.76, 0.104), P(0.76, 0.052)],
@@ -184,11 +190,15 @@ HULL_STERN = [(-0.20, -0.34), (-0.36, -0.26), (-0.45, -0.10), (-0.48, 0.10),
               (0.36, -0.26), (0.20, -0.34)]
 
 
-def ship_stern(ax, x_center, y_water, beam, z=3):
+def ship_stern(ax, x_center, y_water, beam, z=3, ang=0.0):
     """배 뒤에서 선수 쪽을 본 모습. 배가 관측자를 등지고 있어 화면 오른쪽이 우현이다.
-    보어사이트가 우현이면 El 이 놓인 수직면이 곧 이 화면이라 각을 그대로 그릴 수 있다"""
+    보어사이트가 우현이면 El 이 놓인 수직면이 곧 이 화면이라 각을 그대로 그릴 수 있다.
+    ang 은 흘수선 한가운데를 축으로 한 횡경사(도). 우현(화면 오른쪽)이 내려가는 쪽이 +"""
+    ca, sa = math.cos(math.radians(-ang)), math.sin(math.radians(-ang))
+
     def P(u, v):
-        return (x_center + u * beam, y_water + v * beam)
+        dx, dy = u * beam, v * beam
+        return (x_center + dx * ca - dy * sa, y_water + dx * sa + dy * ca)
 
     poly(ax, [P(u, v) for u, v in HULL_STERN], fc=HULL, ec=BLUE, lw=1.7, z=z)
     poly(ax, [P(-0.17, 0.10), P(-0.17, 0.38), P(0.17, 0.38), P(0.17, 0.10)],
@@ -202,6 +212,75 @@ def ship_stern(ax, x_center, y_water, beam, z=3):
     poly(ax, [P(-0.038, 1.20), P(-0.028, 1.58), P(0.028, 1.58), P(0.038, 1.20)],
          fc=DECK, ec=BLUE, lw=1.0, z=z + 1)                       # 마스트
     line(ax, P(-0.15, 1.40), P(0.15, 1.40), color=BLUE, lw=1.1, z=z + 2)
+    return P
+
+
+# ---------------------------------------------------------------- 사선(축측) 투영
+# 수평면을 위에서 비스듬히 내려다본 평행투영. 오른손 좌표계가 눈으로도 오른손으로 보인다.
+# 첫째 축은 뒤로 물러나고(북 · 선수), 둘째 축은 오른쪽 앞으로 나오고(동 · 우현),
+# 셋째 축은 화면 수직이다(아래 또는 위).
+ISO_FWD = (0.500, 0.420)
+ISO_RGT = (0.940, -0.342)
+
+
+def iso(o, f, r, d=0.0):
+    """평면 위 (앞으로 f, 오른쪽으로 r) 과 아래로 d 를 화면 좌표로 옮긴다"""
+    return (o[0] + f * ISO_FWD[0] + r * ISO_RGT[0],
+            o[1] + f * ISO_FWD[1] + r * ISO_RGT[1] - d)
+
+
+def iso_axis(ax, o, key, length, color, label, num=None, tone=None, size=11.5, z=6):
+    """원점에서 뻗는 축 하나. key 는 fwd / rgt / down / up"""
+    d = {"fwd": ISO_FWD, "rgt": ISO_RGT, "down": (0.0, -1.0), "up": (0.0, 1.0)}[key]
+    tip = (o[0] + d[0] * length, o[1] + d[1] * length)
+    arrow(ax, o, tip, color=color, lw=2.0, head=11, z=z)
+    q = (o[0] + d[0] * length * 1.20, o[1] + d[1] * length * 1.20)
+    text(ax, q[0], q[1], label, size=size, color=color, bold=True, ha="center", va="center")
+    if num:                                             # 몇 번째로 세는 축인가
+        h = math.hypot(*d)
+        c = (o[0] + d[0] * length * 0.60 - d[1] / h * 4.4,
+             o[1] + d[1] * length * 0.60 + d[0] / h * 4.4)
+        ax.add_patch(Circle(c, 2.6, facecolor="white", edgecolor=tone, lw=1.3, zorder=z + 1))
+        text(ax, c[0], c[1] - 0.1, num, size=10.5, color=tone, bold=True, ha="center",
+             va="center", zorder=z + 2)
+    return tip
+
+
+def ship_iso(ax, o, length, z=3):
+    """사선으로 본 배. 갑판은 앞-오른쪽 평면에 놓이고 선체는 아래로 두껍게 그린다.
+
+    P(f, s, d) 에서 f 는 선미 0 ~ 선수 1, s 는 우현 쪽 거리, d 는 아래로 내려간 거리다.
+    (모두 배 길이를 1 로 본 비율)
+    """
+    hull_d = 0.052 * length
+
+    def P(f, s, d=0.0):
+        return iso(o, (f - 0.42) * length, s * length, d * length)
+
+    deck = [P(f, -v) for f, v in HULL_TOP]              # 위에서 본 그림은 +v 가 좌현이다
+    keel = [P(f, -v, 0.052) for f, v in HULL_TOP]
+    poly(ax, keel, fc="#CFDBEE", ec=BLUE, lw=1.0, z=z)
+    for i in range(len(deck)):                          # 뱃전. 갑판에 가려 앞쪽만 남는다
+        j = (i + 1) % len(deck)
+        poly(ax, [deck[i], deck[j], keel[j], keel[i]], fc="#CFDBEE", ec=BLUE, lw=0.9,
+             z=z + 1)
+    poly(ax, deck, fc=HULL, ec=BLUE, lw=1.6, z=z + 2)
+
+    def box(f0, f1, w, h):
+        """갑판 위 구조물. 윗면과 보이는 두 옆면만 그리면 입체로 보인다"""
+        A, D_ = P(f0, -w), P(f0, w)
+        C = P(f1, w)
+        At, Dt, Ct = P(f0, -w, -h), P(f0, w, -h), P(f1, w, -h)
+        Bt = P(f1, -w, -h)
+        poly(ax, [D_, C, Ct, Dt], fc="#B9CBE6", ec=BLUE, lw=0.8, z=z + 3)   # 우현 면
+        poly(ax, [A, D_, Dt, At], fc="#C7D6EE", ec=BLUE, lw=0.8, z=z + 3)   # 선미 면
+        poly(ax, [At, Bt, Ct, Dt], fc=DECK, ec=BLUE, lw=0.9, z=z + 4)       # 윗면
+
+    box(0.22, 0.36, 0.033, 0.030)                       # 격납고
+    box(0.40, 0.50, 0.026, 0.038)                       # 연돌
+    box(0.54, 0.72, 0.038, 0.050)                       # 함교
+    box(0.80, 0.88, 0.026, 0.022)                       # 함포
+    line(ax, P(0.18, -0.052), P(0.18, 0.052), color=BLUE, lw=0.9, z=z + 3)
     return P
 
 
@@ -227,6 +306,30 @@ def antenna_face(ax, c, deg, half=3.4, thick=1.5, z=8, color=BLUE):
            (c[0] - ux * half + vx * thick / 2, c[1] - uy * half + vy * thick / 2),
            (c[0] - ux * half - vx * thick / 2, c[1] - uy * half - vy * thick / 2)]
     poly(ax, pts, fc=color, ec=color, lw=1.0, z=z)
+
+
+def axis_mark(ax, c, r, into=True, color=BLUE, lw=1.3, z=8):
+    """화면을 뚫는 축 표시. into=True 면 들어가는 방향 ⊗, False 면 나오는 방향 ⊙"""
+    ax.add_patch(Circle(c, r, facecolor="white", edgecolor=color, lw=lw, zorder=z))
+    if into:
+        d = r * 0.70
+        line(ax, (c[0] - d, c[1] - d), (c[0] + d, c[1] + d), color=color, lw=lw, z=z + 1)
+        line(ax, (c[0] - d, c[1] + d), (c[0] + d, c[1] - d), color=color, lw=lw, z=z + 1)
+    else:
+        ax.add_patch(Circle(c, r * 0.30, facecolor=color, edgecolor="none", zorder=z + 1))
+
+
+def curve_arrow(ax, p0, p1, rad=0.35, color=ORANGE, lw=1.8, head=11, z=6):
+    """회전 방향을 나타내는 굽은 화살표"""
+    ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle="-|>", mutation_scale=head, lw=lw,
+                                 color=color, shrinkA=0, shrinkB=0, zorder=z,
+                                 connectionstyle="arc3,rad=%.3f" % rad))
+
+
+def num(v, sign=True):
+    """천 단위마다 쉼표를 넣어 자릿수를 헷갈리지 않게 쓴다. 20000 -> 20,000"""
+    body = "{:,.0f}".format(abs(v)) if float(v).is_integer() else "{:,}".format(abs(v))
+    return ("-" if v < 0 else ("+" if sign else "")) + body
 
 
 def blip(ax, c, r=1.5, color=None, z=5):
@@ -461,6 +564,295 @@ def draw_polar():
     save(fig, "fig02_polar.png")
 
 
+# ================================================ 4장 : 한 표적을 여러 기준에서 재기
+def draw_one_target():
+    """같은 표적 하나를 안테나 · 함선 · 진북 세 기준에서 재면 각도만 30 · 120 · 165 로
+    달라진다는 것을 왼쪽에, 그 표적이 지구에서는 어디인지를 오른쪽에 그린다.
+    """
+    W, H = 1580, 910
+    fig, lay = canvas(W, H)
+    axL = stage(fig, [0.020, 0.050, 0.500, 0.900], (0, 100),
+                (0, 100 * (0.900 * H) / (0.500 * W)))
+    axR = stage(fig, [0.580, 0.190, 0.360, 0.620], (0, 100),
+                (0, 100 * (0.620 * H) / (0.360 * W)))
+
+    # ------------------------------------------------- 왼쪽 : 세 기준에서 잰 각
+    CG, L = (30.0, 60.0), 24.0
+    bow, bore = 45.0, -45.0                            # 화면 각도. 선수 45°, 보어사이트 우현
+    los = bore - 30.0
+
+    for ang_, lab in ((90.0, "N"), (0.0, "E")):
+        arrow(axL, CG, at(CG, 18.0, ang_), color=GREEN, lw=1.8, head=10, z=5)
+        text(axL, *at(CG, 20.5, ang_), s=lab, size=12, color=GREEN, bold=True,
+             ha="center", va="center")
+    line(axL, at(CG, 18.0, 90.0), at(CG, 25.0, 90.0), color=FAINT, lw=1.1,
+         dashes=(4, 3), z=2)
+    text(axL, CG[0], CG[1] + 26.0, "진북", size=11.5, color=NAVY, bold=True,
+         ha="center", va="bottom")
+
+    rad = math.radians(bow)
+    P = ship_top(axL, CG[0] - 0.42 * L * math.cos(rad), CG[1] - 0.42 * L * math.sin(rad),
+                 L, ang=bow, wake=False)
+    # 축 이름은 호(弧) 바깥쪽에 두어 호와 글자가 겹치지 않게 한다
+    arrow(axL, CG, at(CG, 35.0, bow), color=BLUE, lw=1.8, head=10, z=6)
+    text(axL, *at(CG, 36.5, bow), s="x_b 선수", size=11.5, color=BLUE, bold=True,
+         ha="left", va="bottom")
+    tip = at(CG, 35.0, bore)                           # 보어사이트와 우현은 같은 방향이다
+    arrow(axL, CG, tip, color=BLUE, lw=1.8, head=10, z=6)
+    text(axL, tip[0] + 1.6, tip[1] + 1.4, "y_b 우현", size=11.5, color=BLUE, bold=True,
+         ha="left", va="bottom")
+    text(axL, tip[0] + 1.6, tip[1] - 1.4, "x_a 보어사이트", size=11.5, color=ORANGE,
+         bold=True, ha="left", va="top")
+
+    ant = P(0.34, -0.062)
+    antenna_face(axL, ant, bore, half=2.4, thick=1.4, color=ORANGE)
+    arrow(axL, ant, at(ant, 16.0, bore - 90.0), color=ORANGE, lw=1.8, head=10, z=6)
+    text(axL, *at(ant, 17.5, bore - 90.0), s="y_a", size=11.5, color=ORANGE, bold=True,
+         ha="right", va="center")
+
+    tgt = at(ant, 42.0, los)
+    arrow(axL, ant, tgt, color=ORANGE, lw=2.3, head=12, z=6)
+    axL.add_patch(Circle(tgt, 1.8, facecolor=ORANGE, edgecolor="none", zorder=8))
+    text(axL, tgt[0] + 3.2, tgt[1] + 1.0, "표적은 하나", size=12.5, color=NAVY, bold=True,
+         ha="left", va="bottom")
+    text(axL, tgt[0] + 3.2, tgt[1] - 1.0, "안테나에서 20 km", size=10, color=FAINT,
+         ha="left", va="top")
+
+    arcs = ((32.0, los, 90.0, GREEN, "진북에서 165°", 62.0),
+            (25.0, los, bow, BLUE, "선수에서 120°", 54.0),
+            (18.0, los, bore, ORANGE, "보어사이트에서 30°", 46.0))
+    for r, a0, a1, col, lab, ly in arcs:                # 라벨은 오른쪽에 세로로 모아 둔다
+        arcdeg(axL, CG, r, a0, a1, color=col, lw=1.6)
+        text(axL, 68.0, ly, lab, size=11, color=col, bold=True, ha="left", va="center")
+
+    # ------------------------------------------------------- 오른쪽 : 지구에서 보면
+    TR = axR.get_ylim()[1]
+    C, R = (46.0, TR * 0.52), 30.0
+    axR.add_patch(Circle(C, R, facecolor=HULL, edgecolor="#3D4A5F", lw=1.6, zorder=2))
+    axR.add_patch(Arc(C, R * 0.9, 2 * R, theta1=0, theta2=360, color="#8A93A8",
+                      lw=1.0, linestyle=(0, (4, 3)), zorder=3))
+    line(axR, (C[0] - R, C[1]), (C[0] + R, C[1]), color="#8A93A8", lw=1.0,
+         dashes=(5, 4), z=3)
+    text(axR, C[0] - R + 2.0, C[1] + 2.0, "적도", size=10, color=FAINT, va="bottom")
+    text(axR, C[0], C[1] - R - 2.5, "그리니치 자오선", size=10, color=FAINT,
+         ha="center", va="top")
+
+    arrow(axR, C, (C[0], C[1] + R + 10.0), color=NAVY, lw=1.7, head=10, z=6)
+    arrow(axR, C, (C[0] + R + 12.0, C[1]), color=NAVY, lw=1.7, head=10, z=6)
+    text(axR, C[0], C[1] + R + 11.5, "Z  북극", size=11.5, color=NAVY, bold=True,
+         ha="center", va="bottom")
+    text(axR, C[0] + R + 13.5, C[1], "X", size=11.5, color=NAVY, bold=True, va="center")
+    axR.add_patch(Circle(C, 1.0, facecolor=NAVY, edgecolor="none", zorder=7))
+    text(axR, C[0] + 2.0, C[1] - 4.0, "지구 중심 = ECEF 원점", size=10, color=GREY,
+         va="center")
+
+    ptt = at(C, R, 36.0)
+    line(axR, C, ptt, color=ORANGE, lw=1.2, dashes=(4, 3), z=5)
+    arcdeg(axR, C, 13.0, 0.0, 36.0, color=ORANGE, lw=1.4)
+    text(axR, *at(C, 17.0, 18.0), s="위도", size=10.5, color=ORANGE, bold=True,
+         ha="left", va="center")
+    axR.add_patch(Circle(ptt, 2.0, facecolor=ORANGE, edgecolor="none", zorder=8))
+    text(axR, ptt[0] + 3.0, ptt[1] + 3.0, "배와 표적", size=11, color=NAVY, bold=True,
+         ha="left", va="bottom")
+    text(axR, ptt[0] + 3.0, ptt[1] + 1.0, "북위 36°, 동경 127°", size=10, color=GREY,
+         ha="left", va="top")
+
+    text(lay, 0.580, 0.905, "지구에서 보면", size=13, color=NAVY, bold=True)
+    text(lay, 0.580, 0.115, "ECEF :  지구 중심에서 잰 (X, Y, Z) m", size=11, color=GREY)
+    text(lay, 0.580, 0.058, "LLA  :  위도 · 경도 · 고도 (지도 좌표)", size=11, color=GREY)
+
+    save(fig, "fig14_one_target.png")
+
+
+# ========================================================== 8장 : 회전행렬 유도
+def draw_derive():
+    """삼각함수 덧셈정리에서 2차원 회전식이 나오는 과정.
+
+    슬라이드에서 7.50 in 로 줄여 놓기 때문에 그림 안 글자는 13 pt 근처로 잡아야
+    화면에서 12 pt 정도로 읽힌다. 슬라이드 제목과 겹치는 그림 안 머리글은 두지 않는다.
+    """
+    W, H = 1334, 689
+    fig, lay = canvas(W, H)
+    ax = stage(fig, [0.020, 0.055, 0.345, 0.890], (0, 100),
+               (0, 100 * (0.890 * H) / (0.345 * W)))
+
+    O, R, A, T = (14.0, 22.0), 72.0, 25.0, 42.0        # 원점, 반지름, 처음 각, 더 돌린 각
+    p = at(O, R, A)
+    q = at(O, R, A + T)
+
+    arrow(ax, O, (96.0, O[1]), color=GREY, lw=1.3, head=9, z=3)
+    arrow(ax, O, (O[0], 118.0), color=GREY, lw=1.3, head=9, z=3)
+    text(ax, 97.5, O[1], "x", size=12, color=GREY, va="center")
+    text(ax, O[0], 119.5, "y", size=12, color=GREY, ha="center", va="bottom")
+
+    for pt_, col in ((p, "#C9CDD8"), (q, "#E2C3AE")):
+        line(ax, pt_, (pt_[0], O[1]), color=col, lw=1.0, dashes=(4, 3), z=2)
+        line(ax, pt_, (O[0], pt_[1]), color=col, lw=1.0, dashes=(4, 3), z=2)
+
+    arrow(ax, O, p, color=GREY, lw=2.0, head=11, z=5)
+    arrow(ax, O, q, color=ORANGE, lw=2.3, head=12, z=6)
+    ax.add_patch(Circle(p, 1.6, facecolor=GREY, edgecolor="none", zorder=7))
+    ax.add_patch(Circle(q, 1.6, facecolor=ORANGE, edgecolor="none", zorder=7))
+    text(ax, p[0] + 2.4, p[1] - 2.0, "P (x, y)", size=12, color=NAVY, bold=True, va="top")
+    text(ax, q[0] + 2.4, q[1] + 2.0, "P' (x', y')", size=12, color=ORANGE, bold=True,
+         va="bottom")
+
+    arcdeg(ax, O, 22.0, 0.0, A, color=GREY, lw=1.4)
+    text(ax, *at(O, 27.0, A / 2), s="α", size=13, color=GREY, ha="center", va="center")
+    arcdeg(ax, O, 46.0, A, A + T, color=ORANGE, lw=1.6)
+    text(ax, *at(O, 51.5, A + T / 2), s="θ", size=13.5, color=ORANGE, bold=True,
+         ha="center", va="center")
+
+    # ---------------------------------------------------------------- 유도 세 단계
+    x0, y = 0.415, 0.905
+    steps = [
+        (GREY, 11, "원래 점을 극좌표로 쓰면", False),
+        (NAVY, 12.5, "x = r·cos α ,   y = r·sin α", False),
+        (None, 0, "", False),
+        (GREY, 11, "θ 만큼 더 돌리면 각이 α+θ 가 되므로", False),
+        (NAVY, 12.5, "x' = r·cos(α+θ) = r·cosα·cosθ - r·sinα·sinθ", False),
+        (NAVY, 12.5, "y' = r·sin(α+θ) = r·sinα·cosθ + r·cosα·sinθ", False),
+        (None, 0, "", False),
+        (GREY, 11, "r·cosα = x,  r·sinα = y  를 되돌려 넣으면", False),
+        (ORANGE, 13, "x' = x·cos θ - y·sin θ", True),
+        (ORANGE, 13, "y' = x·sin θ + y·cos θ", True),
+        (None, 0, "", False),
+        (GREY, 11, "이 두 줄을 표로 적은 것이 Rz(θ) 다.", False),
+    ]
+    for col, size, txt, bold in steps:
+        if col is None:
+            y -= 0.040
+            continue
+        text(lay, x0, y, txt, size=size, color=col, bold=bold, va="top")
+        y -= 0.072
+
+    save(fig, "fig04_rot_derive.png")
+
+
+# ============================================================ 13장 : 동체 좌표계
+def draw_body():
+    """동체(Body) 좌표계 FRD 와 자세각 세 가지.
+
+    자세각 세 칸은 각각 다른 시점이라 배도 그 시점대로 그린다.
+    roll 은 뒤에서 본 선미도, pitch 는 옆에서 본 측면도, yaw 는 위에서 본 평면도다.
+    z 축은 화면 속으로 들어가므로 ⊙(나오는 방향) 이 아니라 ⊗ 로 표시한다.
+    """
+    W, H = 1378, 589
+    fig, lay = canvas(W, H)
+
+    axL = stage(fig, [0.020, 0.120, 0.400, 0.640], (0, 100), (0, 100 * (0.640 * H) / (0.400 * W)))
+    axR = stage(fig, [0.455, 0.300, 0.530, 0.470], (0, 100), (0, 100 * (0.470 * H) / (0.530 * W)))
+
+    # ------------------------------------------------------- 왼쪽 : FRD 정의
+    # 사선으로 그려야 z 가 아래로 내려가는 것이 기호 없이 그대로 보인다
+    TL = axL.get_ylim()[1]
+    cg = (30.0, TL * 0.60)                              # 무게중심 = 원점
+    ship_iso(axL, cg, 52.0)
+    axL.add_patch(Circle(cg, 1.2, facecolor=NAVY, edgecolor="none", zorder=9))
+    for key, ln, lab, ha, va, k in (("fwd", 32.0, "x  선수(앞)", "left", "bottom", 1.05),
+                                    ("rgt", 30.0, "y  우현(오른쪽)", "left", "center", 1.06),
+                                    ("down", 26.0, "z  아래", "center", "top", 1.10)):
+        d = {"fwd": ISO_FWD, "rgt": ISO_RGT, "down": (0.0, -1.0)}[key]
+        arrow(axL, cg, (cg[0] + d[0] * ln, cg[1] + d[1] * ln), color=BLUE, lw=2.0,
+              head=11, z=9)
+        text(axL, cg[0] + d[0] * ln * k + (1.5 if ha == "left" else 0.0),
+             cg[1] + d[1] * ln * k - (1.5 if va == "top" else 0.0),
+             lab, size=11, color=BLUE, bold=True, ha=ha, va=va)
+
+    # ------------------------------------------------- 오른쪽 : 자세각 세 가지
+    TR = axR.get_ylim()[1]
+    base = TR * 0.46                                    # 세 칸 공통 기준선
+    for cx in (17.0, 50.0, 83.0):
+        line(axR, (cx - 15.0, base), (cx + 15.0, base), color="#C7CDD8", lw=1.0,
+             dashes=(4, 3), z=1)
+
+    # 굽은 화살표는 배 밑을 지나가고, 화살촉이 향하는 쪽이 곧 + 방향이다
+    ship_stern(axR, 17.0, base, 15.0, ang=24.0)         # roll : 우현이 내려간 모습
+    curve_arrow(axR, (17.0 - 13.0, base - 7.0), (17.0 + 13.0, base - 10.0), rad=-0.34)
+
+    ship_side(axR, 50.0 - 17.0, base, 34.0, ang=15.0)   # pitch : 선수가 들린 모습
+    curve_arrow(axR, (50.0 - 14.0, base - 10.0), (50.0 + 14.0, base - 4.0), rad=0.34)
+
+    yc2 = base - 6.0
+    ship_top(axR, 83.0, yc2, 30.0, ang=62.0, wake=False)           # yaw : 위에서 본 모습
+    line(axR, (83.0, yc2), (83.0, yc2 + 21.0), color="#C7CDD8", lw=1.0, dashes=(4, 3), z=1)
+    text(axR, 83.0, yc2 + 22.0, "진북", size=9, color=FAINT, ha="center", va="bottom")
+    curve_arrow(axR, at((83.0, yc2), 14.5, 90.0), at((83.0, yc2), 14.5, 66.0), rad=-0.32)
+
+    # ------------------------------------------------------------------ 글자
+    text(lay, 0.020, 0.945, "동체(Body) 좌표계 — FRD", size=13, bold=True)
+    text(lay, 0.020, 0.892, "원점은 무게중심. 세 축은 배에 붙어 함께 움직인다.", size=9.5,
+         color=FAINT)
+    text(lay, 0.455, 0.945, "자세각 세 가지", size=13, bold=True)
+    text(lay, 0.455, 0.888, "C_ned←body = Rz(yaw) · Ry(pitch) · Rx(roll)   (3-2-1 순서)",
+         size=11.5, color=ORANGE, bold=True)
+
+    cols = (("roll  (횡동요)", "뒤에서 본 모습\nx축 둘레\n우현이 내려가면 +", 0.545),
+            ("pitch (종동요)", "옆에서 본 모습\ny축 둘레\n선수가 들리면 +", 0.720),
+            ("yaw   (선수방위)", "위에서 본 모습\nz축 둘레\n진북에서 시계방향 +", 0.895))
+    for label, sub, fx in cols:
+        text(lay, fx, 0.240, label, size=12.5, color=NAVY, bold=True, ha="center")
+        text(lay, fx, 0.195, sub, size=9, color=FAINT, ha="center", va="top",
+             linespacing=1.45)
+
+    save(fig, "fig06_body.png")
+
+
+# ====================================================== 25장 : 세 각이 더해지는 그림
+def draw_layout():
+    """진북에서 선수 45°, 선수에서 안테나 90°, 보어사이트에서 측정 30°.
+    셋을 더하면 진북 기준 165° 가 된다는 것을 한 그림에서 보인다.
+    """
+    W, H = 918, 850
+    fig, lay = canvas(W, H)
+    ax = stage(fig, [0.030, 0.030, 0.940, 0.940], (0, 100),
+               (0, 100 * (0.940 * H) / (0.940 * W)))
+
+    CG, L = (40.0, 59.0), 34.0
+    HEAD, MOUNT, AZ = 45.0, 90.0, 30.0                 # 선수 방위 · 설치 방위 · 측정 방위
+    bow = 90.0 - HEAD                                  # 화면 각도로 바꾼 값
+    bore = bow - MOUNT
+    los = bore - AZ
+
+    line(ax, CG, (CG[0], CG[1] + 24.0), color=FAINT, lw=1.2, dashes=(5, 4), z=2)
+    arrow(ax, (CG[0], CG[1] + 20.0), (CG[0], CG[1] + 25.0), color=GREY, lw=1.4, head=9, z=3)
+    text(ax, CG[0], CG[1] + 26.5, "진북", size=12, color=NAVY, bold=True, ha="center",
+         va="bottom")
+
+    rad = math.radians(bow)
+    P = ship_top(ax, CG[0] - 0.42 * L * math.cos(rad), CG[1] - 0.42 * L * math.sin(rad),
+                 L, ang=bow, wake=False)
+    ax.add_patch(Circle(CG, 1.1, facecolor=BLUE, edgecolor="none", zorder=8))
+    line(ax, CG, at(CG, 0.62 * L, bow), color=FAINT, lw=1.1, dashes=(5, 4), z=2)
+
+    ant = P(0.34, -0.062)                              # 우현 뱃전
+    antenna_face(ax, ant, bore, half=3.0, thick=1.6, color=ORANGE)
+
+    # ① 과 ② 는 같은 반지름으로 이어 그려 진북 -> 선수 -> 보어사이트 가 한 흐름으로 보이게 한다
+    arcdeg(ax, CG, 25.0, bow, 90.0, color=GREY, lw=1.5)
+    text(ax, *at(CG, 27.0, 70.0), s="① 선수 45°", size=12, color=NAVY, bold=True,
+         ha="left", va="bottom")
+    arcdeg(ax, CG, 25.0, bore, bow, color=GREY, lw=1.5)
+    text(ax, *at(CG, 27.0, 14.0), s="② 안테나 설치 90°", size=12, color=NAVY, bold=True,
+         ha="left", va="center")
+
+    # 보어사이트 화살표 위쪽에 글자를 놓아 시선(파란 화살표)과 겹치지 않게 한다
+    arrow(ax, ant, at(ant, 24.0, bore), color=ORANGE, lw=1.8, head=11, z=6, ls=(0, (5, 3)))
+    text(ax, *at(ant, 25.5, bore + 4.0), s="안테나가 보는 방향", size=11.5, color=ORANGE,
+         bold=True, ha="left", va="bottom")
+    arcdeg(ax, ant, 17.0, los, bore, color=ORANGE, lw=1.6)
+    text(ax, *at(ant, 19.0, (los + bore) / 2), s="③ 측정 Az 30°", size=12,
+         color=ORANGE, bold=True, ha="left", va="top")
+
+    tgt = at(ant, 48.0, los)
+    arrow(ax, ant, tgt, color=BLUE, lw=2.2, head=12, z=6)
+    ax.add_patch(Circle(tgt, 1.6, facecolor=BLUE, edgecolor="none", zorder=8))
+    text(ax, tgt[0] + 3.0, tgt[1] - 0.5, "표적  20 km", size=12, color=NAVY, bold=True,
+         va="center")
+
+    save(fig, "fig10_layout.png")
+
+
 # ================================================================ 7장 : 회전
 def draw_rotate():
     """같은 배 · 같은 표적을 안테나 축과 함선 축에서 각각 읽으면 숫자가 어떻게 달라지는가"""
@@ -498,7 +890,7 @@ def draw_rotate():
         line(ax, (TX, TY), (OX, TY), color="#D0D5DE", lw=1.0, dashes=(4, 3), z=2)
         if back:
             arrow(ax, (OX, OY), (OX, TY), color=tone, lw=1.6, head=9, z=6, ls=(0, (4, 3)))
-        text(ax, (OX + TX) / 2 + 6.0, OY + 2.4, "+17 320", size=12, color=tone, bold=True,
+        text(ax, (OX + TX) / 2 + 6.0, OY + 2.4, "+17,320", size=12, color=tone, bold=True,
              ha="center", va="bottom")
         text(ax, OX - 4.6, (OY + TY) / 2, ylab, size=12, color=tone, bold=True,
              ha="right", va="center")
@@ -513,7 +905,7 @@ def draw_rotate():
     text(axA, OX + AXL + 2.0, OY, "x_a", size=12.5, color=ORANGE, bold=True, va="center")
     text(axA, OX + 2.6, OY - AXS + 1.2, "y_a", size=12.5, color=ORANGE, bold=True,
          ha="left", va="center")
-    guides(axA, ORANGE, "+10 000")
+    guides(axA, ORANGE, "+10,000")
 
     # ------------------------------------------------- (b) 함선 축에서 읽으면
     scene(axB)
@@ -522,7 +914,7 @@ def draw_rotate():
     text(axB, OX + 2.6, OY + AXS - 1.2, "x_b", size=12.5, color=BLUE, bold=True,
          ha="left", va="center")
     text(axB, OX + AXL + 2.0, OY, "y_b", size=12.5, color=BLUE, bold=True, va="center")
-    guides(axB, BLUE, "-10 000", note="(선수 기준 뒤쪽)", back=True)
+    guides(axB, BLUE, "-10,000", note="(선수 기준 뒤쪽)", back=True)
 
     # ------------------------------------------------------ 머리글 · 결론 · 캡션
     text(lay, 0.040, 0.950, "(a) 안테나 축에서 읽으면", size=14.5, bold=True)
@@ -531,9 +923,9 @@ def draw_rotate():
     text(lay, 0.540, 0.950, "(b) 함선 축에서 읽으면", size=14.5, bold=True)
     text(lay, 0.540, 0.901, "x_b = 선수,   y_b = 우현    (x_a 와 y_b 는 같은 방향)",
          size=11, color=GREY)
-    text(lay, 0.040, 0.134, "읽은 값 :  x_a = +17 320 m,   y_a = +10 000 m",
+    text(lay, 0.040, 0.134, "읽은 값 :  x_a = +17,320 m,   y_a = +10,000 m",
          size=12.5, color=ORANGE, bold=True)
-    text(lay, 0.540, 0.134, "읽은 값 :  x_b = -10 000 m,   y_b = +17 320 m",
+    text(lay, 0.540, 0.134, "읽은 값 :  x_b = -10,000 m,   y_b = +17,320 m",
          size=12.5, color=BLUE, bold=True)
     text(lay, 0.500, 0.052, "배도 표적도 그대로다.  축만 90° 돌아가 있다.", size=12.5,
          color=NAVY, ha="center")
@@ -541,13 +933,245 @@ def draw_rotate():
     save(fig, "fig05_same_target.png")
 
 
+# ==================================================== 17장 : NED 와 ENU 는 같은 점
+NED_TGT = (-19340.0, 5155.0, -10.0)     # 과제 값 (N, E, D). 26장 계산 결과를 반올림한 값
+
+
+def draw_ned_enu():
+    """NED 와 ENU 는 같은 점을 부르는 순서와 셋째 축의 방향만 다르다.
+
+    북 · 동 두 축은 두 칸에 똑같이 그린다. 가리키는 방향이 실제로 같기 때문이다.
+    셋째 축만 아래(D) 와 위(U) 로 뒤집히는데, 그것이 눈에 보이도록 사선으로 그린다.
+    표적은 배보다 10 m 위에 있어 NED 에서는 D 가 음수, ENU 에서는 U 가 양수가 된다.
+    """
+    W, H = 1325, 553
+    fig, lay = canvas(W, H)
+    boxes = ([0.035, 0.205, 0.400, 0.595], [0.545, 0.205, 0.400, 0.595])
+    TOP = 100 * (0.595 * H) / (0.400 * W)
+    axA, axB = (stage(fig, list(b_), (0, 100), (0, TOP)) for b_ in boxes)
+
+    O, L = (44.0, 0.53 * TOP), 19.0
+    SC = 17.0 / 20000.0                                 # 20 km 를 평면 위 17 칸으로 본다
+    RISE = 4.2                                          # 표적 높이. 보이라고 크게 부풀린 값
+
+    def panel(order, ax, tone):
+        # 국지 수평면(북 · 동이 놓인 평면)을 평행사변형으로 깔아 준다
+        a_, b_ = 1.24 * L, 0.90 * L
+        quad = [iso(O, sf * b_, sr * a_) for sf, sr in ((1, 1), (1, -1), (-1, -1), (-1, 1))]
+        poly(ax, quad, fc="#EFF3FA", ec="#C7CFDD", lw=1.1, z=2)
+        text(ax, quad[3][0] + 1.2, quad[3][1] - 1.4, "국지 수평면", size=9, color=FAINT,
+             ha="left", va="top")
+
+        for i, (key, lab) in enumerate(order):
+            col = GREEN if key in ("fwd", "rgt") else tone
+            iso_axis(ax, O, key, L, col, lab, num="%d" % (i + 1), tone=tone)
+        ax.add_patch(Circle(O, 1.1, facecolor=NAVY, edgecolor="none", zorder=9))
+
+        # 표적. 평면 위 자리까지 안내선을 긋고, 높이만큼 띄워 점을 찍는다
+        foot = iso(O, NED_TGT[0] * SC, NED_TGT[1] * SC)
+        line(ax, O, foot, color="#B9C2D0", lw=1.0, dashes=(4, 3), z=4)
+        head = (foot[0], foot[1] + RISE)
+        line(ax, foot, head, color=ORANGE, lw=1.3, dashes=(3, 2), z=5)
+        ax.add_patch(Circle(foot, 0.9, facecolor="#9AA6B8", edgecolor="none", zorder=5))
+        ax.add_patch(Circle(head, 1.9, facecolor=ORANGE, edgecolor="none", zorder=8))
+        text(ax, head[0] - 2.8, head[1], "표적", size=11, color=ORANGE, bold=True,
+             ha="right", va="center")
+
+    panel((("fwd", "N  북"), ("rgt", "E  동"), ("down", "D  아래")), axA, BLUE)
+    panel((("rgt", "E  동"), ("fwd", "N  북"), ("up", "U  위")), axB, ORANGE)
+
+    n, e, d = NED_TGT
+    text(lay, boxes[0][0], 0.938, "NED  (항공우주 · 항법 · 무기체계)", size=12.5, bold=True)
+    text(lay, boxes[0][0], 0.888, "북 → 동 → 아래 순서. 셋째 축이 아래로 +", size=10,
+         color=FAINT)
+    text(lay, boxes[1][0], 0.938, "ENU  (측지 · 측량 · GIS · 로보틱스)", size=12.5, bold=True)
+    text(lay, boxes[1][0], 0.888, "동 → 북 → 위 순서. 셋째 축이 위로 +", size=10, color=FAINT)
+
+    text(lay, boxes[0][0], 0.128, "(N %s,  E %s,  D %s) m" % (num(n), num(e), num(d)),
+         size=12.5, color=BLUE, bold=True)
+    text(lay, boxes[1][0], 0.128, "(E %s,  N %s,  U %s) m" % (num(e), num(n), num(-d)),
+         size=12.5, color=ORANGE, bold=True)
+    text(lay, 0.520, 0.045, "북 · 동은 같은 방향이다. 셋째 축만 뒤집히고, 둘 다 오른손 좌표계다.",
+         size=11.5, color=NAVY, ha="center")
+    text(lay, 0.035, 0.045, "표적 높이는 부풀린 그림", size=9, color=FAINT)
+
+    save(fig, "fig07_ned_enu.png")
+
+
+# ================================================== 18장 : ECEF 와 ECI 의 차이
+def draw_ecef_eci():
+    """북극에서 내려다본 그림 두 칸으로 '축이 도느냐 마느냐' 를 보인다.
+
+    ECEF 는 X 축과 건물이 같이 돌아 사이 각(경도)이 세 시각 모두 같고,
+    ECI 는 X 축이 별에 묶여 있어 건물만 하루에 한 바퀴 돈다.
+    한 시각만 그리면 두 칸이 똑같아 보이므로 세 시각을 겹쳐 그린다.
+    """
+    W, H = 1378, 619
+    fig, lay = canvas(W, H)
+    ax = stage(fig, [0.015, 0.265, 0.970, 0.590], (0, 100),
+               (0, 100 * (0.590 * H) / (0.970 * W)))
+
+    R, LON = 10.0, 40.0                                # 지구 반지름(칸), 건물의 경도
+    HOURS = (0.0, 8.0, 16.0)                           # 겹쳐 그릴 시각
+    SPIN = 360.0 / 24.0                                # 한 시간에 도는 각
+    CY = 0.50 * ax.get_ylim()[1]
+
+    def globe(c):
+        ax.add_patch(Circle(c, R, facecolor=HULL, edgecolor="#3D4A5F", lw=1.5, zorder=2))
+        axis_mark(ax, c, 1.7, into=False, color="#3D4A5F")
+        text(ax, c[0], c[1] - 3.0, "Z 북극 ⊙", size=9, color=FAINT, ha="center", va="top")
+
+    def spoke(c, deg, solid):
+        # 원점에서 조금 띄워 시작해야 세 시각의 축이 한 줄로 붙어 보이지 않는다
+        ax.add_patch(FancyArrowPatch(at(c, 2.8, deg), at(c, R + 3.0, deg), arrowstyle="-|>",
+                                     mutation_scale=9, lw=2.0 if solid else 1.3,
+                                     color=BLUE, shrinkA=0, shrinkB=0,
+                                     alpha=1.0 if solid else 0.38,
+                                     zorder=6 if solid else 4))
+        if solid:
+            q = at(c, R + 4.6, deg)
+            text(ax, q[0], q[1], "X", size=11, color=BLUE, bold=True, ha="left",
+                 va="center")
+
+    def build(c, deg, solid, tag=None):
+        p = at(c, R, deg)
+        ax.add_patch(Circle(p, 1.8 if solid else 1.5, facecolor=ORANGE, edgecolor="none",
+                            alpha=1.0 if solid else 0.32, zorder=7))
+        if tag:                                        # 시각표는 원 안쪽에 둔다
+            q = at(c, R - 3.4, deg)
+            text(ax, q[0], q[1], tag, size=9, color=ORANGE if solid else FAINT,
+                 bold=solid, ha="center", va="center")
+
+    # ------------------------------------------- 왼쪽 : ECEF, 축과 건물이 같이 돈다
+    CA = (24.0, CY)
+    globe(CA)
+    for h in HOURS:
+        solid = h == 0.0
+        spoke(CA, h * SPIN, solid)
+        build(CA, h * SPIN + LON, solid)
+        arcdeg(ax, CA, 5.6, h * SPIN, h * SPIN + LON, color=GREY if solid else "#B9C0CC",
+               lw=1.5 if solid else 1.2)
+    text(ax, *at(CA, 7.8, LON / 2), s="경도", size=9.5, color=GREY, bold=True,
+         ha="center", va="center")
+
+    # ------------------------------------------- 오른쪽 : ECI, 축은 멈춰 있다
+    CB = (76.0, CY)
+    globe(CB)
+    ax.add_patch(Circle(CB, R + 2.4, facecolor="none", edgecolor=ORANGE, lw=1.0,
+                        linestyle=(0, (4, 3)), zorder=3))
+    spoke(CB, 0.0, True)
+    for h in HOURS:
+        build(CB, h * SPIN + LON, h == 0.0, tag="%d시" % int(h))
+    arcdeg(ax, CB, 5.6, 0.0, LON, color=ORANGE, lw=1.5)
+    text(ax, *at(CB, 7.8, LON / 2), s="θ", size=11, color=ORANGE, bold=True,
+         ha="center", va="center")
+    # 건물이 없는 쪽(왼쪽 아래)에 도는 방향 표시를 둔다
+    curve_arrow(ax, at(CB, R + 2.4, 196.0), at(CB, R + 2.4, 238.0), rad=-0.26,
+                color=ORANGE, lw=1.6, head=10)
+    text(ax, *at(CB, R + 5.6, 217.0), s="하루 한 바퀴", size=9.5, color=ORANGE, bold=True,
+         ha="right", va="center")
+
+    # ------------------------------------------- 가운데 : 두 좌표계를 잇는 회전
+    for dy, lab, back in ((4.2, "Rz(θ)", False), (-4.2, "Rz(θ)^T", True)):
+        p0, p1 = (42.0, CY + dy), (58.0, CY + dy)
+        arrow(ax, p1 if back else p0, p0 if back else p1, color=GREY, lw=1.6, head=11, z=5)
+        text(ax, 50.0, CY + dy + (1.6 if dy > 0 else -1.6), lab, size=11, color=GREY,
+             bold=True, ha="center", va="bottom" if dy > 0 else "top")
+
+    text(lay, 0.030, 0.950, "ECEF — 지구와 함께 돈다", size=13, bold=True)
+    text(lay, 0.030, 0.900, "북극에서 내려다본 그림. 0시 · 8시 · 16시를 겹쳐 그렸다.",
+         size=10, color=FAINT)
+    text(lay, 0.545, 0.950, "ECI — 별에 고정, 돌지 않는다", size=13, bold=True)
+    text(lay, 0.545, 0.900, "같은 세 시각. 원점은 둘 다 지구 중심으로 같다.",
+         size=10, color=FAINT)
+
+    text(lay, 0.030, 0.168, "X 축 = 그리니치 자오선. 지구와 함께 돈다.", size=11,
+         color=BLUE, bold=True)
+    text(lay, 0.030, 0.108, "축과 건물이 같이 도니 사이 각(경도)이 세 시각 모두 같다",
+         size=11, color=GREY)
+    text(lay, 0.545, 0.168, "X 축 = 별(춘분점)에 고정. 돌지 않는다.", size=11,
+         color=BLUE, bold=True)
+    text(lay, 0.545, 0.108, "축이 멈춰 있으니 건물만 하루에 한 바퀴 돈다",
+         size=11, color=GREY)
+    text(lay, 0.500, 0.038,
+         "원점은 같고, 축이 도느냐 마느냐만 다르다.  시각이 1 ms 어긋나면 적도에서 0.47 m 어긋난다.",
+         size=11.5, color=ORANGE, bold=True, ha="center")
+
+    save(fig, "fig09_ecef_eci.png")
+
+
+# =============================================== 32장 : 배가 기울면 빔도 같이 기운다
+def draw_roll_beam():
+    """우현 안테나는 배에 볼트로 붙어 있어 배가 기울면 보어사이트도 같이 기운다.
+
+    보어사이트가 우현 정횡이라 배 뒤에서 선수 쪽을 본 단면이 곧 빔이 놓인 평면이다.
+    그래서 화면 오른쪽이 우현이고, 고각을 화면에서 그대로 잴 수 있다.
+    """
+    W, H = 1300, 484
+    fig, lay = canvas(W, H)
+    ax = stage(fig, [0.015, 0.045, 0.970, 0.900], (0, 100),
+               (0, 100 * (0.900 * H) / (0.970 * W)))
+
+    TOP = ax.get_ylim()[1]
+    ROLL, SEA, BEAM = 20.0, 0.495 * TOP, 10.0
+    ax.add_patch(Polygon([(0.0, 0.0), (100.0, 0.0), (100.0, SEA), (0.0, SEA)],
+                         closed=True, facecolor="#EAF0F9", edgecolor="none", zorder=0))
+    sea_line(ax, 0.0, 100.0, SEA, z=1)
+    text(ax, 1.5, SEA - 2.0, "해수면", size=10.5, color=FAINT, va="top")
+
+    P = ship_stern(ax, 15.0, SEA, BEAM, ang=ROLL)
+    ant = P(0.50, 0.42)                                 # 우현 뱃전
+    antenna_face(ax, ant, -ROLL, half=2.2, thick=1.3, color=ORANGE)
+    text(ax, ant[0] + 3.6, ant[1] + 3.2, "안테나 (우현)", size=11.5, color=ORANGE,
+         bold=True, ha="left", va="bottom")
+    line(ax, (ant[0] + 3.4, ant[1] + 3.0), (ant[0] + 1.2, ant[1] + 1.2), color=FAINT,
+         lw=0.9, z=7)
+
+    line(ax, ant, (ant[0] + 42.0, ant[1]), color="#B9C2D0", lw=1.2, dashes=(6, 4), z=2)
+    text(ax, ant[0] + 20.0, ant[1] + 1.4, "수평 기준선 = 고각 0°", size=11, color=FAINT,
+         va="bottom")
+
+    tip = at(ant, 42.0, -ROLL)
+    arrow(ax, ant, tip, color=ORANGE, lw=2.4, head=13, z=6)
+    arcdeg(ax, ant, 26.0, -ROLL, 0.0, color=NAVY, lw=1.4)
+    text(ax, *at(ant, 29.0, -ROLL / 2), s="20°", size=13, color=NAVY, bold=True,
+         ha="left", va="center")
+
+    # 오른쪽 빈 자리에 '보고한 값' 과 '실제 값' 을 나란히 적는다
+    text(ax, 66.0, 14.0, "레이다가 보고한 고각", size=11, color=GREY)
+    text(ax, 97.0, 14.0, "0°", size=12.5, color=GREY, bold=True, ha="right")
+    text(ax, 66.0, 9.5, "실제 빔의 고각", size=11, color=ORANGE)
+    text(ax, 97.0, 9.5, "-20°", size=13.5, color=ORANGE, bold=True, ha="right")
+    line(ax, (66.0, 6.9), (97.0, 6.9), color="#C7CDD8", lw=1.0, z=2)
+    text(ax, 66.0, 4.7, "빔은 하늘이 아니라 바다 쪽으로 나간다", size=11, color=NAVY,
+         bold=True, va="center")
+
+    save(fig, "fig12_roll.png")
+
+
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
-    if what not in ("all", "intro", "polar", "rotate"):
-        sys.exit("사용법: python make_figures.py [all|intro|polar|rotate]")
+    names = ("all", "intro", "target", "polar", "derive", "body", "layout", "rotate",
+             "nedenu", "ecef", "roll")
+    if what not in names:
+        sys.exit("사용법: python make_figures.py [%s]" % "|".join(names))
     if what in ("all", "intro"):
         draw_intro()
+    if what in ("all", "target"):
+        draw_one_target()
     if what in ("all", "polar"):
         draw_polar()
+    if what in ("all", "derive"):
+        draw_derive()
+    if what in ("all", "body"):
+        draw_body()
+    if what in ("all", "layout"):
+        draw_layout()
     if what in ("all", "rotate"):
         draw_rotate()
+    if what in ("all", "nedenu"):
+        draw_ned_enu()
+    if what in ("all", "ecef"):
+        draw_ecef_eci()
+    if what in ("all", "roll"):
+        draw_roll_beam()
