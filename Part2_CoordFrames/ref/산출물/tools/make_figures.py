@@ -785,9 +785,10 @@ def draw_body():
     curve_arrow(axR, at((83.0, yc2), 14.5, 90.0), at((83.0, yc2), 14.5, 66.0), rad=-0.32)
 
     # ------------------------------------------------------------------ 글자
-    text(lay, 0.020, 0.945, "동체(Body) 좌표계 — FRD (Forward-Right-Down)", size=13, bold=True)
-    text(lay, 0.020, 0.892, "원점은 무게중심. 세 축은 배에 붙어 함께 움직인다.", size=9.5,
-         color=FAINT)
+    # 오른쪽 제목이 0.455 에서 시작하므로 왼쪽 제목은 거기까지만 쓴다
+    text(lay, 0.020, 0.945, "동체(Body) 좌표계 — FRD", size=13, bold=True)
+    text(lay, 0.020, 0.905, "FRD = Forward-Right-Down.\n원점은 무게중심. 세 축은 배에 붙어 함께 움직인다.",
+         size=9.5, color=FAINT, va="top", linespacing=1.5)
     text(lay, 0.455, 0.945, "자세각 세 가지", size=13, bold=True)
     text(lay, 0.455, 0.888, "C_ned←body = Rz(yaw) · Ry(pitch) · Rx(roll)   (3-2-1 순서)",
          size=11.5, color=ORANGE, bold=True)
