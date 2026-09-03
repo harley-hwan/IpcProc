@@ -17,3 +17,7 @@ x64/
 [Oo]bj/
 ipch/
 *.tlog/
+
+# Python
+__pycache__/
+*.pyc
