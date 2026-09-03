@@ -611,8 +611,8 @@ def draw_one_target():
          ha="right", va="center")
 
     tgt = at(ant, 42.0, los)
-    arrow(axL, ant, tgt, color=ORANGE, lw=2.3, head=12, z=6)
-    axL.add_patch(Circle(tgt, 1.8, facecolor=ORANGE, edgecolor="none", zorder=8))
+    arrow(axL, ant, tgt, color=NAVY, lw=2.4, head=12, z=6)
+    axL.add_patch(Circle(tgt, 1.8, facecolor=NAVY, edgecolor="none", zorder=8))
     text(axL, tgt[0] + 3.2, tgt[1] + 1.0, "표적은 하나", size=12.5, color=NAVY, bold=True,
          ha="left", va="bottom")
     text(axL, tgt[0] + 3.2, tgt[1] - 1.0, "안테나에서 20 km", size=10, color=FAINT,
@@ -658,8 +658,13 @@ def draw_one_target():
          ha="left", va="top")
 
     text(lay, 0.580, 0.905, "지구에서 보면", size=13, color=NAVY, bold=True)
-    text(lay, 0.580, 0.115, "ECEF :  지구 중심에서 잰 (X, Y, Z) m", size=11, color=GREY)
-    text(lay, 0.580, 0.058, "LLA  :  위도 · 경도 · 고도 (지도 좌표)", size=11, color=GREY)
+    text(lay, 0.580, 0.175, "NED  :  배 위치에서 잰 북 · 동 · 아래", size=11, color=GREY)
+    text(lay, 0.580, 0.118, "ECEF :  지구 중심에서 잰 (X, Y, Z) m", size=11, color=GREY)
+    text(lay, 0.580, 0.061, "LLA  :  위도 · 경도 · 고도 (지도 좌표)", size=11, color=GREY)
+    text(lay, 0.500, 0.014,
+         "NED = North-East-Down    ·    ECEF = Earth-Centered Earth-Fixed"
+         "    ·    LLA = Latitude-Longitude-Altitude",
+         size=10, color=FAINT, ha="center")
 
     save(fig, "fig14_one_target.png")
 
@@ -875,8 +880,8 @@ def draw_rotate():
         """두 그림에 똑같이 들어가는 것 : 배, 안테나, 표적까지의 화살표"""
         ship_top(ax, OX - 1.6 * HALF_BEAM * L, OY - 0.44 * L, L, ang=90.0, wake=False)
         antenna_face(ax, (OX, OY), 0.0, half=2.2, thick=1.3, color=ORANGE)
-        arrow(ax, (OX, OY), (TX, TY), color=ORANGE, lw=2.3, head=11, z=7)
-        ax.add_patch(Circle((TX, TY), 1.5, facecolor=ORANGE, edgecolor="none", zorder=8))
+        arrow(ax, (OX, OY), (TX, TY), color=NAVY, lw=2.4, head=11, z=7)
+        ax.add_patch(Circle((TX, TY), 1.6, facecolor=NAVY, edgecolor="none", zorder=8))
         text(ax, TX + 3.0, TY - 1.6, "표적", size=12, color=NAVY, bold=True, va="top")
         text(ax, OX - 4.4, OY, "안테나", size=10, color=ORANGE, bold=True, ha="right",
              va="center")
@@ -1153,10 +1158,114 @@ def draw_roll_beam():
     save(fig, "fig12_roll.png")
 
 
+# ================================================== 12장 : UV (방향코사인) 이란
+def draw_uv():
+    """u, v, w 가 어디서 오는지를 두 단계로 나눠 보인다.
+
+    표적이 어느 쪽인지는 '길이 1 짜리 화살표' 하나로 적을 수 있다.
+    그 화살표를 안테나의 세 축에 나눠 담은 양이 u, v, w 다.
+    나누는 순서가 곧 공식의 모양이다. 먼저 El 로 위아래를 떼고(v),
+    남은 수평 성분 cos(El) 을 Az 로 다시 앞뒤·좌우에 나눠 담는다(w, u).
+    """
+    W, H = 1156, 663
+    fig, lay = canvas(W, H)
+    ar = (0.300 * H) / (0.380 * W)
+    axS = stage(fig, [0.045, 0.590, 0.380, 0.300], (0, 100), (0, 100 * ar))
+    axT = stage(fig, [0.045, 0.250, 0.380, 0.300], (0, 100), (0, 100 * ar))
+    axD = stage(fig, [0.520, 0.230, 0.430, 0.680], (0, 100),
+                (0, 100 * (0.680 * H) / (0.430 * W)))
+
+    EL, AZ, ARM = 26.0, 30.0, 58.0
+
+    # ---------------------------------------- 1단계 : 옆에서 보면 El 이 위아래를 뗀다
+    O = (13.0, 11.0)
+    line(axS, (O[0] - 5.0, O[1]), (O[0] + 80.0, O[1]), color="#C7CDD8", lw=1.1, z=1)
+    text(axS, O[0] + 81.0, O[1], "수평면", size=9.5, color=FAINT, va="center")
+    tip = at(O, ARM, EL)
+    foot = (tip[0], O[1])
+    arrow(axS, O, tip, color=ORANGE, lw=2.2, head=11, z=6)
+    text(axS, *at(O, ARM * 0.55, EL + 7.0), s="길이 1", size=11, color=ORANGE, bold=True,
+         ha="center", va="bottom")
+    arrow(axS, O, foot, color=BLUE, lw=1.6, head=9, z=5)
+    text(axS, (O[0] + foot[0]) / 2, O[1] - 2.0, "cos(El)", size=11, color=BLUE, bold=True,
+         ha="center", va="top")
+    arrow(axS, foot, tip, color=GREEN, lw=1.6, head=9, z=5)
+    text(axS, tip[0] + 2.0, (O[1] + tip[1]) / 2, "v = sin(El)", size=11, color=GREEN,
+         bold=True, va="center")
+    arcdeg(axS, O, 13.0, 0.0, EL, color=NAVY, lw=1.3)
+    text(axS, *at(O, 16.5, EL / 2), s="El", size=11, color=NAVY, bold=True, ha="left",
+         va="center")
+
+    # ------------------------ 2단계 : 위에서 보면 Az 가 남은 cos(El) 을 다시 나눈다
+    P = (13.0, 33.0)
+    arrow(axT, P, (P[0] + 78.0, P[1]), color="#C7CDD8", lw=1.4, head=9, z=1)
+    text(axT, P[0] + 79.0, P[1], "보어사이트", size=9.5, color=FAINT, va="center")
+    tp = at(P, ARM, -AZ)
+    ft = (tp[0], P[1])
+    arrow(axT, P, tp, color=ORANGE, lw=2.2, head=11, z=6)
+    text(axT, *at(P, ARM * 0.55, -AZ - 8.0), s="cos(El)", size=11, color=ORANGE, bold=True,
+         ha="center", va="top")
+    arrow(axT, P, ft, color=BLUE, lw=1.6, head=9, z=5)
+    text(axT, (P[0] + ft[0]) / 2, P[1] + 2.0, "w = cos(El)·cos(Az)", size=11, color=BLUE,
+         bold=True, ha="center", va="bottom")
+    arrow(axT, ft, tp, color=GREEN, lw=1.6, head=9, z=5)
+    text(axT, tp[0] + 2.0, (P[1] + tp[1]) / 2, "u = cos(El)·sin(Az)", size=11, color=GREEN,
+         bold=True, va="center")
+    arcdeg(axT, P, 13.0, -AZ, 0.0, color=NAVY, lw=1.3)
+    text(axT, *at(P, 16.5, -AZ / 2), s="Az", size=11, color=NAVY, bold=True, ha="left",
+         va="center")
+
+    # ------------------------------------- 안테나 면을 정면에서 본 그림 (u-v 평면)
+    C, RD = (48.0, 0.47 * axD.get_ylim()[1]), 34.0
+    axD.add_patch(Circle(C, RD, facecolor="#F2F5FA", edgecolor="#3D4A5F", lw=1.6, zorder=2))
+    for frac, lab in ((0.500, "30°"), (0.866, "60°")):     # 보어사이트에서 벌어진 각
+        axD.add_patch(Circle(C, RD * frac, facecolor="none", edgecolor="#C7CDD8", lw=1.0,
+                             linestyle=(0, (4, 3)), zorder=3))
+        text(axD, *at(C, RD * frac, -118.0), s=lab, size=9, color=FAINT, ha="center",
+             va="center")
+    for d_, lab, ha, va in ((0.0, "u", "left", "center"), (90.0, "v", "center", "bottom")):
+        arrow(axD, C, at(C, RD + 5.0, d_), color=GREY, lw=1.4, head=9, z=5)
+        q = at(C, RD + 7.5, d_)
+        text(axD, q[0], q[1], lab, size=12, color=GREY, bold=True, ha=ha, va=va)
+    axis_mark(axD, C, 2.2, into=False, color=NAVY)
+    text(axD, C[0] - 3.2, C[1] + 3.2, "w ⊙", size=10, color=NAVY, bold=True, ha="right",
+         va="bottom")
+
+    tgt = (C[0] + RD * 0.5, C[1])
+    axD.add_patch(Circle(tgt, 2.4, facecolor=ORANGE, edgecolor="none", zorder=8))
+    text(axD, tgt[0], tgt[1] - 6.2, "표적  u = 0.500,  v = 0", size=10.5, color=ORANGE,
+         bold=True, ha="center", va="top")
+    gl = at(C, RD * 0.55, 148.0)                       # 표적 · 눈금과 겹치지 않는 자리
+    axD.add_patch(Circle(gl, 4.2, facecolor="none", edgecolor="#5A6478", lw=1.1,
+                         linestyle=(0, (3, 2)), zorder=6))
+    text(axD, gl[0], gl[1] + 5.4, "격자로브", size=9.5, color=GREY, ha="center", va="bottom")
+    text(axD, C[0], C[1] - RD - 5.0, "u² + v² = 1  —  이 원 밖으로는 빔을 못 만든다",
+         size=10, color=GREY, ha="center", va="top")
+
+    # ------------------------------------------------------------------ 글자
+    text(lay, 0.045, 0.950, "길이 1 화살표를 세 축에 나눠 담기", size=12.5, bold=True)
+    text(lay, 0.045, 0.908, "① El 로 위아래를 떼고  →  ② 남은 cos(El) 을 Az 로 나눈다",
+         size=10, color=GREY)
+    text(lay, 0.545, 0.950, "안테나 면에서 본 u–v 평면", size=12.5, bold=True)
+    text(lay, 0.545, 0.908, "점 (u, v) 는 표적 방향의 그림자", size=10, color=GREY)
+
+    text(lay, 0.045, 0.158, "u = cos(El) · sin(Az)      v = sin(El)      w = cos(El) · cos(Az)",
+         size=12, color=NAVY, bold=True)
+    text(lay, 0.045, 0.104,
+         "세 성분을 제곱해 더하면 1 이 된다 — 길이 1 인 화살표를 나눠 담은 것이므로.",
+         size=10.5, color=GREY)
+    text(lay, 0.045, 0.052,
+         "각 성분은 그 축과 이루는 각의 코사인이라 '방향코사인' 이라 부른다. "
+         "u, v 는 약자가 아니라 성분의 이름이다.",
+         size=10.5, color=GREY)
+
+    save(fig, "fig03_uv.png")
+
+
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     names = ("all", "intro", "target", "polar", "derive", "body", "layout", "rotate",
-             "nedenu", "ecef", "roll")
+             "nedenu", "ecef", "roll", "uv")
     if what not in names:
         sys.exit("사용법: python make_figures.py [%s]" % "|".join(names))
     if what in ("all", "intro"):
@@ -1179,3 +1288,5 @@ if __name__ == "__main__":
         draw_ecef_eci()
     if what in ("all", "roll"):
         draw_roll_beam()
+    if what in ("all", "uv"):
+        draw_uv()
