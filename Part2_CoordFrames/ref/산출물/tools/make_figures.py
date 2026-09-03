@@ -554,10 +554,10 @@ def draw_polar():
          size=10.5, color=GREY, va="center")
 
     # ------------------------------------------------------ 머리글
-    text(lay, 0.038, 0.955, "(a) 위에서 본 그림 — 방위각 Az", size=14.5, bold=True)
+    text(lay, 0.038, 0.955, "(a) 위에서 본 그림 — 방위각 Az (Azimuth)", size=14.5, bold=True)
     text(lay, 0.038, 0.913, "갑판을 내려다본 모습.  보어사이트에서 오른쪽으로 잰 각",
          size=11, color=GREY)
-    text(lay, 0.536, 0.955, "(b) 뒤에서 본 그림 — 고각 El", size=14.5, bold=True)
+    text(lay, 0.536, 0.955, "(b) 뒤에서 본 그림 — 고각 El (Elevation)", size=14.5, bold=True)
     text(lay, 0.536, 0.913, "같은 배를 선미 쪽에서 본 모습.  수평면에서 위로 잰 각",
          size=11, color=GREY)
 
@@ -780,7 +780,7 @@ def draw_body():
     curve_arrow(axR, at((83.0, yc2), 14.5, 90.0), at((83.0, yc2), 14.5, 66.0), rad=-0.32)
 
     # ------------------------------------------------------------------ 글자
-    text(lay, 0.020, 0.945, "동체(Body) 좌표계 — FRD", size=13, bold=True)
+    text(lay, 0.020, 0.945, "동체(Body) 좌표계 — FRD (Forward-Right-Down)", size=13, bold=True)
     text(lay, 0.020, 0.892, "원점은 무게중심. 세 축은 배에 붙어 함께 움직인다.", size=9.5,
          color=FAINT)
     text(lay, 0.455, 0.945, "자세각 세 가지", size=13, bold=True)
@@ -982,10 +982,11 @@ def draw_ned_enu():
 
     n, e, d = NED_TGT
     text(lay, boxes[0][0], 0.938, "NED  (항공우주 · 항법 · 무기체계)", size=12.5, bold=True)
-    text(lay, boxes[0][0], 0.888, "북 → 동 → 아래 순서. 셋째 축이 아래로 +", size=10,
-         color=FAINT)
+    text(lay, boxes[0][0], 0.888, "North-East-Down.  북 → 동 → 아래 순서, 셋째 축이 아래로 +",
+         size=10, color=FAINT)
     text(lay, boxes[1][0], 0.938, "ENU  (측지 · 측량 · GIS · 로보틱스)", size=12.5, bold=True)
-    text(lay, boxes[1][0], 0.888, "동 → 북 → 위 순서. 셋째 축이 위로 +", size=10, color=FAINT)
+    text(lay, boxes[1][0], 0.888, "East-North-Up.  동 → 북 → 위 순서, 셋째 축이 위로 +", size=10,
+         color=FAINT)
 
     text(lay, boxes[0][0], 0.128, "(N %s,  E %s,  D %s) m" % (num(n), num(e), num(d)),
          size=12.5, color=BLUE, bold=True)
@@ -1008,10 +1009,10 @@ def draw_ecef_eci():
     """
     W, H = 1378, 619
     fig, lay = canvas(W, H)
-    ax = stage(fig, [0.015, 0.265, 0.970, 0.590], (0, 100),
-               (0, 100 * (0.590 * H) / (0.970 * W)))
+    ax = stage(fig, [0.015, 0.250, 0.970, 0.575], (0, 100),
+               (0, 100 * (0.575 * H) / (0.970 * W)))
 
-    R, LON = 10.0, 40.0                                # 지구 반지름(칸), 건물의 경도
+    R, LON = 9.8, 40.0                                # 지구 반지름(칸), 건물의 경도
     HOURS = (0.0, 8.0, 16.0)                           # 겹쳐 그릴 시각
     SPIN = 360.0 / 24.0                                # 한 시간에 도는 각
     CY = 0.50 * ax.get_ylim()[1]
@@ -1063,8 +1064,8 @@ def draw_ecef_eci():
     for h in HOURS:
         build(CB, h * SPIN + LON, h == 0.0, tag="%d시" % int(h))
     arcdeg(ax, CB, 5.6, 0.0, LON, color=ORANGE, lw=1.5)
-    text(ax, *at(CB, 7.8, LON / 2), s="θ", size=11, color=ORANGE, bold=True,
-         ha="center", va="center")
+    text(ax, *at(CB, 8.4, LON / 2), s="θ", size=11, color=ORANGE, bold=True,
+         ha="left", va="center")
     # 건물이 없는 쪽(왼쪽 아래)에 도는 방향 표시를 둔다
     curve_arrow(ax, at(CB, R + 2.4, 196.0), at(CB, R + 2.4, 238.0), rad=-0.26,
                 color=ORANGE, lw=1.6, head=10)
@@ -1078,12 +1079,15 @@ def draw_ecef_eci():
         text(ax, 50.0, CY + dy + (1.6 if dy > 0 else -1.6), lab, size=11, color=GREY,
              bold=True, ha="center", va="bottom" if dy > 0 else "top")
 
-    text(lay, 0.030, 0.950, "ECEF — 지구와 함께 돈다", size=13, bold=True)
-    text(lay, 0.030, 0.900, "북극에서 내려다본 그림. 0시 · 8시 · 16시를 겹쳐 그렸다.",
-         size=10, color=FAINT)
-    text(lay, 0.545, 0.950, "ECI — 별에 고정, 돌지 않는다", size=13, bold=True)
-    text(lay, 0.545, 0.900, "같은 세 시각. 원점은 둘 다 지구 중심으로 같다.",
-         size=10, color=FAINT)
+    # 머리글 세 줄 : 이름 / 약어를 푼 영어 / 그림 읽는 법
+    for fx, ttl, eng, how in (
+            (0.030, "ECEF — 지구와 함께 돈다", "Earth-Centered, Earth-Fixed",
+             "북극에서 내려다본 그림. 0시 · 8시 · 16시를 겹쳐 그렸다."),
+            (0.545, "ECI — 별에 고정, 돌지 않는다", "Earth-Centered Inertial",
+             "같은 세 시각. 원점은 둘 다 지구 중심으로 같다.")):
+        text(lay, fx, 0.958, ttl, size=13, bold=True)
+        text(lay, fx, 0.914, eng, size=10, color=GREY)
+        text(lay, fx, 0.872, how, size=9.5, color=FAINT)
 
     text(lay, 0.030, 0.168, "X 축 = 그리니치 자오선. 지구와 함께 돈다.", size=11,
          color=BLUE, bold=True)
@@ -1094,7 +1098,7 @@ def draw_ecef_eci():
     text(lay, 0.545, 0.108, "축이 멈춰 있으니 건물만 하루에 한 바퀴 돈다",
          size=11, color=GREY)
     text(lay, 0.500, 0.038,
-         "원점은 같고, 축이 도느냐 마느냐만 다르다.  시각이 1 ms 어긋나면 적도에서 0.47 m 어긋난다.",
+         "θ = GMST (Greenwich Mean Sidereal Time).  시각이 1 ms 어긋나면 적도에서 0.47 m 어긋난다.",
          size=11.5, color=ORANGE, bold=True, ha="center")
 
     save(fig, "fig09_ecef_eci.png")
