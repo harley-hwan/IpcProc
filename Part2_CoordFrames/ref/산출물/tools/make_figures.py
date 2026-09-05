@@ -189,6 +189,9 @@ HULL_STERN = [(-0.20, -0.34), (-0.36, -0.26), (-0.45, -0.10), (-0.48, 0.10),
               (-0.50, 0.42), (0.50, 0.42), (0.48, 0.10), (0.45, -0.10),
               (0.36, -0.26), (0.20, -0.34)]
 
+# 전시기 지도 위 "우리 배" 표식 (2장). 선수가 +v(위) 쪽이고 크기는 지도 단위다
+HULL_MARKER = [(0.0, 3.0), (1.6, -0.4), (1.2, -2.5), (-1.2, -2.5), (-1.6, -0.4)]
+
 
 def ship_stern(ax, x_center, y_water, beam, z=3, ang=0.0):
     """배 뒤에서 선수 쪽을 본 모습. 배가 관측자를 등지고 있어 화면 오른쪽이 우현이다.
@@ -433,9 +436,8 @@ def draw_intro():
     line(axB, tb, (tb[0], Y0), color=DK_ORANGE, lw=1.0, dashes=(4, 3), z=3)
 
     ca, sa = math.cos(math.radians(-45.0)), math.sin(math.radians(-45.0))   # 함수 45°
-    hull = [(0.0, 3.0), (1.6, -0.4), (1.2, -2.5), (-1.2, -2.5), (-1.6, -0.4)]
     poly(axB, [(ship[0] + u * ca - v * sa, ship[1] + u * sa + v * ca)
-               for u, v in hull], fc=DK_BLUE, ec=DK_BLUE, lw=1.0, z=5)
+               for u, v in HULL_MARKER], fc=DK_BLUE, ec=DK_BLUE, lw=1.0, z=5)
     text(axB, ship[0] - 3.6, ship[1] + 1.4, "우리 배", size=10, color=DK_BLUE, bold=True,
          ha="right", va="center")
 
@@ -1263,10 +1265,89 @@ def draw_uv():
     save(fig, "fig03_uv.png")
 
 
+# ============================================== 6장 : 회전 + 평행이동을 행렬로
+def draw_two_ops():
+    """새 좌표 = R · 옛 좌표 + t. (빼기는 나눔 글꼴에도 있는 en dash 로 적는다) 왼쪽은 일반형, 오른쪽은 예제(안테나 → 동체)의 실제 숫자"""
+    W_IN, H_IN = 12.1, 2.25
+    fig, lay = canvas(int(W_IN * DPI), int(H_IN * DPI))
+
+    def X(v):
+        return v / W_IN
+
+    def Y(v):
+        return v / H_IN
+
+    def matrix(x, yc, rows, col_w, row_h=0.34, size=11.5, color=NAVY, bold=False):
+        """대괄호 행렬. x 는 왼쪽 괄호 위치(in), 돌려주는 값은 오른쪽 괄호 바깥(in)"""
+        n, w = len(rows), sum(col_w)
+        top, bot = yc + n * row_h / 2, yc - n * row_h / 2
+        for bx, d in ((x, 1), (x + w + 0.16, -1)):
+            lay.plot([X(bx), X(bx)], [Y(bot), Y(top)], color=color, lw=1.3, solid_capstyle="butt")
+            lay.plot([X(bx), X(bx + d * 0.09)], [Y(top), Y(top)], color=color, lw=1.3)
+            lay.plot([X(bx), X(bx + d * 0.09)], [Y(bot), Y(bot)], color=color, lw=1.3)
+        for i, row in enumerate(rows):
+            cy, cx = top - (i + 0.5) * row_h, x + 0.08
+            for j, cell in enumerate(row):
+                text(lay, X(cx + col_w[j] / 2), Y(cy), cell, size=size, color=color, bold=bold, ha="center")
+                cx += col_w[j]
+        return x + w + 0.16
+
+    def op(x, yc, s, size=15):
+        text(lay, X(x), Y(yc), s, size=size, color=NAVY, ha="center")
+
+    def label(x0, x1, y, s, color=GREY, bold=False, size=9.5):
+        text(lay, X((x0 + x1) / 2), Y(y), s, size=size, color=color, bold=bold, ha="center")
+
+    YC, YL, YT = 1.12, 0.30, 2.02
+
+    # ── 왼쪽 : 일반형
+    text(lay, X(0.30), Y(YT), "일반형 :  새 좌표  =  R · 옛 좌표  +  t", size=11.5, color=NAVY, bold=True)
+    x0 = 0.30
+    x1 = matrix(x0, YC, [["$x'$"], ["$y'$"], ["$z'$"]], [0.40], bold=True)
+    label(x0, x1, YL, "새 좌표")
+    op(x1 + 0.22, YC, "=")
+    x2 = x1 + 0.44
+    x3 = matrix(x2, YC, [["$r_{11}$", "$r_{12}$", "$r_{13}$"], ["$r_{21}$", "$r_{22}$", "$r_{23}$"],
+                         ["$r_{31}$", "$r_{32}$", "$r_{33}$"]], [0.50] * 3, color=BLUE)
+    label(x2, x3, YL, "회전  R  (3×3 행렬)", color=BLUE, bold=True)
+    op(x3 + 0.20, YC, "·", size=17)
+    x4 = x3 + 0.40
+    x5 = matrix(x4, YC, [["$x$"], ["$y$"], ["$z$"]], [0.40])
+    label(x4, x5, YL, "옛 좌표")
+    op(x5 + 0.22, YC, "+")
+    x6 = x5 + 0.44
+    x7 = matrix(x6, YC, [["$t_x$"], ["$t_y$"], ["$t_z$"]], [0.50], color=ORANGE)
+    label(x6, x7, YL, "평행이동  t  (3×1)", color=ORANGE, bold=True)
+
+    # ── 가운데 구분선
+    lay.plot([X(5.85), X(5.85)], [Y(0.25), Y(2.05)], color=FAINT, lw=0.8)
+
+    # ── 오른쪽 : 예제 (안테나 → 동체)
+    text(lay, X(6.25), Y(YT), "예제 :  안테나 → 동체   (설치 방위 90°,  레버암 (–30, 0, –10) m)",
+         size=11.5, color=NAVY, bold=True)
+    x0 = 6.25
+    x1 = matrix(x0, YC, [["–10,030.0"], ["17,320.5"], ["–10.0"]], [0.95], bold=True)
+    label(x0, x1, YL, "동체 좌표 (m)")
+    op(x1 + 0.22, YC, "=")
+    x2 = x1 + 0.44
+    x3 = matrix(x2, YC, [["0", "–1", "0"], ["1", "0", "0"], ["0", "0", "1"]], [0.36] * 3, color=BLUE)
+    label(x2, x3, YL, "Rz(90°)", color=BLUE, bold=True)
+    op(x3 + 0.20, YC, "·", size=17)
+    x4 = x3 + 0.40
+    x5 = matrix(x4, YC, [["17,320.5"], ["10,000.0"], ["0.0"]], [0.95])
+    label(x4, x5, YL, "안테나 좌표 (m)")
+    op(x5 + 0.22, YC, "+")
+    x6 = x5 + 0.44
+    x7 = matrix(x6, YC, [["–30"], ["0"], ["–10"]], [0.55], color=ORANGE)
+    label(x6, x7, YL, "레버암 (m)", color=ORANGE, bold=True)
+
+    save(fig, "fig16_two_ops.png")
+
+
 if __name__ == "__main__":
     what = sys.argv[1] if len(sys.argv) > 1 else "all"
     names = ("all", "intro", "target", "polar", "derive", "body", "layout", "rotate",
-             "nedenu", "ecef", "roll", "uv")
+             "nedenu", "ecef", "roll", "uv", "twoops")
     if what not in names:
         sys.exit("사용법: python make_figures.py [%s]" % "|".join(names))
     if what in ("all", "intro"):
@@ -1291,3 +1372,5 @@ if __name__ == "__main__":
         draw_roll_beam()
     if what in ("all", "uv"):
         draw_uv()
+    if what in ("all", "twoops"):
+        draw_two_ops()
